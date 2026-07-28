@@ -60,18 +60,28 @@ bash scripts/install.sh
 
 ## 主流程
 
-```
-/setup-skills（一次）
-      ↓
-/grill-with-docs ──→ /to-spec ──→ /to-tickets ──→ /implement ──→ /tdd ──→ /code-review ──→ commit
-      │                                              ↑
-      └─ 需要可執行的答案時：                          │
-         /handoff → /prototype → /handoff ────────────┘
+[![主流程：想法 → 出貨](./assets/flow.svg)](./assets/flow.svg)
 
-交流道：/triage → /implement
-       /diagnosing-bugs → /improve-codebase-architecture
-       /wayfinder → /to-spec
-```
+哪個階段用哪個技能：
+
+| 階段 | 你在做什麼 | 用這個 |
+| --- | --- | --- |
+| 0・前置 | 告訴技能們這個 repo 的議題追蹤器與領域文件在哪 | `/setup-skills`（每個 repo 一次） |
+| 1・想清楚 | 把模糊的想法磨到可以動手，順手留下術語與決策紀錄 | `/grill-with-docs`（沒有 codebase 可寫時用 `/grilling`） |
+| 1・繞道 | 有問題非跑起來答不出：狀態模型、商業邏輯、非看不可的 UI | `/handoff` → 新 session → `/prototype` → `/handoff` 回來 |
+| 2・切開 | 建置超過一個 session 才需要這一步 | `/to-spec` → `/to-tickets` |
+| 3・建置 | 一張票一個上下文視窗，做完清空再開下一張 | `/implement`（內部驅動 `/tdd`） |
+| 4・收尾 | 提交前的雙軸審查：Standards 與 Spec | `/code-review`，通過才 commit |
+
+交流道 — 不從階段 1 開始的三種進場方式：
+
+| 起點 | 匯入 | 什麼時候 |
+| --- | --- | --- |
+| `/triage` | `/implement` | 別人丟進來的 bug 與需求。自己用 `/to-tickets` 開的票已經可接手，不要再 triage。 |
+| `/diagnosing-bugs` | `/improve-codebase-architecture` | 修完的結論是「當初沒有接縫可以鎖住它」時，才走這條。 |
+| `/wayfinder` | `/to-spec` | 迷霧大到一個 session 裝不下。產出決策不產出交付物 — 別直接跳 `/implement`。 |
+
+底下還有一層詞彙：卡住的是**字**不是流程時，隨時取用 `/domain-modeling`（術語模糊、一詞多義、決策要留紀錄）與 `/grilling`（訪談原語）。不確定該用哪個，跑 `/ask-luca`。
 
 `/grill-with-docs` 到 `/to-tickets` 要待在**同一個未中斷的上下文視窗**內。每個 `/implement` 之間清空上下文。
 
