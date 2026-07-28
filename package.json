@@ -1,0 +1,10 @@
+{
+  "name": "luca-skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Luca's agent skills",
+  "license": "MIT",
+  "scripts": {
+    "check": "bash scripts/check.sh"
+  }
+}

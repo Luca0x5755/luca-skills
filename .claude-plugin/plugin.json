@@ -1,0 +1,33 @@
+{
+  "name": "luca-skills",
+  "version": "0.1.0",
+  "description": "Luca's agent skills — grilling, spec/ticket flows, TDD, code review, domain modelling.",
+  "author": {
+    "name": "Luca"
+  },
+  "license": "MIT",
+  "keywords": [
+    "engineering",
+    "skills",
+    "tdd",
+    "code-review"
+  ],
+  "skills": [
+    "./skills/core/ask-luca",
+    "./skills/core/code-review",
+    "./skills/core/diagnosing-bugs",
+    "./skills/core/domain-modeling",
+    "./skills/core/grill-with-docs",
+    "./skills/core/grilling",
+    "./skills/core/handoff",
+    "./skills/core/implement",
+    "./skills/core/improve-codebase-architecture",
+    "./skills/core/prototype",
+    "./skills/core/setup-skills",
+    "./skills/core/tdd",
+    "./skills/core/to-spec",
+    "./skills/core/to-tickets",
+    "./skills/core/triage",
+    "./skills/core/wayfinder"
+  ]
+}

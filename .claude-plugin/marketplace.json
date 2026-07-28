@@ -1,0 +1,16 @@
+{
+  "name": "luca",
+  "owner": {
+    "name": "Luca"
+  },
+  "description": "Luca's skills, as an installable Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "luca-skills",
+      "source": "./",
+      "description": "Luca's agent skills — grilling, spec/ticket flows, TDD, code review, domain modelling.",
+      "category": "engineering",
+      "keywords": ["engineering", "skills", "tdd", "code-review"]
+    }
+  ]
+}
