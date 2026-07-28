@@ -4,11 +4,19 @@
 
 ## 安裝
 
+Windows：
+
 ```powershell
 .\scripts\install.ps1
 ```
 
-用 Junction 連進 `~/.claude/skills`，不需管理員權限。改這個 repo 的檔案立刻生效。
+Linux / macOS：
+
+```bash
+bash scripts/install.sh
+```
+
+連進 `~/.claude/skills`（Windows 用 Junction，不需管理員權限；其他平台用 symlink）。改這個 repo 的檔案立刻生效。
 
 或當作外掛市集掛載（版本凍結，改檔案不會即時生效）：
 
