@@ -7,16 +7,28 @@
 Windows：
 
 ```powershell
-.\scripts\install.ps1
+.\scripts\install.ps1            # Claude Code（預設）
+.\scripts\install.ps1 copilot    # GitHub Copilot
+.\scripts\install.ps1 all        # 兩邊都裝
 ```
 
 Linux / macOS：
 
 ```bash
-bash scripts/install.sh
+bash scripts/install.sh          # 同樣吃 claude / copilot / all
 ```
 
-連進 `~/.claude/skills`（Windows 用 Junction，不需管理員權限；其他平台用 symlink）。改這個 repo 的檔案立刻生效。
+連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。改這個 repo 的檔案立刻生效。
+
+> Windows 上不要用 Git Bash 跑 `install.sh`：MSYS 的 `ln -s` 會退化成複製目錄，裝出一份不會跟著更新的技能。腳本會擋下來要你改用 `install.ps1`。
+
+### 給 Copilot 用的差異
+
+Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通格式](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)）。但有一個行為差異要知道：
+
+**Copilot 不支援 `disable-model-invocation`。** 本 repo 的編排型技能（`implement`、`to-spec`、`to-tickets`、`triage`…）在 Claude Code 只有你打字才會啟動；到了 Copilot，代理判斷吻合時會自己伸手拿。緩解的是這些技能的 `description` 本來就寫成不帶觸發語句的人話摘要，不容易被比對到 —— 但那是降低機率，不是關掉開關。
+
+只想給某個 repo 用而不是全機安裝，把技能資料夾放進該 repo 的 `.github/skills/`、`.claude/skills/` 或 `.agents/skills/` 也可以，三個路徑 Copilot 都讀。
 
 或當作外掛市集掛載（版本凍結，改檔案不會即時生效）：
 
