@@ -56,6 +56,17 @@ for n in $core; do
   grep -qF "/$n" skills/core/ask-luca/SKILL.md || err "ask-luca 沒有提到 /$n — 路由器在說謊"
 done
 
+echo "[7] description 用繁體中文（core 與 draft；archive 不受約束）"
+for bucket in core draft; do
+  for n in $(list_dirs "skills/$bucket"); do
+    f="skills/$bucket/$n/SKILL.md"
+    [ -f "$f" ] || continue
+    desc=$(sed -n 's/^description:[[:space:]]*//p' "$f" | head -1 | tr -d '\r')
+    # 沒有任何 CJK 字元的 description 就是英文寫的
+    echo "$desc" | grep -qP '[\x{4e00}-\x{9fff}]' || err "$f: description 不是中文 —「$desc」"
+  done
+done
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail
