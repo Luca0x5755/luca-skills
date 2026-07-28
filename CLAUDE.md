@@ -54,6 +54,15 @@
 5. `.claude-plugin/plugin.json` 與 `package.json` 的 `version` 相等。
 6. `skills/core/ask-luca/SKILL.md` 提到每一個 core 技能。路由器漏掉一個，就是一張說謊的地圖。
 
+## Hooks（機器護欄）
+
+`.claude/settings.json` 掛兩條 hook，腳本在 `hooks/`。技能裡的禁令是模型自律，hook 是機器強制 — 兩者同構，後者不會忘。
+
+- `guard-git.sh`（PreToolUse: Bash）— 擋 `git add -A`/`git add .`、force push、`git reset --hard`、`--no-verify`。exit 2，stderr 告訴模型正確做法。
+- `check-on-stop.sh`（Stop）— 不變量表面（`skills/`、`.claude-plugin/`、`README.md`、`package.json`）有未提交變更且 `check.sh` 紅著，不准收工。查 `stop_hook_active` 防無限迴圈。
+
+原則：確定性檢查優先、訊息帶「擋了什麼＋為什麼＋正確做法」、少而必然 — 每加一條 hook 就加一份延遲與誤擋風險。
+
 ## 寫技能
 
 **語言分工：`description` 用繁體中文，內文用英文。** description 是給人掃的目錄與給模型比對的觸發面，用中文；內文是給模型執行的指令，用英文。中文觸發詞（「重構」「拷問我」）放在 description 的引號裡，不放內文。
@@ -65,7 +74,7 @@
 - 會 → **使用者觸發**。frontmatter 加 `disable-model-invocation: true`，`description` 改寫成給人看的一句話摘要，拿掉觸發語句。編排型的、會寫檔案的、會發議題的，都屬此類。
 - 不會 → **模型觸發**。省略該欄位，`description` 保留豐富的觸發語句（"Use when the user wants…, mentions…"），讓自動呼叫打得中。純參考型、純紀律型的屬此類。
 
-使用者觸發的技能可以呼叫模型觸發的技能，反之不行，使用者觸發之間也不行。
+使用者觸發的技能可以呼叫模型觸發的技能，反之不行，使用者觸發之間也不行。唯一例外：編排技能可在**子代理**裡代使用者呼叫另一個使用者觸發技能（如 `implement-all` → `/implement`）— 子代理的邊界就是隔離，不會構成同一上下文裡的技能疊套。
 
 **依賴用 `/skill` 散文呼叫表達**（"Run the `/grilling` skill"），不要跨資料夾 `../other/FILE.md` 深連結。共用的參考文件放在擁有它的技能資料夾內。
 
