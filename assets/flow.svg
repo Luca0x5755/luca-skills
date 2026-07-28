@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="960" viewBox="0 0 980 960" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
+  <title>Luca's Skills 主流程</title>
+  <desc>從 setup-skills 到 commit 的主流程，含 prototype detour、三條交流道與詞彙層。</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6e7781"/>
+    </marker>
+    <style>
+      .box  { stroke-width: 1.5; }
+      .user { fill: #ddf4ff; stroke: #0969da; }
+      .model{ fill: #fbefff; stroke: #8250df; }
+      .skill{ font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 15px; fill: #1f2328; }
+      .skill-sm { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12.5px; fill: #1f2328; }
+      .sub  { font-size: 11.5px; fill: #57606a; }
+      .band-label { font-size: 12px; fill: #57606a; letter-spacing: 0.5px; }
+      .band-name  { font-size: 14px; fill: #1f2328; font-weight: 600; }
+      .edge { stroke: #6e7781; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .edge-label { font-size: 11.5px; fill: #57606a; }
+      .panel-title { font-size: 13px; fill: #1f2328; font-weight: 600; }
+      .note { font-size: 11.5px; fill: #57606a; }
+    </style>
+  </defs>
+
+  <rect width="980" height="960" fill="#ffffff"/>
+
+  <!-- header -->
+  <text x="24" y="34" font-size="20" font-weight="700" fill="#1f2328">主流程：想法 → 出貨</text>
+  <text x="24" y="54" class="note">不確定用哪個？先跑 /ask-luca。藍 = 使用者觸發（你打字才啟動），紫 = 模型觸發（代理自己會伸手拿）。</text>
+  <rect x="800" y="22" width="14" height="14" rx="3" class="box user"/>
+  <text x="822" y="34" class="note">使用者觸發</text>
+  <rect x="800" y="42" width="14" height="14" rx="3" class="box model"/>
+  <text x="822" y="54" class="note">模型觸發</text>
+
+  <!-- stage bands -->
+  <rect x="24" y="70"  width="516" height="64"  rx="10" fill="#f6f8fa"/>
+  <rect x="24" y="142" width="516" height="150" rx="10" fill="#f6f8fa"/>
+  <rect x="24" y="300" width="516" height="140" rx="10" fill="#f6f8fa"/>
+  <rect x="24" y="448" width="516" height="110" rx="10" fill="#f6f8fa"/>
+  <rect x="24" y="566" width="516" height="124" rx="10" fill="#f6f8fa"/>
+
+  <!-- stage labels -->
+  <text x="230" y="96"  text-anchor="end" class="band-label">階段 0</text>
+  <text x="230" y="116" text-anchor="end" class="band-name">前置</text>
+  <text x="230" y="176" text-anchor="end" class="band-label">階段 1</text>
+  <text x="230" y="196" text-anchor="end" class="band-name">想清楚</text>
+  <text x="212" y="368" text-anchor="end" class="band-label">階段 2</text>
+  <text x="212" y="388" text-anchor="end" class="band-name">切開</text>
+  <text x="230" y="493" text-anchor="end" class="band-label">階段 3</text>
+  <text x="230" y="513" text-anchor="end" class="band-name">建置</text>
+  <text x="230" y="582" text-anchor="end" class="band-label">階段 4</text>
+  <text x="230" y="602" text-anchor="end" class="band-name">收尾</text>
+
+  <!-- 0. setup-skills -->
+  <rect x="250" y="80" width="230" height="44" rx="8" class="box user"/>
+  <text x="365" y="100" text-anchor="middle" class="skill">/setup-skills</text>
+  <text x="365" y="116" text-anchor="middle" class="sub">每個 repo 跑一次，只跑一次</text>
+  <path d="M 365 124 L 365 156" class="edge"/>
+
+  <!-- 1. grill-with-docs -->
+  <rect x="250" y="160" width="230" height="44" rx="8" class="box user"/>
+  <text x="365" y="180" text-anchor="middle" class="skill">/grill-with-docs</text>
+  <text x="365" y="196" text-anchor="middle" class="sub">訪談磨利想法，寫 CONTEXT.md 與 ADR</text>
+
+  <!-- detour out / back -->
+  <path d="M 480 176 L 556 176" class="edge"/>
+  <path d="M 560 222 L 440 222 L 440 232" class="edge"/>
+
+  <!-- decision -->
+  <rect x="225" y="236" width="280" height="46" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.5"/>
+  <text x="365" y="255" text-anchor="middle" font-size="13" font-weight="600" fill="#1f2328">接下來的建置，超過一個 session 嗎？</text>
+  <text x="365" y="272" text-anchor="middle" class="sub">問的是「一個上下文視窗裝不裝得下」</text>
+
+  <path d="M 365 282 L 365 316" class="edge"/>
+  <text x="376" y="304" class="edge-label">是 — 需要先切開</text>
+
+  <path d="M 505 259 L 530 259 L 530 499 L 484 499" class="edge"/>
+  <text x="538" y="300" class="edge-label">否 — 直接開工</text>
+
+  <!-- 2. to-spec / to-tickets -->
+  <rect x="250" y="320" width="230" height="44" rx="8" class="box user"/>
+  <text x="365" y="340" text-anchor="middle" class="skill">/to-spec</text>
+  <text x="365" y="356" text-anchor="middle" class="sub">收斂成規格並發到議題追蹤器</text>
+  <path d="M 365 364 L 365 380" class="edge"/>
+  <rect x="250" y="384" width="230" height="44" rx="8" class="box user"/>
+  <text x="365" y="404" text-anchor="middle" class="skill">/to-tickets</text>
+  <text x="365" y="420" text-anchor="middle" class="sub">切成曳光彈票，每張標明阻塞邊</text>
+  <path d="M 365 428 L 365 466" class="edge"/>
+
+  <!-- 3. implement -->
+  <rect x="250" y="470" width="230" height="58" rx="8" class="box user"/>
+  <text x="365" y="490" text-anchor="middle" class="skill">/implement</text>
+  <text x="365" y="506" text-anchor="middle" class="sub">一張票一個上下文視窗，做完清空</text>
+  <text x="365" y="521" text-anchor="middle" class="sub">內部驅動 /tdd（紅 → 綠 → 重構）</text>
+  <path d="M 365 528 L 365 562" class="edge"/>
+
+  <!-- 4. code-review -->
+  <rect x="250" y="566" width="230" height="44" rx="8" class="box model"/>
+  <text x="365" y="586" text-anchor="middle" class="skill">/code-review</text>
+  <text x="365" y="602" text-anchor="middle" class="sub">雙軸：Standards 與 Spec</text>
+  <path d="M 365 610 L 365 636" class="edge"/>
+
+  <rect x="290" y="640" width="150" height="40" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.5"/>
+  <text x="365" y="665" text-anchor="middle" class="skill">commit</text>
+
+  <!-- detour panel -->
+  <rect x="560" y="146" width="384" height="118" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="576" y="168" class="panel-title">繞道：有問題非跑起來答不出？</text>
+  <text x="576" y="185" class="note">狀態模型、商業邏輯、非看不可的 UI</text>
+
+  <rect x="574" y="196" width="98" height="32" rx="8" class="box user"/>
+  <text x="623" y="216" text-anchor="middle" class="skill-sm">/handoff</text>
+  <path d="M 674 212 L 694 212" class="edge"/>
+  <rect x="698" y="196" width="108" height="32" rx="8" class="box model"/>
+  <text x="752" y="216" text-anchor="middle" class="skill-sm">/prototype</text>
+  <path d="M 808 212 L 828 212" class="edge"/>
+  <rect x="832" y="196" width="98" height="32" rx="8" class="box user"/>
+  <text x="881" y="216" text-anchor="middle" class="skill-sm">/handoff</text>
+
+  <text x="576" y="250" class="note">出去換新 session、答完再交接回來 — 用完即丟，留答案不留程式碼</text>
+
+  <!-- context hygiene note -->
+  <rect x="560" y="300" width="384" height="88" rx="10" fill="#f6f8fa"/>
+  <text x="576" y="322" class="panel-title">上下文衛生</text>
+  <text x="576" y="342" class="note">階段 1 到階段 2 待在同一個未中斷的視窗，</text>
+  <text x="576" y="359" class="note">不 compact 也不 clear，直到 /to-tickets 做完。</text>
+  <text x="576" y="376" class="note">快撐不住就 /handoff，不要硬撐著退化下去。</text>
+
+  <!-- on-ramps -->
+  <rect x="24" y="712" width="920" height="150" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="44" y="738" class="panel-title">交流道：從外面匯進主流程</text>
+
+  <rect x="44" y="750" width="196" height="26" rx="8" class="box user"/>
+  <text x="142" y="768" text-anchor="middle" class="skill-sm">/triage</text>
+  <path d="M 248 763 L 288 763" class="edge"/>
+  <text x="296" y="761" class="note">匯入 /implement</text>
+  <text x="296" y="776" class="note">別人丟進來的 bug 與需求。自己用 /to-tickets 開的票已經可接手，不要再 triage。</text>
+
+  <rect x="44" y="784" width="196" height="26" rx="8" class="box model"/>
+  <text x="142" y="802" text-anchor="middle" class="skill-sm">/diagnosing-bugs</text>
+  <path d="M 248 797 L 288 797" class="edge"/>
+  <text x="296" y="795" class="note">匯入 /improve-codebase-architecture</text>
+  <text x="296" y="810" class="note">修完的結論是「當初沒有接縫可以鎖住它」時，才走這條。</text>
+
+  <rect x="44" y="818" width="196" height="26" rx="8" class="box user"/>
+  <text x="142" y="836" text-anchor="middle" class="skill-sm">/wayfinder</text>
+  <path d="M 248 831 L 288 831" class="edge"/>
+  <text x="296" y="829" class="note">匯入 /to-spec</text>
+  <text x="296" y="844" class="note">迷霧大到一個 session 裝不下。產出決策不產出交付物 — 別直接跳 /implement。</text>
+
+  <!-- vocabulary layer -->
+  <rect x="24" y="878" width="920" height="64" rx="10" fill="#f6f8fa"/>
+  <text x="44" y="902" class="panel-title">詞彙層：卡住的是「字」不是流程時，隨時可取用</text>
+  <text x="44" y="926" class="skill-sm">/domain-modeling</text>
+  <text x="176" y="926" class="note">術語模糊、一詞多義、決策要留紀錄</text>
+  <text x="470" y="926" class="skill-sm">/grilling</text>
+  <text x="546" y="926" class="note">訪談原語，沒有 codebase 可寫時單獨用</text>
+</svg>
