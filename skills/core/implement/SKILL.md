@@ -26,6 +26,8 @@ Wait for confirmation on the seams. Everything downstream depends on this being 
 
 ## 3. Build
 
+Load the `/tdd` skill via the Skill tool — mandatory, before the first test is written, not "if needed". Skipping it silently is the most common way this step fails.
+
 Drive `/tdd` at those seams: one failing test, just enough code, next. Vertical slices, never all the tests up front.
 
 Not every line needs a test first. Wiring, config, and layout do not. The behaviour the ticket is about does.
@@ -36,8 +38,9 @@ Between slices: typecheck, and run **that** test file. Not the whole suite — t
 
 - Full test suite, once. Green.
 - Typecheck and lint, clean.
-- **`/code-review`** against the ticket. Fix what it finds; push back in writing on what you disagree with.
+- Load the `/code-review` skill via the Skill tool — mandatory, not optional — and review against the ticket. Fix what it finds; push back in writing on what you disagree with.
 - Re-read the ticket's *Done when* list and check each condition literally.
+- Any ADR this ticket implements that is still `Status: Proposed` → flip it to `Accepted` in the same commit. An ADR for work that has landed is no longer a proposal.
 
 ## 5. Commit
 
