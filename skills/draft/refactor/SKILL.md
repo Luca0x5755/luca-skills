@@ -15,7 +15,7 @@ State, in one sentence, which of these applies:
 
 - **Preparatory** — a coming change is hard; this restructuring makes it easy.
 - **Rule of three** — the same thing now exists in a third place.
-- **Comprehension** — it took real effort to understand; write the understanding back into the code.
+- **Comprehension** — it took real effort to understand; write the understanding back into the code. The bar: someone new to this codebase can follow it without asking.
 
 No trigger → stop. "It could be cleaner" is not a trigger; clean has no finish line, triggers do. The trigger goes in the commit message — it is also the stop condition.
 
@@ -35,6 +35,8 @@ Extract function. Move function. Rename. Inline. Introduce value type. Split pha
 - Use the IDE's rename/extract where it exists. The tool does not typo; you do.
 - Leaf to root: smallest independent transform first, each one making the next simpler.
 - A bug found along the way gets an issue, not a fix in this diff. Mixed commits force a choice between keeping the bug and losing the refactor at revert time.
+
+Comments and names are structure, not behaviour — rewriting them for clarity, or unifying their style, is a legal transform. It is still **one** transform: unify the comments of the code being touched, in its own commit; it is not a licence to sweep the repo. Follow the project's documented comment conventions (language, tone, density) where they exist.
 
 Inlining is a refactor too. An abstraction with one implementation and no second in sight gets removed, not admired. Only-ever-more-abstract is how a codebase reaches a different kind of mud.
 
