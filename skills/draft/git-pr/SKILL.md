@@ -19,20 +19,35 @@ git log --oneline main..HEAD     # the PR's content is these commits, not your m
 git status                       # uncommitted changes → stop, ask the user to deal with them first
 ```
 
-### 2. Write it (English)
+### 2. Write it
 
-- **Title**: first letter capitalized, no trailing period, 70 characters max. Cover the whole branch's intent, not a restatement of the last commit.
-- **Body:**
+- **Title (English)**: first letter capitalized, no trailing period, 70 characters max. Cover the whole branch's intent, not a restatement of the last commit.
+- **Body (Traditional Chinese)**, sections in this order. Drop a section only when it truly has nothing to say — never pad one:
 
 ```markdown
-## Summary
-- Bullet points extracted from the commit messages
-- Multiple commits on the same thing collapse into one bullet
+## 摘要
+一段話：這個 PR 做了什麼、動到哪些面。
 
-## Test plan
-- [ ] Each item is a concretely executable verification step
-- [ ] Not empty phrases like "confirm the feature works"
+## 問題
+為什麼需要這個改動：症狀 → 根因。有量測就上表格，沒有就寫清楚觀察到什麼。
+順手記下這個改法「不會」解決什麼，免得日後被誤引用。
+
+## 變更內容
+### `path/to/file`
+- 該檔改了什麼、為什麼 — 依檔案或模組分組，不是 commit 的流水帳
+
+## 設計決定
+- 每條一行：決定 + 為什麼。只寫真的做過取捨的，不寫理所當然的。
+
+## 測試
+| 項目 | 結果 |
+| --- | --- |
+| 具體可執行的驗證步驟 | ✅ 附證據（數字、輸出），不是「功能正常」 |
+
+**未驗證**：明列沒測到的範圍。沒說出口的缺口，比缺口本身更貴。
 ```
+
+- Situational sections (遷移、部署提醒…) go between 設計決定 and 測試 when the change genuinely needs them.
 
 ### 3. Open
 
