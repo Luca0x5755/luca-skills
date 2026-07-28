@@ -1,4 +1,7 @@
-# 把 skills/core 的技能連進 ~/.claude/skills。
+# 把 skills/core 與 skills/draft 的技能連進 ~/.claude/skills。
+# draft 也連 —— 桶的分界是「對外發佈與否」，不是「本機能不能用」。
+# 沒辦法在本機叫起來的 draft，等於沒辦法被試用，等於永遠畢不了業。
+# archive 不連。
 # 用 Junction 而非 SymbolicLink：Windows 上不需管理員權限或開發者模式。
 # 連結後改這個 repo 的檔案會立刻生效，不需重裝。
 
@@ -14,11 +17,15 @@ if ($destItem.LinkType -and $destItem.Target -like "$repo*") {
   throw "$dest 指向本 repo（$($destItem.Target)）。移除它再重跑。"
 }
 
-Get-ChildItem (Join-Path $repo 'skills\core') -Directory | ForEach-Object {
-  $target = Join-Path $dest $_.Name
-  if (Test-Path $target) { Remove-Item $target -Recurse -Force }
-  New-Item -ItemType Junction -Path $target -Target $_.FullName | Out-Null
-  Write-Host "linked $($_.Name) -> $($_.FullName)"
+foreach ($bucket in @('core', 'draft')) {
+  $dir = Join-Path $repo "skills\$bucket"
+  if (-not (Test-Path $dir)) { continue }
+  Get-ChildItem $dir -Directory | ForEach-Object {
+    $target = Join-Path $dest $_.Name
+    if (Test-Path $target) { Remove-Item $target -Recurse -Force }
+    New-Item -ItemType Junction -Path $target -Target $_.FullName | Out-Null
+    Write-Host "linked [$bucket] $($_.Name)"
+  }
 }
 
 Write-Host ""

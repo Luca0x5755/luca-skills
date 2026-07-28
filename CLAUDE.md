@@ -1,10 +1,14 @@
 # 維護規則
 
-技能放在 `skills/` 下的桶裡：
+技能放在 `skills/` 下的桶裡。桶的分界是**對外發佈與否**，不是能不能用：
 
-- `core/` — 在用的。**已推廣**：會出現在 `README.md` 與外掛裡。
-- `draft/` — 還在長的。不推廣。
-- `archive/` — 退役的。不推廣。
+| 桶 | 本機可用 | 對外發佈 | 受不變量 2–6 約束 |
+| --- | --- | --- | --- |
+| `core/` | ✅ | ✅ | ✅ |
+| `draft/` | ✅ | ❌ | ❌ |
+| `archive/` | ❌ | ❌ | ❌ |
+
+`scripts/install.ps1` 連結 `core/` 與 `draft/`。draft 叫得動才試得了，試得了才畢得了業。
 
 ## 不變量
 
@@ -36,7 +40,14 @@
 
 ## 新增技能
 
-1. `skills/draft/<name>/SKILL.md` 起手。draft 不受不變量 2–6 約束。
-2. 用兩週。從來沒被觸發 → `description` 的觸發語句寫壞了。觸發了但做錯事 → 該鎖成使用者觸發。
-3. 站穩了才 `git mv` 進 `core/`，同時補 `README.md` 條目、`plugin.json` 條目、`ask-luca` 的路由。
+判準是**這份內容有沒有被真實使用驗證過**，不是它新不新。
+
+- 從已驗證的來源移植過來（另一個 repo 用了很久的流程）→ 可以直接進 `core/`。
+- 自己新推導出來的 → 進 `draft/`。沒跑過的東西沒有資格上路由器。
+
+draft 的畢業流程：
+
+1. `skills/draft/<name>/SKILL.md`，跑一次 `scripts/install.ps1` 讓它可被叫用。
+2. 用兩週。從來沒被觸發 → `description` 的觸發語句寫壞了。觸發了但做錯事 → 該鎖成使用者觸發。內容在真實情境下改過至少一輪。
+3. `git mv` 進 `core/`，同時補 `README.md` 條目、`plugin.json` 條目、`ask-luca` 的路由。
 4. `bash scripts/check.sh` 綠了才 commit。
