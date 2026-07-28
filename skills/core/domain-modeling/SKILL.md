@@ -20,7 +20,7 @@ _Avoid_: connection, login (a login is the event that starts a Session)
 
 The `_Avoid_` line is the load-bearing part. A glossary that only says what a word means does not stop the wrong word being used.
 
-**`docs/adr/NNNN-<slug>.md`** — one decision per file. Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, never `0007-session-handling`. Body covers what was decided, what was rejected, and why. No template ceremony beyond that.
+**`docs/adr/NNNN-<slug>.md`** — one decision per file. Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, never `0007-session-handling`. Body covers what was decided, what was rejected, and why. One status line at the top — `Status: Proposed` when written ahead of the implementation, flipped to `Accepted` by the change that lands it — so an ADR for unbuilt work never reads as current reality. No template ceremony beyond that.
 
 ## Sharpening a term
 

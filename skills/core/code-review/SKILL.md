@@ -10,7 +10,7 @@ Two-axis review of the diff between `HEAD` and a fixed point.
 - **Standards** — does the code conform to this repo's conventions?
 - **Spec** — does it faithfully implement the originating ticket or spec?
 
-Run both as **parallel sub-agents** so neither pollutes the other's context, then report side by side.
+Run both as **parallel sub-agents** so neither pollutes the other's context, then report side by side. Sub-agents must not invoke `/code-review` themselves — one level of review, no recursion.
 
 ## 1. Pin the fixed point
 

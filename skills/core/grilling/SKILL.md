@@ -9,6 +9,8 @@ Interview the user relentlessly about every aspect of this until you reach a sha
 
 ## Rules of the loop
 
+**Respond in the session's language.** This file is English; the interview is not. Questions, recommendations, and the final summary follow the language the user is speaking.
+
 **One question at a time.** Wait for the answer before the next. Several questions at once is bewildering and produces shallow answers to all of them.
 
 **Recommend an answer with every question.** A bare question offloads the work. "Should sessions expire? (recommended: yes, 30 days — it bounds the token table and matches what users expect from other tools)" gets a one-word reply. "How should sessions work?" gets a shrug.

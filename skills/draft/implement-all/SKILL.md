@@ -29,7 +29,7 @@ Present the schedule — waves, what runs in parallel, what waits — and **wait
 
 One subagent per ticket, hard turn limit, each instructed to:
 
-- Run the `/implement` skill on its ticket, on its own branch (parallel tickets: own worktree).
+- Load the `/implement` skill via the Skill tool — mandatory first action — and run it on its ticket, on its own branch (parallel tickets: own worktree). Never invoke `/implement-all` — one orchestrator, no recursion.
 - Treat the approved schedule as the seam confirmation `/implement` step 2 asks for. A ticket that names no seam is **blocked** — report it, never invent a seam mid-flight.
 - Return a structured result and nothing else:
 

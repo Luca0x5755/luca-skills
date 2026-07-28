@@ -41,5 +41,6 @@ Work the `needs-triage` queue one issue at a time.
 ## Rules
 
 - **Never write code here.** Triage decides; it does not build.
+- **Respond in the session's language.** Issue comments follow the language the issue was written in.
 - **Do not invent facts.** A missing detail is `needs-info`. Filling it in from imagination produces a confidently wrong ticket.
 - **Batch the report.** Work the queue, then report all the moves at once with the reason for each.

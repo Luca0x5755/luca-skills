@@ -36,11 +36,11 @@ The map is not complete at the start and does not need to be. Resolving one tick
 
 ## 3. Resolve one at a time
 
-Pick the ticket that unblocks the most, then run `/grilling` on that question alone.
+Pick the ticket that unblocks the most. Load the `/grilling` skill via the Skill tool — mandatory, every ticket, even if it was loaded for a previous one — and run it on that question alone, in the session's language.
 
 Where the answer needs to be runnable, `/handoff` out to a `/prototype` session and bring the answer back.
 
-Write the resolution **into the ticket** — the decision, the rejected options, and why — and close it. Hard-to-reverse ones also get an ADR via `/domain-modeling`. A resolution that lives only in a conversation is a resolution that will be re-litigated.
+Write the resolution **into the ticket** — the decision, the rejected options, and why — and close it. Hard-to-reverse ones also get an ADR: load the `/domain-modeling` skill via the Skill tool and follow its ADR rules — `Status: Proposed`, since nothing is built yet. A resolution that lives only in a conversation is a resolution that will be re-litigated.
 
 **Clear context between tickets.** The map is the memory; that is what it is for.
 
