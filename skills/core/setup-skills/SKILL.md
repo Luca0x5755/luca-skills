@@ -1,6 +1,6 @@
 ---
 name: setup-skills
-description: Configure this repo for the engineering skills — issue tracker and domain doc layout. Run once per repo.
+description: 為這個 repo 設定工程技能所需的組態 — 議題追蹤器與領域文件位置。每個 repo 跑一次。
 disable-model-invocation: true
 ---
 

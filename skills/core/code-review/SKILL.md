@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review the diff since a fixed point along two axes — Standards (does it follow this repo's conventions?) and Spec (does it do what the ticket asked?). Use when reviewing a branch, a PR, or work in progress.
+description: 沿兩條軸審查自某個定點以來的 diff — Standards（有沒有遵守這個 repo 的規範？）與 Spec（有沒有做到票要求的事？）。當使用者要審查一個分支、一個 PR 或進行中的工作時使用，也對應 "code review"、"review this branch"、「審一下」等說法。
 ---
 
 # Code Review

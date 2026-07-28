@@ -1,6 +1,6 @@
 ---
 name: prototype
-description: Build a throwaway prototype to answer one design question — a runnable program for state and logic, or several toggleable variations for UI. Use when a design question cannot be settled on paper.
+description: 做一個用完即丟的原型來回答一個設計問題 — 狀態與邏輯用可執行的程式，UI 則做幾個可切換的變體。當一個設計問題在紙上定不下來時使用，也對應 "prototype"、"spike"、「先做個雛形看看」等說法。
 ---
 
 # Prototype

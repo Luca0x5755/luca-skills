@@ -1,6 +1,6 @@
 ---
 name: grill-with-docs
-description: A relentless interview that sharpens a plan and leaves a paper trail — glossary and ADRs — as it goes.
+description: 窮追不捨的訪談，磨利一個計畫，並沿路留下紙本軌跡 — 術語表與 ADR。
 disable-model-invocation: true
 ---
 
