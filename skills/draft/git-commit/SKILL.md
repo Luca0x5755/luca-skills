@@ -17,7 +17,7 @@ Run in parallel, in a single message:
 git status
 git diff --cached
 git branch --show-current
-git log --oneline -10   # match this repo's existing message style
+git log --oneline -10   # gauge subject granularity only — the language rules below always win
 ```
 
 ## 1. Prohibitions — before anything else
