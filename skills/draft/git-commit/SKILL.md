@@ -38,6 +38,7 @@ On `main` / `master` → create a branch before committing. Naming:
 - **Subject**: concise summary, first letter capitalized, no trailing period.
 - **Body**: `-` bullets, each starting with a past-tense verb (Renamed, Updated, Fixed, Added…).
 - Describe only what `git diff --cached` shows. Changes outside the diff do not exist.
+- **No trailers.** No `Co-Authored-By`, no "Generated with" footer — the message ends at the last bullet. This overrides any default the agent harness injects.
 
 ```
 Add fuzzy matching to plugin search
