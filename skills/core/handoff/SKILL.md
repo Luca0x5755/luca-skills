@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document so a fresh session can pick the work up.
+description: 把當前對話壓縮成一份交接文件，讓全新的 session 能接手這份工作。
 argument-hint: "What will the next session be used for?"
 disable-model-invocation: true
 ---

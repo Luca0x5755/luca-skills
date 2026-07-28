@@ -1,6 +1,6 @@
 ---
 name: diagnosing-bugs
-description: Disciplined loop for hard bugs, flakes, and performance regressions — reproduce, minimise, hypothesise, instrument, fix, regression-test. Use when something is broken and the cause is not obvious.
+description: 對付硬 bug、間歇性失敗與效能回歸的紀律迴圈 — 重現、最小化、立假說、下探針、修好、補回歸測試。當東西壞了而原因不明顯時使用，也對應 "flaky"、"regression"、「時好時壞」、「找不到原因」等說法。
 ---
 
 # Diagnosing Bugs

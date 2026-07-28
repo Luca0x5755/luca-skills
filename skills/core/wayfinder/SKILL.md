@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Chart a huge, foggy effort as a map of decision tickets, resolved one at a time until the way to the destination is clear.
+description: 把龐大而迷霧重重的工程畫成一張決策票地圖，一次解一張，直到通往終點的路清晰為止。
 disable-model-invocation: true
 ---
 

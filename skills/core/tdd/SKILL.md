@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Test-driven development, red-green-refactor. Use when building a feature or fixing a bug test-first, when the user mentions "red-green", or when asked for tests that survive refactors.
+description: 測試驅動開發，紅—綠—重構。當要以測試先行的方式建置功能或修 bug、當使用者提到 "TDD"、"red-green"、「紅綠」，或要求寫出能撐過重構的測試時使用。
 ---
 
 # Test-Driven Development

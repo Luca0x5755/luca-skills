@@ -1,6 +1,6 @@
 ---
 name: refactor
-description: Restructure existing code without changing its observable behaviour. Use when the user says "refactor", "clean this up", "extract this", "this is duplicated", or asks for a structural change that must not alter behaviour.
+description: 在不改變可觀察行為的前提下重整既有程式碼的結構。當使用者說 "refactor"、「重構」、「清一下這段」、「把這個抽出來」、「這裡重複了」，或要求一個不得改變行為的結構性變更時使用。
 ---
 
 # Refactor

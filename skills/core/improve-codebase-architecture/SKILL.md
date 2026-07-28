@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Survey the codebase for deepening opportunities, present them ranked, then grill through whichever one is picked.
+description: 勘查程式庫的深化機會，排序後呈上，再對你挑中的那一個進行拷問。
 disable-model-invocation: true
 ---
 

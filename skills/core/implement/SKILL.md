@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Build the work described by a spec or a set of tickets, driving TDD at agreed seams and closing with a code review.
+description: 依規格或一組票建置，在議定的接縫上驅動 TDD，收尾跑一次程式碼審查。
 disable-model-invocation: true
 ---
 

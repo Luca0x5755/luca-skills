@@ -1,6 +1,6 @@
 ---
 name: domain-modeling
-description: Build and sharpen a project's domain language — challenge fuzzy terms, split overloaded words, record hard-to-reverse decisions as ADRs. Use when naming is the problem, when a term means different things in different places, or when a decision needs a written record.
+description: 建立並磨利一個專案的領域語言 — 挑戰模糊術語、拆開超載的詞、把難以回頭的決策寫成 ADR。當問題出在命名、當同一個詞在不同地方意思不同、或當一個決策需要白紙黑字的紀錄時使用。
 ---
 
 # Domain Modeling

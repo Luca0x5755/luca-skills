@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: Turn the current conversation into a spec and publish it to the issue tracker.
+description: 把當前對話收斂成一份規格，並發佈到議題追蹤器。
 disable-model-invocation: true
 ---
 

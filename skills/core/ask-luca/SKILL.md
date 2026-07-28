@@ -1,6 +1,6 @@
 ---
 name: ask-luca
-description: Ask which skill or flow fits the situation. A router over the skills in this repo.
+description: 問這個情況該用哪個技能、走哪條流程。這個 repo 的技能路由器。
 disable-model-invocation: true
 ---
 

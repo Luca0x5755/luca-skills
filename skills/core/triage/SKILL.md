@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Move incoming issues through a state machine of triage roles until each is agent-ready or closed.
+description: 把外來議題推過一台由分診角色組成的狀態機，直到每一張都代理可接手或關閉。
 disable-model-invocation: true
 ---
 
