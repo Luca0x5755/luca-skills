@@ -19,6 +19,8 @@ One document at `docs/frontend-spec.md`, mockups under `docs/mockup/`:
 ```markdown
 # Frontend spec — <what is being built>
 
+> Scaffolding — durable decisions live in ADRs and tickets. Delete this file when the feature ships.
+
 ## Routes
 | Page | Path | Auth | One-line purpose |
 | --- | --- | --- | --- |
@@ -48,6 +50,7 @@ variables, shared by every screen. Never restyled per page.
 ## Rules
 
 - **The .pen file is the source of truth for layout.** The document carries briefs and acceptance state lists; pixels live in Pencil. Never hand-write HTML/CSS as a stand-in for a mockup.
+- **The document is scaffolding, not truth.** Every durable decision must already live in an ADR or a ticket before it appears here — deleting the document must lose nothing. Nobody maintains a per-feature spec after merge; git history is the archive.
 - **All four states, every page.** Silent failure is not a design. An Empty state nobody drew becomes an Error state nobody handled.
 - **No standards sections.** Coding conventions, browser support, API-client choices belong to the target repo's CLAUDE.md — not here.
 - **Do not invent flows.** A page or interaction not settled in the spec goes back to `/grill-with-docs`, or through a `/prototype` detour if it needs a runnable answer.
@@ -55,7 +58,7 @@ variables, shared by every screen. Never restyled per page.
 
 ## Finish
 
-Report the document path and the `.pen` files produced, each verified by screenshot. Say the next step: `/to-tickets` — tickets cite pages and state frames by name.
+Report the document path and the `.pen` files produced, each verified by screenshot. Say the next step: `/to-tickets` — tickets cite pages and state frames by name, and the final ticket's done-when must include deleting the scaffolding document (in private collaboration mode it was never committed; deletion is just local hygiene). The `.pen` mockups follow the same lifecycle.
 
 ## Rationalization table
 

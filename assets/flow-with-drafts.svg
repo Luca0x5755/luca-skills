@@ -58,13 +58,13 @@
   <!-- 0. setup-skills -->
   <rect x="250" y="80" width="230" height="44" rx="8" class="box user"/>
   <text x="365" y="100" text-anchor="middle" class="skill">/setup-skills</text>
-  <text x="365" y="116" text-anchor="middle" class="sub">每個 repo 只跑一次</text>
+  <text x="365" y="116" text-anchor="middle" class="sub">每個 repo 一次：追蹤器、文件、協作模式</text>
   <path d="M 365 124 L 365 156" class="edge"/>
 
   <!-- 1. grill-with-docs -->
   <rect x="250" y="160" width="230" height="44" rx="8" class="box user"/>
   <text x="365" y="180" text-anchor="middle" class="skill">/grill-with-docs</text>
-  <text x="365" y="196" text-anchor="middle" class="sub">一問一答磨利想法，留下術語與決策</text>
+  <text x="365" y="196" text-anchor="middle" class="sub">一問一答磨利想法，定了案才寫檔</text>
 
   <!-- detour out / back -->
   <path d="M 480 176 L 556 176" class="edge"/>
@@ -88,13 +88,13 @@
 
   <rect x="250" y="380" width="230" height="38" rx="8" class="box user draft"/>
   <text x="365" y="397" text-anchor="middle" class="skill-sm">/to-architecture</text>
-  <text x="365" y="412" text-anchor="middle" class="sub">技術棧、資料模型、API 合約</text>
+  <text x="365" y="412" text-anchor="middle" class="sub">技術棧、資料模型、API 合約；出貨即刪</text>
   <text x="244" y="403" text-anchor="end" class="edge-label">可選</text>
   <path d="M 365 418 L 365 434" class="edge"/>
 
   <rect x="250" y="434" width="230" height="38" rx="8" class="box user draft"/>
   <text x="365" y="451" text-anchor="middle" class="skill-sm">/frontend-spec</text>
-  <text x="365" y="466" text-anchor="middle" class="sub">路由、四態畫面、Pencil 設計稿</text>
+  <text x="365" y="466" text-anchor="middle" class="sub">路由、四態畫面、Pencil 稿；出貨即刪</text>
   <text x="244" y="457" text-anchor="end" class="edge-label">可選</text>
   <path d="M 365 472 L 365 488" class="edge"/>
 
@@ -197,7 +197,7 @@
   <rect x="24" y="1032" width="920" height="84" rx="10" fill="#f6f8fa"/>
   <text x="44" y="1056" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
   <text x="44" y="1080" class="skill-sm">/domain-modeling</text>
-  <text x="180" y="1080" class="note">術語模糊、一詞多義、決策要留紀錄</text>
+  <text x="180" y="1080" class="note">術語模糊、一詞多義；夠格的決策才立 ADR</text>
   <text x="470" y="1080" class="skill-sm">/grilling</text>
   <text x="550" y="1080" class="note">一問一答的基本功；還沒有 codebase 時用這個</text>
   <rect x="40" y="1088" width="96" height="22" rx="6" class="box model draft"/>

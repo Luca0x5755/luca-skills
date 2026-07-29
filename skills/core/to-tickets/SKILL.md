@@ -52,6 +52,7 @@ Traps, decided-against alternatives, the seam to test at.
 
 - **Do not triage these.** They are already agent-ready. `/triage` is for issues that arrived from outside.
 - **Show the full set before publishing** — the sizing and the edges are much easier to judge as a list than one at a time.
+- **Scaffolding docs die with the last ticket.** When the spec cites a document marked `Scaffolding` (architecture, frontend spec, mockups), the final ticket's done-when includes deleting it — its durable content already lives in ADRs and these tickets.
 
 ## Finish
 
