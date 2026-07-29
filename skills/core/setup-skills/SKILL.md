@@ -39,9 +39,9 @@ Propose from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remo
 **Section C — Collaboration mode.** Ask: **does everyone committing to this repo use these skills?** Solo repos answer themselves — skip the question and record `shared`.
 
 - **shared** (solo repo, or the whole team runs the skills): everything the skills write is committed. Current behaviour; nothing extra to set up.
-- **private** (mixed-tooling team — teammates never opted into these skills): add `CONTEXT.md`, `docs/agents/`, `docs/decision-log.md`, `docs/architecture.md`, `docs/frontend-spec.md`, and `docs/mockup/` to **`.git/info/exclude`** — per-clone, never committed, invisible to teammates. Two things stay shared regardless: `docs/adr/` (decisions belong next to the code they constrain, and ADRs are the one artifact teammates review like any other Markdown) and tracker issues (they live where the team already looks).
+- **private** (mixed-tooling team — teammates never opted into these skills): add `CONTEXT.md`, `docs/agents/`, `docs/decision-log.md`, `docs/architecture.md`, `docs/frontend-spec.md`, and `docs/mockup/` to **`.git/info/exclude`** — per-clone, never committed, invisible to teammates. Two things stay shared regardless: `docs/adr/` (decisions belong next to the code they constrain) and tracker issues (they live where the team already looks).
 
-The reasoning, which belongs in `domain.md` so future sessions apply it: a document only your tooling reads has no rot-detection loop — no teammate ever notices it lying. And a private file must be genuinely private, not a shadow copy of team truth: a fact teammates should read gets promoted into the committed `CLAUDE.md`/`AGENTS.md` or an ADR, never fixed by committing the private file.
+Record the reasoning in `domain.md` so future sessions apply it: a document only your tooling reads has no rot-detection loop. And a private file must not become a shadow copy of team truth — a fact teammates should read gets promoted into the committed `CLAUDE.md`/`AGENTS.md` or an ADR, never fixed by committing the private file.
 
 ## 3. Confirm
 
@@ -51,7 +51,7 @@ Show a draft of every file to be written and the block to be added to `CLAUDE.md
 
 Pick the file to edit: `CLAUDE.md` if it exists, else `AGENTS.md`, else ask which to create. Never create one when the other already exists.
 
-**In private mode, the `## Agent skills` block goes into `CLAUDE.local.md` instead** — a committed file pointing at excluded paths is a dangling reference on every teammate's clone. The committed `CLAUDE.md`/`AGENTS.md` is not touched.
+**In private mode, the `## Agent skills` block goes into `CLAUDE.local.md` instead** — a committed file must not point at paths teammates' clones don't have. The committed `CLAUDE.md`/`AGENTS.md` is not touched.
 
 If an `## Agent skills` block is already there, update it in place. Do not touch the surrounding sections.
 

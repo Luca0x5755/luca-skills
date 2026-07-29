@@ -15,7 +15,7 @@ The difference from bare `/grilling`: this one is **stateful**. What the intervi
 Two Skill tool calls, both mandatory, before the first question:
 
 1. Load `/grilling` — it defines the interview loop this skill runs.
-2. Load `/domain-modeling` — it defines the two artifacts this skill writes.
+2. Load `/domain-modeling` — it defines the artifacts this skill writes.
 
 Running the interview from memory of what those skills say is how their rules silently drop.
 
@@ -32,8 +32,8 @@ When a question turns on **what a word means**, stop and run `/domain-modeling` 
 Write, before doing anything else:
 
 - **New or sharpened terms** → `CONTEXT.md`, inline
-- **Decisions** → apply `/domain-modeling`'s three-part ADR gate, already loaded in Step 0. Passes all three → an ADR under `docs/adr/`, `Status: Proposed` (`/implement` flips it to `Accepted` when the work lands). Fails the gate but worth a trace → one line in `docs/decision-log.md`. This skill defines no ADR threshold of its own — the gate lives in one place.
+- **Decisions** → `/domain-modeling`'s three-part ADR gate decides (loaded in Step 0). Pass → an ADR under `docs/adr/`, `Status: Proposed`; `/implement` flips it to `Accepted` on landing. Fail but worth a trace → one line in `docs/decision-log.md`. This skill defines no threshold of its own.
 
-**A question-sized interview may legitimately end with zero ADRs and zero files written.** Write only what the interview actually settled — never generate a paper trail to prove the session happened.
+**A question-sized interview may legitimately end with zero files written.** Write only what the interview settled — never generate a paper trail to prove the session happened.
 
 Then hand back to the main flow: `/to-spec` for a multi-session build, `/implement` for a small one.

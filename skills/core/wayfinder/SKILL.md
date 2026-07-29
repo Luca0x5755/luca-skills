@@ -40,7 +40,7 @@ Pick the ticket that unblocks the most. Load the `/grilling` skill via the Skill
 
 Where the answer needs to be runnable, `/handoff` out to a `/prototype` session and bring the answer back.
 
-Write the resolution **into the ticket** — the decision, the rejected options, and why — and close it. Ones that pass the ADR gate also get an ADR: load the `/domain-modeling` skill via the Skill tool and follow its three-part gate and ADR rules — `Status: Proposed`, since nothing is built yet. A resolution that lives only in a conversation is a resolution that will be re-litigated.
+Write the resolution **into the ticket** — the decision, the rejected options, and why — and close it. Then load the `/domain-modeling` skill via the Skill tool and apply its three-part ADR gate; a resolution that passes gets an ADR at `Status: Proposed`, since nothing is built yet. A resolution that lives only in a conversation is a resolution that will be re-litigated.
 
 **Clear context between tickets.** The map is the memory; that is what it is for.
 

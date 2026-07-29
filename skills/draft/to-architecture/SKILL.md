@@ -50,7 +50,7 @@ No target measured or promised → this section is absent.
 
 ## Finish
 
-Report the file path and the ADRs created. Say the next step: `/to-tickets` — tickets may now cite the contracts and entities by name, and the final ticket's done-when must include deleting this scaffolding file (in private collaboration mode it was never committed; deletion is just local hygiene).
+Report the file path and the ADRs created. Say the next step: `/to-tickets` — tickets may now cite the contracts and entities by name, and the final ticket's done-when must include deleting this scaffolding file (never committed in private mode; deletion is local hygiene).
 
 ## Rationalization table
 

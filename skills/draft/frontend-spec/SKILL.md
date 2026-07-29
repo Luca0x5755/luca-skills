@@ -58,7 +58,7 @@ variables, shared by every screen. Never restyled per page.
 
 ## Finish
 
-Report the document path and the `.pen` files produced, each verified by screenshot. Say the next step: `/to-tickets` — tickets cite pages and state frames by name, and the final ticket's done-when must include deleting the scaffolding document (in private collaboration mode it was never committed; deletion is just local hygiene). The `.pen` mockups follow the same lifecycle.
+Report the document path and the `.pen` files produced, each verified by screenshot. Say the next step: `/to-tickets` — tickets cite pages and state frames by name, and the final ticket's done-when must include deleting the scaffolding document (never committed in private mode; deletion is local hygiene). The `.pen` mockups follow the same lifecycle.
 
 ## Rationalization table
 
