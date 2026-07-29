@@ -22,7 +22,7 @@ git log --oneline -10   # gauge subject granularity only — the language rules 
 
 ## 1. Prohibitions — before anything else
 
-- **Untracked files and Changes not staged for commit are forbidden to commit.** Never run any form of `git add`. The user drew the boundary; everything outside it stays outside.
+- **Never commit untracked files or unstaged changes.** Never run any form of `git add`. The user drew the boundary; everything outside it stays outside.
 - **Empty staging area → stop.** Report the current change state and ask the user to stage what they want, then invoke again. Do not guess what the user meant to commit.
 
 ## 2. Branch check
