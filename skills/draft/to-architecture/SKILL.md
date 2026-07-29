@@ -19,6 +19,8 @@ One document at `docs/architecture.md` (or where `docs/agents/` says architectur
 ```markdown
 # Architecture — <what is being built>
 
+> Scaffolding — durable decisions live in ADRs and tickets. Delete this file when the feature ships.
+
 ## Stack
 | Layer | Choice | ADR |
 | --- | --- | --- |
@@ -39,7 +41,8 @@ No target measured or promised → this section is absent.
 
 ## Rules
 
-- **One ADR per decision — the document links, never restates.** Every row in Stack that involved a real trade-off gets its own ADR via `/domain-modeling`. A choice with no alternative considered gets no ADR and no apology.
+- **One ADR per decision — the document links, never restates.** Every row in Stack that involved a real trade-off gets its own ADR via `/domain-modeling` (its three-part gate decides; a choice with no alternative considered gets no ADR and no apology).
+- **This document is scaffolding, not truth.** Every durable decision must already live in an ADR or a ticket before it appears here — deleting this file must lose nothing. Nobody maintains a per-feature spec after merge; git history is the archive.
 - **Decisions, not ceremony.** No C4 diagram levels, no NFR boilerplate, no security checklist. A section with nothing settled in it does not appear.
 - **Do not invent.** The material is the spec and the conversation. An open tech choice goes back to `/grill-with-docs` or gets a `/prototype` detour — it does not get a plausible default.
 - **Use the project's vocabulary.** Read `CONTEXT.md` first; the data model must use its terms.
@@ -47,7 +50,7 @@ No target measured or promised → this section is absent.
 
 ## Finish
 
-Report the file path and the ADRs created. Say the next step: `/to-tickets` — tickets may now cite the contracts and entities by name.
+Report the file path and the ADRs created. Say the next step: `/to-tickets` — tickets may now cite the contracts and entities by name, and the final ticket's done-when must include deleting this scaffolding file (in private collaboration mode it was never committed; deletion is just local hygiene).
 
 ## Rationalization table
 

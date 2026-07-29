@@ -7,9 +7,9 @@ description: 建立並磨利一個專案的領域語言 — 挑戰模糊術語�
 
 The active discipline of keeping the project's words precise. Merely *reading* `CONTEXT.md` for vocabulary is not this skill — that is a one-line lookup. This skill is for when the words themselves need work.
 
-## The two artifacts
+## The three artifacts
 
-**`CONTEXT.md`** — the glossary. One entry per domain term:
+**`CONTEXT.md`** — the glossary, **and nothing else**. No implementation details, no decisions, no todo lists — mixing plans into in-force context poisons every downstream agent that reads it as current reality. One entry per domain term:
 
 ```markdown
 **Session**:
@@ -20,7 +20,17 @@ _Avoid_: connection, login (a login is the event that starts a Session)
 
 The `_Avoid_` line is the load-bearing part. A glossary that only says what a word means does not stop the wrong word being used.
 
-**`docs/adr/NNNN-<slug>.md`** — one decision per file. Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, never `0007-session-handling`. Body covers what was decided, what was rejected, and why. One status line at the top — `Status: Proposed` when written ahead of the implementation, flipped to `Accepted` by the change that lands it — so an ADR for unbuilt work never reads as current reality. No template ceremony beyond that.
+**`docs/adr/NNNN-<slug>.md`** — one decision per file. **A decision earns an ADR only when all three are true:**
+
+1. **Hard to reverse** — undoing it means touching code not yet written.
+2. **Surprising without context** — a future reader would ask "why on earth is it done this way?"
+3. **A real trade-off** — an alternative was genuinely considered and rejected.
+
+Any of the three missing → no ADR file. An ADR per preference is noise that buries the three that matter.
+
+Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, never `0007-session-handling`. Body covers what was decided, what was rejected, and why. One status line at the top — `Status: Proposed` when written ahead of the implementation, flipped to `Accepted` by the change that lands it — so an ADR for unbuilt work never reads as current reality. No template ceremony beyond that.
+
+**`docs/decision-log.md`** — for decisions that fail the ADR gate but deserve a trace. One line each: date, the decision, one clause of why. Append-only, no template, no separate files. It lives apart from `CONTEXT.md` deliberately — the glossary is in-force truth; the log is history.
 
 ## Sharpening a term
 
@@ -36,5 +46,6 @@ The `_Avoid_` line is the load-bearing part. A glossary that only says what a wo
 
 - Update `CONTEXT.md` **inline, during the work** — not in a cleanup pass afterwards. A glossary written at the end is a glossary written from memory.
 - One ADR per decision. Never batch.
+- Create files lazily — only when there is something to write. A session that settles nothing durable legitimately writes nothing.
 - Renaming a term means renaming it in the code too, in the same change. A glossary the code disagrees with is worse than no glossary.
 - Record flagged ambiguities you could not resolve at the bottom of `CONTEXT.md`, with what would settle them. An open question written down beats a false definition.

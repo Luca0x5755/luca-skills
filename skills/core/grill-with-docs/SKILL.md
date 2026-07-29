@@ -32,8 +32,8 @@ When a question turns on **what a word means**, stop and run `/domain-modeling` 
 Write, before doing anything else:
 
 - **New or sharpened terms** → `CONTEXT.md`, inline
-- **Every hard-to-reverse decision** → an ADR under `docs/adr/`, one per decision, recording the alternatives that were rejected and why. Written here, the ADR is `Status: Proposed` — the work does not exist yet, and a Proposed ADR must not read as current reality. `/implement` flips it to `Accepted` when the work lands.
+- **Decisions** → apply `/domain-modeling`'s three-part ADR gate, already loaded in Step 0. Passes all three → an ADR under `docs/adr/`, `Status: Proposed` (`/implement` flips it to `Accepted` when the work lands). Fails the gate but worth a trace → one line in `docs/decision-log.md`. This skill defines no ADR threshold of its own — the gate lives in one place.
 
-A decision is hard to reverse if undoing it means touching code you have not written yet. Those are the ones that earn an ADR. Reversible choices do not — an ADR per preference is noise that buries the three that matter.
+**A question-sized interview may legitimately end with zero ADRs and zero files written.** Write only what the interview actually settled — never generate a paper trail to prove the session happened.
 
 Then hand back to the main flow: `/to-spec` for a multi-session build, `/implement` for a small one.
