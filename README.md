@@ -60,6 +60,9 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[triage](./skills/core/triage/SKILL.md)** — 把外來議題推過一台由分診角色組成的狀態機，直到每一張都代理可接手或關閉。
 - **[improve-codebase-architecture](./skills/core/improve-codebase-architecture/SKILL.md)** — 勘查程式庫的深化機會，排序後呈上，再對你挑中的那一個進行拷問。
 - **[wayfinder](./skills/core/wayfinder/SKILL.md)** — 把龐大而迷霧重重的工程畫成一張決策票地圖，一次解一張，直到通往終點的路清晰為止。
+- **[git-commit](./skills/core/git-commit/SKILL.md)** — 檢視已暫存的變更，撰寫英文 commit 並推上遠端。只提交 staged 的內容，絕不代替使用者 stage。
+- **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR（英文標題＋繁中六段式內文）與合併後清理分支，分支生命週期的頭與尾。
+- **[git-release](./skills/core/git-release/SKILL.md)** — 更新版本檔中的版本號，彙整兩版本間的 commit 寫成繁體中文發布摘要，打 tag 推上遠端並發佈 release 頁面。
 
 ### 模型觸發
 

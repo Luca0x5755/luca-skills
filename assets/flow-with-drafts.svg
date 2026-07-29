@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="1140" viewBox="0 0 980 1140" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
   <title>Luca's Skills 主流程（含 draft 技能）</title>
-  <desc>主流程加上試用中的 draft 技能：to-architecture 與 frontend-spec 在切開階段可選，implement-all 批次派工，git-commit / git-pr / git-release 收尾，refactor 與 git-merge 隨時可用。</desc>
+  <desc>主流程加上試用中的 draft 技能：to-architecture 與 frontend-spec 在切開階段可選，implement-all 批次派工，refactor 與 git-merge 隨時可用。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -123,13 +123,13 @@
   <text x="365" y="722" text-anchor="middle" class="sub">/implement 收尾自動跑，通過才 commit</text>
   <path d="M 365 730 L 365 746" class="edge"/>
 
-  <rect x="250" y="746" width="230" height="40" rx="8" class="box user draft"/>
+  <rect x="250" y="746" width="230" height="40" rx="8" class="box user"/>
   <text x="365" y="763" text-anchor="middle" class="skill-sm">/git-commit</text>
   <text x="365" y="778" text-anchor="middle" class="sub">只 commit 你 stage 的，英文訊息，推上遠端</text>
   <path d="M 365 786 L 365 806" class="edge"/>
   <text x="376" y="800" class="edge-label">票全部做完</text>
 
-  <rect x="250" y="806" width="230" height="40" rx="8" class="box user draft"/>
+  <rect x="250" y="806" width="230" height="40" rx="8" class="box user"/>
   <text x="365" y="823" text-anchor="middle" class="skill-sm">/git-pr</text>
   <text x="365" y="838" text-anchor="middle" class="sub">開 PR；你按 merge 後再跑一次清分支</text>
 
@@ -144,7 +144,7 @@
   <text x="625" y="831" text-anchor="middle" class="skill-sm">PR 合併，出貨</text>
   <path d="M 690 826 L 724 826" class="edge"/>
   <text x="707" y="820" text-anchor="middle" class="edge-label">可選</text>
-  <rect x="724" y="806" width="200" height="40" rx="8" class="box user draft"/>
+  <rect x="724" y="806" width="200" height="40" rx="8" class="box user"/>
   <text x="824" y="823" text-anchor="middle" class="skill-sm">/git-release</text>
   <text x="824" y="838" text-anchor="middle" class="sub">要發版才跑：版號、摘要、tag</text>
 

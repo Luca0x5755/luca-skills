@@ -40,6 +40,14 @@ Steps 1–3 stay in **one unbroken context window** — no compact, no clear, un
 
 - **`/improve-codebase-architecture`** — survey for deepening opportunities. Picking one *generates an idea*, which re-enters the main flow at `/grill-with-docs`.
 
+## Git flow
+
+The branch lifecycle, one skill per stage — each acts only on what you decided, never guesses:
+
+- **`/git-commit`** — commit what *you* staged and push; empty staging stops and asks.
+- **`/git-pr`** — open the PR (English title, Traditional Chinese body), and clean up branches after the merge is verified.
+- **`/git-release`** — bump version files, distill the changelog in Traditional Chinese, tag, and publish the release page.
+
 ## Vocabulary underneath
 
 Reach for these when the **words**, not the process, are the problem.

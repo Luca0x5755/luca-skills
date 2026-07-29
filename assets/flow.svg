@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="960" viewBox="0 0 980 960" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="1044" viewBox="0 0 980 1044" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
   <title>Luca's Skills 主流程</title>
-  <desc>從 setup-skills 到 commit 的主流程。繞道用四步換 session；每張票一個 session 自轉一圈；票全部做完回到階段 1。</desc>
+  <desc>從 setup-skills 到出貨的主流程。繞道用四步換 session；每張票一個 session 自轉一圈；票全部做完走 git-pr 出貨，可選 git-release 發版，回到階段 1。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -23,7 +23,7 @@
     </style>
   </defs>
 
-  <rect width="980" height="960" fill="#ffffff"/>
+  <rect width="980" height="1044" fill="#ffffff"/>
 
   <!-- header -->
   <text x="24" y="34" font-size="20" font-weight="700" fill="#1f2328">主流程：想法 → 出貨</text>
@@ -38,7 +38,7 @@
   <rect x="24" y="142" width="516" height="150" rx="10" fill="#f6f8fa"/>
   <rect x="24" y="300" width="516" height="140" rx="10" fill="#f6f8fa"/>
   <rect x="24" y="448" width="516" height="110" rx="10" fill="#f6f8fa"/>
-  <rect x="24" y="566" width="516" height="124" rx="10" fill="#f6f8fa"/>
+  <rect x="24" y="566" width="516" height="200" rx="10" fill="#f6f8fa"/>
 
   <!-- stage labels -->
   <text x="230" y="96"  text-anchor="end" class="band-label">階段 0</text>
@@ -95,18 +95,36 @@
   <text x="365" y="528" text-anchor="middle" class="sub">會自動跑 /tdd 與 /code-review</text>
   <path d="M 365 542 L 365 562" class="edge"/>
 
-  <!-- 4. code-review -->
-  <rect x="250" y="566" width="230" height="44" rx="8" class="box model"/>
-  <text x="365" y="586" text-anchor="middle" class="skill">/code-review</text>
+  <!-- 4. close out -->
+  <rect x="250" y="570" width="230" height="40" rx="8" class="box model"/>
+  <text x="365" y="587" text-anchor="middle" class="skill-sm">/code-review</text>
   <text x="365" y="602" text-anchor="middle" class="sub">/implement 收尾自動跑，通過才 commit</text>
-  <path d="M 365 610 L 365 636" class="edge"/>
+  <path d="M 365 610 L 365 626" class="edge"/>
 
-  <rect x="290" y="640" width="150" height="40" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.5"/>
-  <text x="365" y="665" text-anchor="middle" class="skill">commit</text>
+  <rect x="250" y="626" width="230" height="40" rx="8" class="box user"/>
+  <text x="365" y="643" text-anchor="middle" class="skill-sm">/git-commit</text>
+  <text x="365" y="658" text-anchor="middle" class="sub">只 commit 你 stage 的，英文訊息，推上遠端</text>
+  <path d="M 365 666 L 365 686" class="edge"/>
+  <text x="376" y="680" class="edge-label">票全部做完</text>
+
+  <rect x="250" y="686" width="230" height="40" rx="8" class="box user"/>
+  <text x="365" y="703" text-anchor="middle" class="skill-sm">/git-pr</text>
+  <text x="365" y="718" text-anchor="middle" class="sub">開 PR；你按 merge 後再跑一次清分支</text>
 
   <!-- ticket loop: more tickets left -> /clear, next ticket -->
-  <path d="M 290 660 L 240 660 L 240 525 L 246 525" class="edge"/>
-  <text x="232" y="678" text-anchor="end" class="edge-label">還有票 → /clear，開下一張</text>
+  <path d="M 250 646 L 240 646 L 240 506 L 246 506" class="edge"/>
+  <text x="232" y="680" text-anchor="end" class="edge-label">還有票 → /clear，開下一張</text>
+
+  <!-- ship + release -->
+  <path d="M 480 706 L 560 706" class="edge"/>
+  <text x="520" y="700" text-anchor="middle" class="edge-label">merge 是你按</text>
+  <rect x="560" y="686" width="130" height="40" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.5"/>
+  <text x="625" y="711" text-anchor="middle" class="skill-sm">PR 合併，出貨</text>
+  <path d="M 690 706 L 724 706" class="edge"/>
+  <text x="707" y="700" text-anchor="middle" class="edge-label">可選</text>
+  <rect x="724" y="686" width="200" height="40" rx="8" class="box user"/>
+  <text x="824" y="703" text-anchor="middle" class="skill-sm">/git-release</text>
+  <text x="824" y="718" text-anchor="middle" class="sub">要發版才跑：版號、摘要、tag</text>
 
   <!-- detour panel: four steps, one per keyboard action -->
   <rect x="560" y="146" width="384" height="142" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5" stroke-dasharray="5 4"/>
@@ -125,40 +143,39 @@
   <text x="576" y="376" class="note">session 快滿了 → /handoff，開新 session 貼路徑接著做。</text>
 
   <!-- on-ramps -->
-  <rect x="24" y="712" width="920" height="150" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
-  <text x="44" y="738" class="panel-title">交流道：從外面匯進主流程</text>
+  <rect x="24" y="790" width="920" height="150" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="44" y="816" class="panel-title">交流道：從外面匯進主流程</text>
 
-  <rect x="44" y="750" width="196" height="26" rx="8" class="box user"/>
-  <text x="142" y="768" text-anchor="middle" class="skill-sm">/triage</text>
-  <path d="M 248 763 L 288 763" class="edge"/>
-  <text x="296" y="761" class="note">匯入 /implement</text>
-  <text x="296" y="776" class="note">別人回報的 bug 與需求。自己用 /to-tickets 開的票直接 /implement。</text>
+  <rect x="44" y="828" width="196" height="26" rx="8" class="box user"/>
+  <text x="142" y="846" text-anchor="middle" class="skill-sm">/triage</text>
+  <path d="M 248 841 L 288 841" class="edge"/>
+  <text x="296" y="839" class="note">匯入 /implement</text>
+  <text x="296" y="854" class="note">別人回報的 bug 與需求。自己用 /to-tickets 開的票直接 /implement。</text>
 
-  <rect x="44" y="784" width="196" height="26" rx="8" class="box model"/>
-  <text x="142" y="802" text-anchor="middle" class="skill-sm">/diagnosing-bugs</text>
-  <path d="M 248 797 L 288 797" class="edge"/>
-  <text x="296" y="795" class="note">匯入 /improve-codebase-architecture</text>
-  <text x="296" y="810" class="note">難修的 bug。修完發現病根在架構，才走這條。</text>
+  <rect x="44" y="862" width="196" height="26" rx="8" class="box model"/>
+  <text x="142" y="880" text-anchor="middle" class="skill-sm">/diagnosing-bugs</text>
+  <path d="M 248 875 L 288 875" class="edge"/>
+  <text x="296" y="873" class="note">匯入 /improve-codebase-architecture</text>
+  <text x="296" y="888" class="note">難修的 bug。修完發現病根在架構，才走這條。</text>
 
-  <rect x="44" y="818" width="196" height="26" rx="8" class="box user"/>
-  <text x="142" y="836" text-anchor="middle" class="skill-sm">/wayfinder</text>
-  <path d="M 248 831 L 288 831" class="edge"/>
-  <text x="296" y="829" class="note">匯入 /to-spec</text>
-  <text x="296" y="844" class="note">題目大到不知從何下手。出來後接 /to-spec，不能直接跳 /implement。</text>
+  <rect x="44" y="896" width="196" height="26" rx="8" class="box user"/>
+  <text x="142" y="914" text-anchor="middle" class="skill-sm">/wayfinder</text>
+  <path d="M 248 909 L 288 909" class="edge"/>
+  <text x="296" y="907" class="note">匯入 /to-spec</text>
+  <text x="296" y="922" class="note">題目大到不知從何下手。出來後接 /to-spec，不能直接跳 /implement。</text>
 
-  <!-- development loop: all tickets done, next idea re-enters stage 1 -->
-  <path d="M 440 660 L 952 660" class="edge" style="marker-end:none" stroke-dasharray="6 4"/>
-  <path d="M 944 797 L 952 797" class="edge" style="marker-end:none" stroke-dasharray="6 4"/>
-  <path d="M 952 797 L 952 138 L 390 138 L 390 156" class="edge" stroke-dasharray="6 4"/>
+  <!-- development loop: shipped, next idea re-enters stage 1 -->
+  <path d="M 924 706 L 952 706" class="edge" style="marker-end:none" stroke-dasharray="6 4"/>
+  <path d="M 944 875 L 952 875" class="edge" style="marker-end:none" stroke-dasharray="6 4"/>
+  <path d="M 952 875 L 952 138 L 390 138 L 390 156" class="edge" stroke-dasharray="6 4"/>
   <text x="612" y="132" class="edge-label">回到階段 1，換下一個想法</text>
-  <text x="590" y="654" class="edge-label">票全部做完</text>
-  <text x="778" y="791" class="edge-label">掃描出的改進想法</text>
+  <text x="884" y="869" text-anchor="end" class="edge-label">掃描出的改進想法</text>
 
   <!-- vocabulary layer -->
-  <rect x="24" y="878" width="920" height="64" rx="10" fill="#f6f8fa"/>
-  <text x="44" y="902" class="panel-title">詞彙層：名詞卡住時，隨時可用</text>
-  <text x="44" y="926" class="skill-sm">/domain-modeling</text>
-  <text x="176" y="926" class="note">術語模糊、一詞多義、決策要留紀錄</text>
-  <text x="470" y="926" class="skill-sm">/grilling</text>
-  <text x="546" y="926" class="note">一問一答的基本功；還沒有 codebase 時用這個</text>
+  <rect x="24" y="956" width="920" height="64" rx="10" fill="#f6f8fa"/>
+  <text x="44" y="980" class="panel-title">詞彙層：名詞卡住時，隨時可用</text>
+  <text x="44" y="1004" class="skill-sm">/domain-modeling</text>
+  <text x="176" y="1004" class="note">術語模糊、一詞多義、決策要留紀錄</text>
+  <text x="470" y="1004" class="skill-sm">/grilling</text>
+  <text x="546" y="1004" class="note">一問一答的基本功；還沒有 codebase 時用這個</text>
 </svg>
