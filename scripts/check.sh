@@ -67,6 +67,9 @@ for bucket in core draft; do
   done
 done
 
+echo "[8] guard-git.sh 行為符合 hooks/test-guard-git.sh 的規格"
+bash hooks/test-guard-git.sh >/dev/null 2>&1 || { err "hook 回歸測試未過 — 跑 bash hooks/test-guard-git.sh 看細節"; }
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

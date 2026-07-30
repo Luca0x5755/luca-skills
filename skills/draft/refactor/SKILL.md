@@ -1,6 +1,7 @@
 ---
 name: refactor
-description: 在不改變可觀察行為的前提下重整既有程式碼的結構。當使用者說 "refactor"、「重構」、「清一下這段」、「把這個抽出來」、「這裡重複了」，或要求一個不得改變行為的結構性變更時使用。
+description: 在不改變可觀察行為的前提下重整程式碼結構：特徵測試護網、一次一個 transform、綠燈即經 /git-commit 提交。
+disable-model-invocation: true
 ---
 
 # Refactor
@@ -19,6 +20,14 @@ State, in one sentence, which of these applies:
 
 No trigger → stop. "It could be cleaner" is not a trigger; clean has no finish line, triggers do. The trigger goes in the commit message — it is also the stop condition.
 
+Given a path but no trigger, **scan first**. List candidates one per line, each as **finding → trigger → transform**: `calcTax duplicated in a third place → rule of three → Extract calculateTax`. No trigger, no line — the scan hunts triggered work, not beautification. Then stop: invoking the skill authorized the process; the user's pick authorizes the scope. Only picked candidates enter the loop.
+
+Where the scan looks:
+
+- **Comprehension**: long functions, long parameter lists, opaque names, logic that takes effort to follow, comment style that drifts from the project's documented conventions.
+- **Comprehension, at the type level**: primitive obsession, parallel arrays, anonymous dicts passed around — value types and named types say what the code means. Expressiveness is the only motive here; a change chasing performance needs a measurement first, and that is a ticket, not a scan line.
+- **Rule of three**: the same logic in a third place. When the duplication is conditional dispatch repeated across sites, a design pattern may be the transform's *destination* (Replace Conditional with Strategy) — never its starting point.
+
 ## 1. The net comes first
 
 Before touching structure, there must be tests that pin the behaviour being moved, and they must be green.
@@ -29,9 +38,18 @@ None exist → write **characterization tests** first: tests that record what th
 
 ## 2. One transform at a time
 
-Extract function. Move function. Rename. Inline. Introduce value type. Split phase. Pick **one**, apply it, run the tests, commit. Message names the transform: `refactor: extract calculateTax`.
+Extract function. Move function. Rename. Inline. Introduce value type. Split phase. Pick **one**, apply it, run the tests.
 
-- **Red** → `git reset --hard` to the last green commit and retry smaller. Never debug a half-applied refactor — that is two unknowns at once.
+**Green** → commit, through one door:
+
+1. Stage exactly the files this transform touched — never `git add -A`.
+2. Load the `/git-commit` skill via the Skill tool — **mandatory**. Never run `git commit` directly; `/git-commit` owns the message, the branch check, and the push.
+3. The subject names the transform: `Extract calculateTax`.
+
+`/git-commit` is the repo's **commit primitive**, and invoking `/refactor` is the user's authorization for these per-transform commits. The transform *is* the staging boundary; everything outside its files stays unstaged.
+
+**Red** → `git reset --hard HEAD` and retry smaller. HEAD is always the last green state, because every green transform was committed; the guard hook allows no other target. The reset leaves untracked files behind — check `git status --short` and delete each file this transform created, by explicit path. Never `git clean -fd`: it sweeps the user's files with yours. And never debug a half-applied refactor — that is two unknowns at once.
+
 - Use the IDE's rename/extract where it exists. The tool does not typo; you do.
 - Leaf to root: smallest independent transform first, each one making the next simpler.
 - A bug found along the way gets an issue, not a fix in this diff. Mixed commits force a choice between keeping the bug and losing the refactor at revert time.
