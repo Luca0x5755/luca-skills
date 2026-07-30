@@ -41,6 +41,8 @@ Propose from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remo
 - **shared** (solo repo, or the whole team runs the skills): everything the skills write is committed. Current behaviour; nothing extra to set up.
 - **private** (mixed-tooling team — teammates never opted into these skills): add `CONTEXT.md`, `docs/agents/`, `docs/decision-log.md`, `docs/architecture.md`, `docs/frontend-spec.md`, and `docs/mockup/` to **`.git/info/exclude`** — per-clone, never committed, invisible to teammates. Two things stay shared regardless: `docs/adr/` (decisions belong next to the code they constrain) and tracker issues (they live where the team already looks).
 
+**Section D — Comment language.** What language code comments are written in. Skills that write or restyle comments (`refactor` among them) follow the project's *documented* conventions — this section does the documenting. Propose from what the existing comments already do; when the repo is silent, propose Traditional Chinese. The answer is **team truth**: comments ship with the code, so like `docs/adr/` it stays in the committed file in every mode — step 4 has the private-mode placement.
+
 Record the reasoning in `domain.md` so future sessions apply it: a document only your tooling reads has no rot-detection loop. And a private file must not become a shadow copy of team truth — a fact teammates should read gets promoted into the committed `CLAUDE.md`/`AGENTS.md` or an ADR, never fixed by committing the private file.
 
 ## 3. Confirm
@@ -51,7 +53,7 @@ Show a draft of every file to be written and the block to be added to `CLAUDE.md
 
 Pick the file to edit: `CLAUDE.md` if it exists, else `AGENTS.md`, else ask which to create. Never create one when the other already exists.
 
-**In private mode, the `## Agent skills` block goes into `CLAUDE.local.md` instead** — a committed file must not point at paths teammates' clones don't have. The committed `CLAUDE.md`/`AGENTS.md` is not touched.
+**In private mode, the `## Agent skills` block goes into `CLAUDE.local.md` instead** — a committed file must not point at paths teammates' clones don't have. One line still goes into the committed `CLAUDE.md`/`AGENTS.md`: the comment-language convention. It documents the code, not the tooling, so it belongs where the code's readers look.
 
 If an `## Agent skills` block is already there, update it in place. Do not touch the surrounding sections.
 
@@ -65,6 +67,10 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 ### Domain docs
 
 [one line — "single-context" or "multi-context", and "shared" or "private"]. See `docs/agents/domain.md`.
+
+### Comment language
+
+[one line — e.g. "程式註解一律使用繁體中文"].
 ```
 
 `docs/agents/domain.md` must record the collaboration mode and, in private mode, which paths are excluded — downstream skills read it to know whether their output is committed or personal.

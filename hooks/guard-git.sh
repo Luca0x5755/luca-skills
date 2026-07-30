@@ -21,8 +21,15 @@ if printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+push[^;|&]*[[:space:]](-f
   deny "Blocked: force push. A rejected push means the remote has history you have not seen. Report the situation; forcing is the user's call, typed by the user."
 fi
 
+# 'git reset --hard': only the exact form 'git reset --hard HEAD' passes — it
+# drops uncommitted changes without moving the branch pointer (the /refactor
+# retreat). Any other target (bare, HEAD~1, a sha) rewrites history → blocked.
 if printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+reset[^;|&]*--hard"; then
-  deny "Blocked: 'git reset --hard' discards work irreversibly. Say what you want to undo and why; the user decides. For inspecting a state, use 'git stash' or a new branch instead."
+  if printf '%s\n' "$cmd" | tr ';&|' '\n' | sed -E 's/^[[:space:]]*(\$\()?[[:space:]]*//' \
+     | grep -E "^git[[:space:]]+reset([[:space:]]|$)" | grep -e '--hard' \
+     | grep -qvE "^git[[:space:]]+reset[[:space:]]+--hard[[:space:]]+HEAD[[:space:]]*$"; then
+    deny "Blocked: 'git reset --hard' with any target other than exactly HEAD discards commits irreversibly. Allowed form: 'git reset --hard HEAD' (drops uncommitted changes only, e.g. the /refactor retreat). Moving the branch pointer is the user's call."
+  fi
 fi
 
 if printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+commit[^;|&]*[[:space:]](--no-verify|-n)([[:space:]]|;|\)|$)"; then
