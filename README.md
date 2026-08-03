@@ -104,6 +104,16 @@ session 規則：
 
 名詞卡住時，隨時可用 `/domain-modeling`（術語模糊、一詞多義、決策要留紀錄）與 `/grilling`（一問一答的基本功）。不確定用哪個，打 `/ask-luca`。
 
+## 參考來源
+
+這些技能不是憑空發明的。移植來源與設計依據：
+
+- [mattpocock/skills](https://github.com/mattpocock/skills) — 上游。多個技能的原始出處；其 issue 區的實測回報（技能依賴寫成散文會隨機失效、共享狀態雙寫者必漂移、spec 是做完即丟的交付紀錄）直接塑造了本 repo 的依賴規則與鷹架生命週期。移植文字的授權聲明見 [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md)。
+- [github/spec-kit](https://github.com/github/spec-kit) — spec 驅動開發的參照系；「模板是 AI 的輸出合約」與「鷹架文件出貨即刪」的實務依據。
+- [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) — 規格流程研究的對照組。
+- [bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) — 多代理流程與模板設計的對照組。
+- [eyaltoledano/claude-task-master](https://github.com/eyaltoledano/claude-task-master) — 任務分解與切票研究的對照組。
+
 ## 維護
 
 ```bash
