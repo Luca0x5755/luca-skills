@@ -43,7 +43,7 @@ Extract function. Move function. Rename. Inline. Introduce value type. Split pha
 **Green** → commit, through one door:
 
 1. Stage exactly the files this transform touched — never `git add -A`.
-2. Load the `/git-commit` skill via the Skill tool — **mandatory**. Never run `git commit` directly; `/git-commit` owns the message, the branch check, and the push.
+2. Apply the `/git-commit` rules — **mandatory**. If they are not already in this context, read its `SKILL.md` first (the Skill tool cannot load user-triggered skills). `/git-commit` owns the message format, the branch check, and the push; never write a commit that ignores it.
 3. The subject names the transform: `Extract calculateTax`.
 
 `/git-commit` is the repo's **commit primitive**, and invoking `/refactor` is the user's authorization for these per-transform commits. The transform *is* the staging boundary; everything outside its files stays unstaged.
