@@ -25,7 +25,25 @@ Build the run order from the tickets' declared blocking edges:
 
 Present the schedule — waves, what runs in parallel, what waits — and **wait for the user's approval before dispatching anything**. This one checkpoint replaces N mid-run interruptions: subagents cannot ask the user questions.
 
-## 3. Dispatch
+## 3. Write the progress file
+
+Long batches outlive the context window. In one field run the orchestrator was auto-compacted 11 times and the handoff summary carried state across exactly once. Conversation memory is not the ledger — a file on disk is.
+
+Immediately after the user approves the schedule, and before dispatching anything, write `docs/agents/implement-all-progress.md`:
+
+```
+# implement-all progress — <argument, or "all">
+Approved schedule: <waves, verbatim>
+
+| ticket | wave | status | branch | blocker |
+| <id> | 1 | pending | — | — |
+```
+
+- Update the ticket's row the moment its subagent returns — before dispatching the next one, not in a batch at the end.
+- **After any compact or context loss, read this file before doing anything else.** It is the source of truth for what ran, what is running, and what is next; the conversation is not.
+- The file is scaffolding: never commit it, and delete it after the final report. The report and the branches are the durable record.
+
+## 4. Dispatch
 
 One subagent per ticket, hard turn limit, each instructed to:
 
@@ -43,12 +61,13 @@ blocker: <one line, only when blocked>
 
 A subagent that stalls or dies is recorded as `blocked`; its branch stays as-is for a human to pick up. Failed work is never cleaned away.
 
-## 4. Report
+## 5. Report
 
 One table: ticket, status, branch, blocker. Then:
 
 - Blocked tickets: quote each blocker verbatim and ask the user how to proceed.
 - Done tickets: branches are ready for review. **Never merge, never open PRs, never delete branches** — those are the user's buttons.
+- Delete `docs/agents/implement-all-progress.md` — the batch is over, the report supersedes it.
 
 ## Rationalization table
 
@@ -58,3 +77,4 @@ One table: ticket, status, branch, blocker. Then:
 | "The subagent is stuck, I'll finish its ticket myself" | An orchestrator that starts building loses the plot. Record blocked, move on. |
 | "All green — I'll merge the branches to save the user a step" | Merge is the trust boundary. It is the user's button. |
 | "The ticket names no seam, I'll pick a reasonable one" | Seams are agreed with humans before dispatch. That ticket is blocked. |
+| "I remember the schedule, no need to write it down" | Eleven auto-compacts in one field run say otherwise. The file survives; you don't. |
