@@ -182,9 +182,11 @@
 
   <rect x="44" y="992" width="196" height="26" rx="8" class="box model"/>
   <text x="142" y="1010" text-anchor="middle" class="skill-sm">/diagnosing-bugs</text>
-  <path d="M 248 1005 L 288 1005" class="edge"/>
-  <text x="296" y="1003" class="note">匯入 /improve-codebase-architecture</text>
+  <path d="M 248 1005 L 636 1005" class="edge"/>
   <text x="296" y="1018" class="note">難修的 bug。修完發現病根在架構，才走這條。</text>
+
+  <rect x="644" y="992" width="280" height="26" rx="8" class="box user"/>
+  <text x="784" y="1010" text-anchor="middle" class="skill-sm">/improve-codebase-architecture</text>
 
   <rect x="44" y="1026" width="196" height="26" rx="8" class="box user"/>
   <text x="142" y="1044" text-anchor="middle" class="skill-sm">/wayfinder</text>
@@ -194,10 +196,9 @@
 
   <!-- development loop -->
   <path d="M 924 880 L 952 880" class="edge" style="marker-end:none" stroke-dasharray="6 4"/>
-  <path d="M 944 1005 L 952 1005" class="edge" style="marker-end:none" stroke-dasharray="6 4"/>
+  <path d="M 924 1005 L 952 1005" class="edge" style="marker-end:none" stroke-dasharray="6 4"/>
   <path d="M 952 1005 L 952 138 L 390 138 L 390 156" class="edge" stroke-dasharray="6 4"/>
   <text x="612" y="132" class="edge-label">回到階段 1，換下一個想法</text>
-  <text x="884" y="999" text-anchor="end" class="edge-label">掃描出的改進想法</text>
 
   <!-- anytime layer -->
   <rect x="24" y="1086" width="920" height="84" rx="10" fill="#f6f8fa"/>
