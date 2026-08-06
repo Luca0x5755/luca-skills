@@ -33,6 +33,8 @@ for n in $core; do
 done
 
 echo "[3] draft / archive 技能不得出現在 README.md"
+# 管轄範圍是「可安裝的連結」（skills/ 路徑）。圖上的虛線框傳達「存在但沒畢業」，
+# 是正確資訊，不在此列 — 見 assets/ 的 SVG。
 for n in $draft $archive; do
   grep -qF "skills/draft/$n" README.md  && err "README.md 不該提到未推廣技能 $n"
   grep -qF "skills/archive/$n" README.md && err "README.md 不該提到未推廣技能 $n"
@@ -69,6 +71,12 @@ done
 
 echo "[8] guard-git.sh 行為符合 hooks/test-guard-git.sh 的規格"
 bash hooks/test-guard-git.sh >/dev/null 2>&1 || { err "hook 回歸測試未過 — 跑 bash hooks/test-guard-git.sh 看細節"; }
+
+echo "[9] 每個 core 與 draft 技能都出現在 flow.svg 或 toolbox.svg 其中之一"
+for n in $core $draft; do
+  grep -qF "/$n" assets/flow.svg 2>/dev/null || grep -qF "/$n" assets/toolbox.svg 2>/dev/null \
+    || err "技能 $n 不在任何一張圖上 — 補進 assets/flow.svg 或 assets/toolbox.svg"
+done
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
