@@ -19,16 +19,16 @@ A **flow** is a path through the skills. Most work runs along one **main flow**;
 1. **`/grill-with-docs`** — sharpen the idea by interview, leaving a paper trail in `CONTEXT.md` and ADRs. No codebase to write into? Run `/grilling` on its own.
 2. **Branch — does a question need a runnable answer?** State model, business logic, a UI you have to see. Detour: **`/handoff`** out → fresh session → **`/prototype`** → **`/handoff`** back.
 3. **Branch — is this more than one session of build?**
-   - **Yes** → **`/to-spec`**, then **`/to-tickets`**. Each ticket declares its blocking edges. Run **`/implement`** once per ticket, clearing context between each.
+   - **Yes** → **`/to-spec`**, then **`/to-tickets`**. Each ticket declares its blocking edges. Run **`/implement`** once per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable.
    - **No** → **`/implement`** right here.
 
 `/implement` drives `/tdd` internally and closes with `/code-review` before committing. Reach for `/tdd` alone to build one concrete behaviour test-first; `/code-review` alone to review any branch against a fixed point.
 
 ### Context hygiene
 
-Steps 1–3 stay in **one unbroken context window** — no compact, no clear, until `/to-tickets` is done. The limit is the window where the model still reasons sharply (~120k tokens). Approaching it early means `/handoff`, not pushing on degraded.
+Steps 1–3 stay in **one unbroken context window** — no compact, no clear, until `/to-tickets` is done. The limit is the **smart zone**: the window (~150k tokens) where the model still reasons sharply. If a session approaches it early, don't push on degraded — `/compact` at the nearest phase boundary and carry on.
 
-`/handoff` forks into a new session. `/compact` (built-in) continues the same one. Compact at phase boundaries only.
+At every **phase boundary** — the gap between two chunks of work — there are five options: Continue, `/clear`, `/handoff`, subagent, `/compact`. Read [PHASE-BOUNDARIES.md](PHASE-BOUNDARIES.md) for the ordered tree: the five questions, why **Continue** is ruled out first (primary-source cost), and why `/compact` is the default at the bottom, not the first reach. Make the decision **at** a boundary; mid-phase, continue or split the rest into subagents.
 
 ## On-ramps
 
@@ -47,6 +47,15 @@ The branch lifecycle, one skill per stage — each acts only on what you decided
 - **`/git-commit`** — commit what *you* staged and push; empty staging stops and asks.
 - **`/git-pr`** — open the PR (English title, Traditional Chinese body), and clean up branches after the merge is verified.
 - **`/git-release`** — bump version files, distill the changelog in Traditional Chinese, tag, and publish the release page.
+
+## Standalone
+
+Off the main flow entirely.
+
+- **`/wizard`** — when a procedure needs the **human's** hands (provisioning, credentials, CI secrets, a one-off migration), generate an interactive bash wizard that walks them through it. Steps the agent can do itself never go in a wizard.
+- **`/wait-what`** — the agent's last message didn't land. Stop and make it re-pitch: context first, plain technical language, the project's vocabulary.
+- **`/to-questionnaire`** — a decision you can't answer alone becomes a questionnaire for the one person who can. It grills the *send* (who, and what you need back), never the subject.
+- **`/writing-for-agents`** — the reference for writing any document an agent consumes: skills, `CLAUDE.md`/`AGENTS.md`, pointed-at docs. Load it before writing or editing one.
 
 ## Vocabulary underneath
 

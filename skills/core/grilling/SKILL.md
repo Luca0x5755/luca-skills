@@ -5,26 +5,30 @@ description: 就一個計畫、決策或想法窮追不捨地拷問使用者。�
 
 # Grilling
 
-Interview the user relentlessly about every aspect of this until you reach a shared understanding. Walk down each branch of the decision tree, resolving dependencies between decisions one at a time.
-
-## Rules of the loop
+Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
 **Respond in the session's language.** This file is English; the interview is not. Questions, recommendations, and the final summary follow the language the user is speaking.
 
-**One question at a time.** Wait for the answer before the next. Several questions at once is bewildering and produces shallow answers to all of them.
+## Rounds and the frontier
 
-**Recommend an answer with every question.** A bare question offloads the work. "Should sessions expire? (recommended: yes, 30 days — it bounds the token table and matches what users expect from other tools)" gets a one-word reply. "How should sessions work?" gets a shrug.
+Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled — the questions you can ask *now* without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
 
-**Facts you look up. Decisions you ask.** If the answer is discoverable — a file, a schema, a dependency version, an existing convention — go find it. Never spend a question on something the filesystem knows. The *decisions*, though, are the user's: put each one to them and wait.
+Each question should be formatted like so:
+
+```
+❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+
+➡️ <your recommended answer>
+```
+
+Each round the user answers reshapes the tree — settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a *later* round, not this one.
+
+## Facts and decisions
+
+Finding *facts* is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it — don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report — ask the rest of the frontier now. The *decisions* are the user's — put each to them and wait.
 
 This split matters most when another skill runs this loop inside its own frame. Being told to explore is not license to answer decisions autonomously.
 
-**Order by dependency.** Resolve the question that unblocks the most other questions first. Asking about error copy before deciding whether the operation is synchronous wastes both answers.
-
-**Name the branch when you hit one.** When two answers lead to genuinely different builds, say so before asking: "this splits the design — if X we need a queue, if Y we don't."
-
 ## Completion
 
-Do not act on any of it until the user confirms shared understanding has been reached. Summarise the resolved decision tree, then stop and wait for that confirmation.
-
-The end state is not "no more questions". It is: every branch either resolved, or explicitly deferred with a note on what would settle it later.
+The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed — resolved, or explicitly deferred with a note on what would settle it later. Summarise the resolved decision tree, then stop: do not act on any of it until the user confirms you have reached a shared understanding.

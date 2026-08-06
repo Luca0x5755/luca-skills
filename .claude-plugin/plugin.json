@@ -28,9 +28,13 @@
     "./skills/core/prototype",
     "./skills/core/setup-skills",
     "./skills/core/tdd",
+    "./skills/core/to-questionnaire",
     "./skills/core/to-spec",
     "./skills/core/to-tickets",
     "./skills/core/triage",
-    "./skills/core/wayfinder"
+    "./skills/core/wait-what",
+    "./skills/core/wayfinder",
+    "./skills/core/wizard",
+    "./skills/core/writing-for-agents"
   ]
 }

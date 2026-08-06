@@ -63,6 +63,8 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[git-commit](./skills/core/git-commit/SKILL.md)** — 檢視已暫存的變更，撰寫英文 commit 並推上遠端。只提交 staged 的內容，絕不代替使用者 stage。
 - **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR（英文標題＋繁中六段式內文）與合併後清理分支，分支生命週期的頭與尾。
 - **[git-release](./skills/core/git-release/SKILL.md)** — 更新版本檔中的版本號，彙整兩版本間的 commit 寫成繁體中文發布摘要，打 tag 推上遠端並發佈 release 頁面。
+- **[wait-what](./skills/core/wait-what/SKILL.md)** — 停 — 剛才那段沒讓人聽懂，要求代理重新講一次。
+- **[to-questionnaire](./skills/core/to-questionnaire/SKILL.md)** — 把一個你無法獨力回答的決策，做成一份問卷交給掌握答案的人填。
 
 ### 模型觸發
 
@@ -72,6 +74,8 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[tdd](./skills/core/tdd/SKILL.md)** — 測試驅動開發，紅—綠—重構。當要以測試先行的方式建置功能或修 bug、當使用者提到 "TDD"、"red-green"、「紅綠」，或要求寫出能撐過重構的測試時使用。
 - **[code-review](./skills/core/code-review/SKILL.md)** — 沿兩條軸審查自某個定點以來的 diff — Standards（有沒有遵守這個 repo 的規範？）與 Spec（有沒有做到票要求的事？）。當使用者要審查一個分支、一個 PR 或進行中的工作時使用，也對應 "code review"、"review this branch"、「審一下」等說法。
 - **[diagnosing-bugs](./skills/core/diagnosing-bugs/SKILL.md)** — 對付硬 bug、間歇性失敗與效能回歸的紀律迴圈 — 重現、最小化、立假說、下探針、修好、補回歸測試。當東西壞了而原因不明顯時使用，也對應 "flaky"、"regression"、「時好時壞」、「找不到原因」等說法。
+- **[wizard](./skills/core/wizard/SKILL.md)** — 生成一支互動式 bash 精靈，一步步引導人類完成只有人能做的步驟。當要開通基礎設施、設定憑證或 CI secrets、走一遍陌生的第三方後台、或跑一次性的遷移／切換時使用。代理自己能做的步驟不要用它。
+- **[writing-for-agents](./skills/core/writing-for-agents/SKILL.md)** — 撰寫給代理讀的文件的通用工法：context pointer、兩種負載、資訊階梯、completion criteria。建立或編輯技能、修改 `CLAUDE.md` 時使用。
 
 ## 主流程
 
