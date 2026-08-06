@@ -15,9 +15,11 @@ If you cannot name what result would make you choose differently, you do not hav
 
 ## Two shapes
 
-**State and logic** → a runnable program with no UI. A CLI, a script, a test file. Drive it with the awkward cases directly: the concurrent edit, the expired token mid-request, the empty collection. What you are looking for is whether the model *forces* you into special cases. Three `if` branches for conditions the model should have made impossible means the model is wrong.
+**State and logic** → a runnable demo with no UI chrome — deliver it as a **single HTML file the user double-clicks**; fall back to a script in the project's task runner only when the question needs the project's real runtime. Drive it with the awkward cases directly: the concurrent edit, the expired token mid-request, the empty collection. What you are looking for is whether the model *forces* you into special cases. Three `if` branches for conditions the model should have made impossible means the model is wrong.
 
-**UI and shape** → several **radically different** variations, toggleable from one place. Not three shades of the same layout — genuinely different structures, so the comparison teaches something. Static data, no backend, no state persistence.
+**UI and shape** → several **radically different** variations, toggleable from one place, started by **one command** in the project's task runner. Not three shades of the same layout — genuinely different structures, so the comparison teaches something. Static data, no backend, no state persistence.
+
+Either way, running it must take zero thought.
 
 ## Rules
 
