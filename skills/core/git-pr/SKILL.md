@@ -3,7 +3,7 @@ name: git-pr
 description: 檢視分支的所有 commit 撰寫並開出 PR；PR 合併後同步 main、清理本地與遠端分支。
 disable-model-invocation: true
 argument-hint: 開 PR；或 PR 已合併後輸入 cleanup 做清理
-allowed-tools: Bash(git log:*), Bash(git push:*), Bash(git switch:*), Bash(git pull:*), Bash(git branch:*), Bash(git fetch:*), Bash(gh pr view:*), Bash(gh pr create:*)
+allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git push:*), Bash(git switch:*), Bash(git pull:*), Bash(git branch:*), Bash(git fetch:*), Bash(gh pr view:*), Bash(gh pr create:*)
 ---
 
 # Git PR
@@ -72,11 +72,16 @@ gh pr view <branch> --json state,mergedAt
 
 ```bash
 git switch main
-git pull origin main
-git branch -d <branch>            # lowercase -d: if it fails there are unmerged commits → stop, report, -D is forbidden
+git pull --ff-only origin main
+git branch -d <branch>
 git push origin --delete <branch> # only if the remote branch still exists; gh may have deleted it on merge
 git fetch --prune
 ```
+
+A squash merge rewrites the branch's commits into one new SHA on `main` — the branch's own SHAs never appear there. Two steps can react to that, each with a defined answer:
+
+- **`git pull --ff-only` refused** → something other than this PR moved `main`. Stop and report. The flag is what makes that visible: a plain `git pull` buries the surprise in a merge commit and lands the same change on `main` twice.
+- **`git branch -d` refused** → happens once `origin/<branch>` is gone (auto-delete on merge, or an earlier prune). While that ref survives, `-d` counts the branch as merged to its upstream and deletes it with a warning — expect that, not a refusal. On a real refusal, get the **evidence** before deleting: `git diff origin/main <branch>` empty means every change landed under a new SHA, and `-D` is then the correct command. Non-empty is the real warning — work on this branch never reached `main`. Stop and report.
 
 Also check `git branch -v` for other branches marked `[gone]`. List them and ask whether to clean them too — **list and ask, never delete outright**.
 
@@ -85,5 +90,6 @@ Also check `git branch -v` for other branches marked `[gone]`. List them and ask
 | Excuse | Reality |
 | --- | --- |
 | "The user said the PR passed, just delete" | Claims get verified with `gh pr view`. Checking costs three seconds; deleting wrong costs half an hour. |
-| "`-d` refused, switch to `-D`" | `-d` failing is git telling you commits never reached main. `-D` is muting the warning. |
+| "`-d` refused, switch to `-D`" | `-D` needs the evidence first: `git diff origin/main <branch>` empty. Without it, `-d` refusing means commits never reached main, and `-D` mutes the warning. |
+| "`--ff-only` refused, drop the flag and pull again" | The refusal *is* the finding. Dropping the flag merges whatever moved `main` and duplicates this change in its history. |
 | "I'll write the PR body from memory" | The material is `git log main..HEAD`. The branch in your memory and the actual branch are not the same branch. |
