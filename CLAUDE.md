@@ -65,7 +65,7 @@
 
 ## 寫技能
 
-**寫或改任何技能（或本檔、`AGENTS.md`）前，先載入 `/writing-for-agents`** — 通用工法（context pointer、兩種負載、資訊階梯、completion criteria、leading words、修剪）的唯一來源；技能專屬的 frontmatter 與觸發機制在它的 `SKILL-MECHANICS.md`。以下只留本 repo 特有的規則：
+**寫或改任何技能（或本檔）前，先載入 `/writing-for-agents`** — 通用工法（context pointer、兩種負載、資訊階梯、completion criteria、leading words、修剪）的唯一來源；技能專屬的 frontmatter 與觸發機制在它的 `SKILL-MECHANICS.md`。以下只留本 repo 特有的規則：
 
 **語言分工：`description` 用繁體中文，內文用英文。** description 是給人掃的目錄與給模型比對的觸發面，用中文；內文是給模型執行的指令，用英文。中文觸發詞（「重構」「拷問我」）放在 description 的引號裡，不放內文。
 
@@ -74,7 +74,7 @@
 - 會 → **使用者觸發**。frontmatter 加 `disable-model-invocation: true`，`description` 改寫成給人看的一句話摘要，拿掉觸發語句。編排型的、會寫檔案的、會發議題的，都屬此類。
 - 不會 → **模型觸發**。省略該欄位，`description` 保留豐富的觸發語句（"Use when the user wants…, mentions…"），讓自動呼叫打得中。純參考型、純紀律型的屬此類。
 
-使用者觸發的技能可以呼叫模型觸發的技能，反之不行，使用者觸發之間也不行。例外有二：（1）編排技能可在**子代理**裡代使用者呼叫另一個使用者觸發技能（如 `implement-all` → `/implement`）— 子代理的邊界就是隔離，不會構成同一上下文裡的技能疊套；（2）`git-commit` 是**提交原語** — 任何技能的 commit 步驟一律**遵循 `/git-commit` 的規則執行**；規則不在上下文時，先讀 `skills/core/git-commit/SKILL.md` 再動手（harness 不允許用 Skill tool 載入使用者觸發的技能 — 2026-07-30 實測）。這是提交的唯一大門，不算疊套。技能內的 commit 視為使用者觸發該技能時已授權；技能自己只准 stage 自己動到的檔案。
+使用者觸發的技能可以呼叫模型觸發的技能，反之不行，使用者觸發之間也不行。以下兩個例外是本 repo 對 `/writing-for-agents` 之 `SKILL-MECHANICS.md` 通則（「使用者觸發技能不可被其他技能觸及」）的在地覆寫，以本條為準：（1）編排技能可在**子代理**裡代使用者呼叫另一個使用者觸發技能（如 `implement-all` → `/implement`）— 子代理的邊界就是隔離，不會構成同一上下文裡的技能疊套；（2）`git-commit` 是**提交原語** — 任何技能的 commit 步驟一律**遵循 `/git-commit` 的規則執行**；規則不在上下文時，先讀 `skills/core/git-commit/SKILL.md` 再動手（harness 不允許用 Skill tool 載入使用者觸發的技能 — 2026-07-30 實測）。這是提交的唯一大門，不算疊套。技能內的 commit 視為使用者觸發該技能時已授權；技能自己只准 stage 自己動到的檔案。
 
 **依賴用 `/skill` 呼叫表達，且必須寫成強制步驟**（"Load the `/grilling` skill via the Skill tool — mandatory"），不能是順帶一提的散文——上游實測（mattpocock/skills，25+ 張票）證明順帶散文在 runtime 隨機失效：跳過、部分套用、遞迴失控。會派子代理的技能要明寫「子代理不得再召喚本技能」。不要跨資料夾 `../other/FILE.md` 深連結；共用的參考文件放在擁有它的技能資料夾內。
 
