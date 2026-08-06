@@ -75,6 +75,7 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[code-review](./skills/core/code-review/SKILL.md)** — 沿兩條軸審查自某個定點以來的 diff — Standards（有沒有遵守這個 repo 的規範？）與 Spec（有沒有做到票要求的事？）。當使用者要審查一個分支、一個 PR 或進行中的工作時使用，也對應 "code review"、"review this branch"、「審一下」等說法。
 - **[diagnosing-bugs](./skills/core/diagnosing-bugs/SKILL.md)** — 對付硬 bug、間歇性失敗與效能回歸的紀律迴圈 — 重現、最小化、立假說、下探針、修好、補回歸測試。當東西壞了而原因不明顯時使用，也對應 "flaky"、"regression"、「時好時壞」、「找不到原因」等說法。
 - **[wizard](./skills/core/wizard/SKILL.md)** — 生成一支互動式 bash 精靈，一步步引導人類完成只有人能做的步驟：開通基礎設施、設定憑證或 CI secrets、跑一次性遷移。代理自己能做的步驟不用它。
+- **[writing-for-agents](./skills/core/writing-for-agents/SKILL.md)** — 撰寫給代理讀的文件的通用工法：context pointer、兩種負載、資訊階梯、completion criteria。建立或編輯技能、修改 `CLAUDE.md` 時使用。
 
 ## 主流程
 

@@ -34,6 +34,7 @@
     "./skills/core/triage",
     "./skills/core/wait-what",
     "./skills/core/wayfinder",
-    "./skills/core/wizard"
+    "./skills/core/wizard",
+    "./skills/core/writing-for-agents"
   ]
 }
