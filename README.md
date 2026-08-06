@@ -108,6 +108,12 @@ session 規則：
 
 名詞卡住時，隨時可用 `/domain-modeling`（術語模糊、一詞多義、決策要留紀錄）與 `/grilling`（一問一答的基本功）。不確定用哪個，打 `/ask-luca`。
 
+## 工具箱
+
+不在主流程線上的元技能 — 動工對象是代理與文件本身，不是你的 codebase：
+
+[![工具箱：元技能](./assets/toolbox.svg)](./assets/toolbox.svg)
+
 ## 參考來源
 
 這些技能不是憑空發明的。移植來源與設計依據：
