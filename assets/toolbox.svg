@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="320" viewBox="0 0 980 320" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
   <title>Luca's Skills 工具箱：元技能</title>
-  <desc>不在主流程線上的元技能：動工對象是代理與文件本身，不是你的 codebase。writing-for-agents 與 wizard 為模型觸發，wait-what 與 to-questionnaire 為使用者觸發，management-frameworks 仍在 draft 試用。</desc>
+  <desc>不在主流程線上的元技能：動工對象是代理與文件本身，不是你的 codebase。writing-for-agents 與 wizard 為模型觸發，wait-what 與 to-questionnaire 為使用者觸發，management-frameworks 與 writing-hooks 仍在 draft 試用。</desc>
 
   <defs>
     <style>
@@ -46,4 +46,8 @@
   <rect x="24" y="240" width="454" height="64" rx="8" class="box model draft"/>
   <text x="251" y="266" text-anchor="middle" class="skill">/management-frameworks</text>
   <text x="251" y="288" text-anchor="middle" class="sub">管理難題不知從何拆起 — 從約 60 個框架裡挑一個給你</text>
+
+  <rect x="502" y="240" width="454" height="64" rx="8" class="box model draft"/>
+  <text x="729" y="266" text-anchor="middle" class="skill">/writing-hooks</text>
+  <text x="729" y="288" text-anchor="middle" class="sub">要新增 hook、或 hook 沒擋住該擋的 — 判準、沉默紀律、防腐爛</text>
 </svg>

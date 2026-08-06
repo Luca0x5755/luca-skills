@@ -69,8 +69,15 @@ for bucket in core draft; do
   done
 done
 
-echo "[8] guard-git.sh 行為符合 hooks/test-guard-git.sh 的規格"
-bash hooks/test-guard-git.sh >/dev/null 2>&1 || { err "hook 回歸測試未過 — 跑 bash hooks/test-guard-git.sh 看細節"; }
+echo "[8] hooks/ 每支 hook 都有對應測試且跑綠；hook 寫 log 用 >>，不用 tee"
+for h in hooks/*.sh; do
+  b=$(basename "$h")
+  case "$b" in test-*) continue ;; esac
+  t="hooks/test-$b"
+  if [ ! -f "$t" ]; then err "$b 沒有對應測試 $t — 沒有檢查的 hook 會靜默腐爛"; continue; fi
+  bash "$t" >/dev/null 2>&1 || err "$t 未過 — 跑 bash $t 看細節"
+done
+grep -lE '\btee\b' hooks/*.sh >/dev/null 2>&1 && err "hook 用 tee 寫 log 會把訊息漏進 stdout — 改用 >>：$(grep -lE '\btee\b' hooks/*.sh | tr '\n' ' ')"
 
 echo "[9] 每個 core 與 draft 技能都出現在 flow.svg 或 toolbox.svg 其中之一"
 for n in $core $draft; do
