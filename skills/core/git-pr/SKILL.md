@@ -78,10 +78,10 @@ git push origin --delete <branch> # only if the remote branch still exists; gh m
 git fetch --prune
 ```
 
-A squash merge rewrites the branch's commits into one new SHA on `main`, which trips two of those steps. Each has a defined answer:
+A squash merge rewrites the branch's commits into one new SHA on `main` — the branch's own SHAs never appear there. Two steps can react to that, each with a defined answer:
 
 - **`git pull --ff-only` refused** → something other than this PR moved `main`. Stop and report. The flag is what makes that visible: a plain `git pull` buries the surprise in a merge commit and lands the same change on `main` twice.
-- **`git branch -d` refused** → expected after a squash merge; git cannot find the branch's SHAs in `main`. Get the **evidence** before deleting: `git diff origin/main <branch>` empty means every change landed under a new SHA, and `-D` is then the correct command. Non-empty is the real warning — work on this branch never reached `main`. Stop and report.
+- **`git branch -d` refused** → happens once `origin/<branch>` is gone (auto-delete on merge, or an earlier prune). While that ref survives, `-d` counts the branch as merged to its upstream and deletes it with a warning — expect that, not a refusal. On a real refusal, get the **evidence** before deleting: `git diff origin/main <branch>` empty means every change landed under a new SHA, and `-D` is then the correct command. Non-empty is the real warning — work on this branch never reached `main`. Stop and report.
 
 Also check `git branch -v` for other branches marked `[gone]`. List them and ask whether to clean them too — **list and ask, never delete outright**.
 
