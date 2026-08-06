@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="1194" viewBox="0 0 980 1194" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨</title>
-  <desc>主流程藍圖，實線框為 core 技能，虛線框為試用中的 draft：feasibility、to-architecture 與 frontend-spec 在切開階段可選，implement-all 批次派工，refactor 與 git-merge 隨時可用。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，實線框為 core 技能，虛線框為試用中的 draft：feasibility、to-architecture 與 frontend-spec 在切開階段可選，implement-all 批次派工，browser-evidence 在收尾後留驗收證據，refactor 與 git-merge 隨時可用。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -128,6 +128,13 @@
   <text x="365" y="761" text-anchor="middle" class="skill-sm">/code-review</text>
   <text x="365" y="776" text-anchor="middle" class="sub">/implement 收尾自動跑，通過才 commit</text>
   <path d="M 365 784 L 365 800" class="edge"/>
+
+  <rect x="560" y="740" width="384" height="68" rx="8" class="box user draft"/>
+  <text x="752" y="762" text-anchor="middle" class="skill-sm">/browser-evidence</text>
+  <text x="752" y="780" text-anchor="middle" class="sub">驗收證據要交給別人時才跑：截圖、網路紀錄、被測版本</text>
+  <text x="752" y="796" text-anchor="middle" class="sub">案例清單由外面給；判定不歸它管；證據進 evidence 分支</text>
+  <path d="M 484 764 L 556 764" class="edge"/>
+  <text x="520" y="758" text-anchor="middle" class="edge-label">可選</text>
 
   <rect x="250" y="800" width="230" height="40" rx="8" class="box user"/>
   <text x="365" y="817" text-anchor="middle" class="skill-sm">/git-commit</text>
