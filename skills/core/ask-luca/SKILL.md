@@ -48,6 +48,14 @@ The branch lifecycle, one skill per stage — each acts only on what you decided
 - **`/git-pr`** — open the PR (English title, Traditional Chinese body), and clean up branches after the merge is verified.
 - **`/git-release`** — bump version files, distill the changelog in Traditional Chinese, tag, and publish the release page.
 
+## Standalone
+
+Off the main flow entirely.
+
+- **`/wizard`** — when a procedure needs the **human's** hands (provisioning, credentials, CI secrets, a one-off migration), generate an interactive bash wizard that walks them through it. Steps the agent can do itself never go in a wizard.
+- **`/wait-what`** — the agent's last message didn't land. Stop and make it re-pitch: context first, plain technical language, the project's vocabulary.
+- **`/to-questionnaire`** — a decision you can't answer alone becomes a questionnaire for the one person who can. It grills the *send* (who, and what you need back), never the subject.
+
 ## Vocabulary underneath
 
 Reach for these when the **words**, not the process, are the problem.
