@@ -56,4 +56,4 @@ Traps, decided-against alternatives, the seam to test at.
 
 ## Finish
 
-Publish, report the URLs or paths and the blocking graph, and say: run `/implement` per ticket, **clearing context between each one**.
+Publish, report the URLs or paths and the blocking graph, and say: run `/implement` per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable.

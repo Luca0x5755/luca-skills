@@ -11,6 +11,8 @@ Write a document that lets a fresh agent continue this work without re-deriving 
 
 `/handoff` **forks**: you do not continue in place. Open a new session and reference the file. `/compact` is the one that continues in place.
 
+`/handoff` is narrow — what it buys is **portability**, a file that travels. Reach for it only when something is travelling: a **new harness** (Claude → Codex), a **new directory** or repo, a **colleague** taking over, or a side task forked **mid-phase** without derailing the current work. If nothing is travelling, one of the other boundary moves is cheaper — see `ask-luca`'s `PHASE-BOUNDARIES.md` for the ordered tree.
+
 ## What goes in
 
 - **Where the work stands** — what is done, what is in flight, what has not been started
