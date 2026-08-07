@@ -38,7 +38,7 @@ git -C ../<repo>-evidence checkout --orphan evidence
 
 Thereafter `git worktree add ../<repo>-evidence evidence`. The main working tree stays untouched — capture runs while code stays checked out on the branch under test.
 
-Layout on that branch: `<TC-ID>/NN-slug.png`, `<TC-ID>/manifest.json`, `<TC-ID>/network.json`, and the driver under `scripts/`.
+Layout on that branch: `<TC-ID>/NN-slug.png`, `<TC-ID>/manifest.json`, `<TC-ID>/network.json`, `<TC-ID>/console.json`, and the driver under `scripts/`.
 
 **Reconcile before capturing.** List the `<TC-ID>/` directories already there against the IDs in this run's list, and report every directory no incoming case claims. Report them; deleting is the user's call.
 
@@ -61,6 +61,8 @@ Headed, slowed, and narrated: the operator watches it happen, and the narration 
 
 **Redact before capture, not after.** Before each shot, ask whether the frame holds real people — names, phones, addresses, prices. If it does, rerun that step against test data, or mask before shooting. This branch gets pushed, and a push is permanent.
 
+**A red case does not stop the run.** Capture the failure as carefully as a pass — shots, network, console — then move to the next case. The list is run whole; stopping at the first failure delivers one defect and hides the rest.
+
 Done when every ID on the list has a directory and every step of every case has a numbered shot. A run that covered five of eight cases is reported as five of eight.
 
 ## 4. Record the chain of custody
@@ -78,7 +80,7 @@ The `commit` is the whole point: evidence on an orphan branch has no other link 
 
 Stage the files this run produced — the case directories and the driver, by path. Then stop: **committing is the user's move.** They run `/git-commit`, which owns the message format, the branch check, and the push. That pause is the last place a frame that should have been redacted can still be caught, and a push cannot be taken back.
 
-Report: cases captured, orphan directories found, and every step that needed a redaction. **Anything skipped gets said out loud.**
+Report: cases captured, orphan directories found, and every step that needed a redaction. **Anything skipped gets said out loud.** Every claim in the report names its exhibit file (`TC-ONSITE-01/03-submit.png`); "should", "probably" and "seems" have no place in one — a statement without an exhibit behind it is an opinion, and opinions are the reviewer's department.
 
 Once they have committed, `git worktree remove ../<repo>-evidence`. The worktree goes; **the branch stays.** `evidence` accumulates every exhibit ever captured — the defects one documents getting fixed is not a reason to retire it. An abandoned worktree, meanwhile, stays invisible until `git worktree list` is long enough to hurt.
 

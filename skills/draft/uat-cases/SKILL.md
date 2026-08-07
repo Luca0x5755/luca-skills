@@ -30,15 +30,19 @@ For each behaviour the sources promise, write one case:
 - **標題** — one line, the behaviour under test.
 - **來源** — the spec section or story this case traces to. When the source changes later, this column is how the affected cases are found.
 - **角色** — who performs it. The same flow under two roles is two cases; a `403`-vs-`200` divergence between them is how authorization holes surface.
-- **前置條件** — what the operator prepares: accounts, seeded data, feature flags.
+- **前置條件** — what the operator prepares: accounts, seeded data, feature flags. Naming another case's ID here（「TC-AUTH-01 已跑過」）is the legal way to state a dependency between cases — no separate dependency column.
 - **步驟** — ordered, each one an observable action a browser driver can perform and photograph. "驗證登入功能" is a title; "在 #login-email 輸入帳號" is a step.
 - **期望結果** — what the human reviewer should see. The verdict is theirs; this column is what they judge against.
+
+**Every promise also gets at least one negative case** — wrong input, a role without permission, a boundary value. Testing is sampling, and the happy path is one sample; a promise left with only its happy path carries a stated reason in the proposal, not silence.
 
 No priority column. A UAT list is run whole.
 
 ## 4. Propose, then wait
 
-Reconcile derived cases against the ledger and present the delta — 新增 N（含擬發的編號）／內容變 M（保號）／退役 K（附一行理由）— then stop for approval.
+First sweep the sources item by item: every promise maps to at least one case. Promises left unmapped go into the proposal as a **gap list** — a promise nobody can test is a finding, not a footnote.
+
+Then reconcile derived cases against the ledger and present the delta — 新增 N（含擬發的編號）／內容變 M（保號）／退役 K（附一行理由）— then stop for approval.
 
 This pause is the point of the process: a number not yet issued can still be struck; once written it is frozen forever. Approval here is also what authorizes the write — nothing touches the file before it.
 

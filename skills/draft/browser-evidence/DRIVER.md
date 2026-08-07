@@ -82,6 +82,18 @@ Widen to `GET` when the case is specifically about data exposure in a response b
 
 Write the collected list to `<TC-ID>/network.json`.
 
+## Console — the layer the page hides
+
+A JS error can leave the frame looking perfectly normal — the handler died, the shot shows the form still standing. Collect what the page said to itself:
+
+```python
+pg.on("console", lambda m: logs.append({"t": m.type, "x": m.text})
+      if m.type in ("error", "warning") else None)
+pg.on("pageerror", lambda e: logs.append({"t": "pageerror", "x": str(e)}))
+```
+
+Errors and warnings only — `log`/`debug` chatter would bury them, same reasoning as the network filter. Write to `<TC-ID>/console.json`. Like the network log, it is unrecoverable after the fact.
+
 ## API without UI
 
 Forged signatures, internal tokens, cross-origin endpoints:
