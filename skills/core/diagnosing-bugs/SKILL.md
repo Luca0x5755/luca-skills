@@ -41,6 +41,8 @@ Prove or kill the hypothesis with evidence — a log, a breakpoint, an assertion
 
 Killed hypothesis → back to 4, with what you learned. Do not smuggle a dead theory into the next one.
 
+**Redact before you paste.** Probe output lands in the conversation, and the conversation is not a safe place for live credentials. Replace tokens, keys, passwords, and connection strings with `<REDACTED>` before quoting any captured output — the shape of a value proves a hypothesis just as well as the value itself.
+
 ## 6. Fix
 
 Fix the **cause**, not the symptom. A `try/catch` around a crash, a retry around a race, a null guard on a value that should never be null — those hide the bug and hand the next person a harder one.
