@@ -12,7 +12,7 @@ That is the line against `/run`. `/run` is *let me see it work*: a screenshot, g
 
 ## Scope
 
-Capture only. The case list arrives from outside — another person, another skill. The verdict is a human's.
+Capture only. The case list arrives from outside — by default from `/uat-cases`, whose ledger holds the other half of the ID discipline; a list from any other source is equally welcome as long as it meets the contract below. The verdict is a human's.
 
 So: record a `403`, and leave whether it should have been a `200` to the reader. Every temptation to judge inside this skill is the skill exceeding itself.
 
@@ -87,3 +87,5 @@ Once they have committed, `git worktree remove ../<repo>-evidence`. The worktree
 ## Where this sits
 
 Downstream of `/implement` and `/code-review`: the manifest pins a commit, so there has to be a built, reviewed version to pin.
+
+When a run happens — pre-release, periodic — is scheduling policy and lives in the project's `docs/test-blueprint.md` when one exists. This skill captures; it does not schedule.

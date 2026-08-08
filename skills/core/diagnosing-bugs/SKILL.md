@@ -13,6 +13,16 @@ For the bugs that resist a first glance: the intermittent flake, the regression 
 
 Everything before that loop exists is guessing, and guessing on a hard bug produces a fix that changes the symptom rather than the cause. If getting to a fast red is hard, that *is* the first task — not a detour from it.
 
+## 0. Triage
+
+Classify the failure before chasing it — three buckets, three different treatments:
+
+- **Real regression** — the product broke. The seven steps below.
+- **Flake** — fails intermittently against unchanged code. Still a bug; the hunt is for the hidden condition (step 1's discipline). A green retry hides the signal the red just gave you — the retry count is data, not a fix.
+- **Infrastructure** — runner died, network hiccup, disk full. Not a bug-fixing problem: fix or report the environment, and say which. The seven steps do not apply.
+
+Triage also names which side broke: a failing *test* over correct product behaviour is a bug in the test, and the fix lands there.
+
 ## 1. Reproduce
 
 Get it failing on demand. Intermittent means "reproduces under conditions you have not identified yet" — hunt the condition: ordering, concurrency, time, cached state, environment.
