@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="1194" viewBox="0 0 980 1194" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨</title>
-  <desc>主流程藍圖，實線框為 core 技能，虛線框為試用中的 draft：feasibility、to-architecture 與 frontend-spec 在切開階段可選，implement-all 批次派工，uat-cases 產出凍結編號的驗收案例清單，browser-evidence 在收尾後留驗收證據，refactor 與 git-merge 隨時可用。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，實線框為 core 技能，虛線框為試用中的 draft：feasibility、to-architecture 與 frontend-spec 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖並指派各層，uat-cases 產出凍結編號的驗收案例清單，browser-evidence 在收尾後留驗收證據，refactor 與 git-merge 隨時可用。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -109,6 +109,14 @@
   <text x="365" y="578" text-anchor="middle" class="sub">切成小票，每張一個 session 做得完</text>
   <path d="M 365 586 L 365 636" class="edge"/>
   <text x="376" y="616" class="edge-label">先 /clear</text>
+
+  <!-- test-blueprint: proposes layer layout, seam list, CI tiers -->
+  <rect x="724" y="452" width="220" height="68" rx="8" class="box user draft"/>
+  <text x="834" y="474" text-anchor="middle" class="skill-sm">/test-blueprint</text>
+  <text x="834" y="492" text-anchor="middle" class="sub">提案層佈局、縫清單（供 /tdd）、CI 時段</text>
+  <text x="834" y="507" text-anchor="middle" class="sub">核准才落檔；產靜態檢查與 CI workflow</text>
+  <path d="M 834 520 L 834 552" class="edge"/>
+  <text x="842" y="542" class="edge-label">指派驗收層</text>
 
   <!-- uat-cases: derives the case list browser-evidence executes -->
   <rect x="724" y="556" width="220" height="54" rx="8" class="box user draft"/>
