@@ -70,3 +70,5 @@ Then stop. The file is the deliverable; committing it is the user's move via `/g
 ## Where this sits
 
 Downstream of `/to-spec` (cases trace to it) and upstream of `/browser-evidence` (which executes the list and holds the other half of the ID discipline — see its contract for what it needs from each case).
+
+When the list runs is scheduling policy and lives in the project's `docs/test-blueprint.md` when one exists. This skill owns what to prove, never when.

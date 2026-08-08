@@ -33,6 +33,10 @@ A **seam** is the boundary where behaviour is observable without reaching inside
 
 Pick the seam before the first test. Too deep and every refactor breaks the suite; too shallow and failures stop being diagnostic. The right seam is usually the interface another part of the system already calls.
 
+The loop does not change at a module boundary. A test at the seam between two modules — real collaborators on both sides — is an integration test, written red-first like any other; the layer is a property of where the seam sits, not a different ritual.
+
+Which seams deserve tests is a project decision, not a per-test guess. Take the list from the project's `docs/test-blueprint.md` when one exists — it names the seams and the promise each serves. Otherwise the boundary `/implement` declared; failing both, the heuristic above.
+
 ## Mocking
 
 Default to **not** mocking. A test with four mocks is testing the mocks.
