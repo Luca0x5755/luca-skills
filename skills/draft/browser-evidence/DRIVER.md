@@ -12,6 +12,18 @@ RUN = "2026-08-09-4b17006"   # <date>-<short SHA of the commit under test>
 
 Set it once, at the top, from the build being captured. Every file the driver writes lands under `RUN/<TC-ID>/`. A helper that builds its path from the case ID alone writes into whatever run came before — silently, and the exhibit it corrupts is the one already committed.
 
+## Report skeleton — the machine half
+
+Reports were once left to discipline, and discipline skipped them. So the driver ends every case by writing `RUN/<TC-ID>/REPORT.md` itself — a report exists for every captured case by construction, not by memory:
+
+- the case's fields as given, missing ones as 「未提供」
+- one heading per step, that step's screenshots embedded (`![](01-adopt.png)`)
+- a **機器事實** line per step, drawn from what the run recorded: status codes from the network log, console error count, final URL
+
+It leaves exactly one thing blank: the per-step **觀察** line. That is the agent's half, filled before the next case starts — the shape and its rules live in the report section of [SKILL.md](SKILL.md).
+
+At run end the driver appends the run index `RUN/REPORT.md`: operator, a link per case report, cases covered out of cases listed, and the skip list.
+
 ## Launch — headed on purpose
 
 ```python
