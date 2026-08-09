@@ -23,6 +23,11 @@ The problem, in the user's terms. One paragraph.
 ## Scope
 What this covers.
 
+## Promises
+Every testable commitment this spec makes, one line each, carrying a frozen
+ID: `PR-<AREA>-NN — <the behaviour promised>`. Everything downstream — test
+cases, test markers, the blueprint's traceability table — keys on these.
+
 ## Out of scope
 What it deliberately does not, and why. Load-bearing — this is the section
 that stops the build drifting.
@@ -36,9 +41,20 @@ What is still unresolved, and what would settle it. Empty is fine. Hiding
 one here is not.
 ```
 
+## Promise IDs
+
+A **promise** is a commitment this spec makes that something downstream can test. `PR-<AREA>-NN` — area from the project's domain language, reusing the areas `/uat-cases` already issued against when a case list exists.
+
+**Issued once, frozen forever, never reissued.** A promise whose wording changed keeps its number. A promise that is dropped keeps its line, flipped to `retired` with a one-line reason — the retired line standing in the spec is what makes "never reissue" checkable by grep instead of by archaeology. Same discipline `/uat-cases` holds for `TC-` numbers, and for the same reason: a renumbered promise silently breaks every test marker, case and traceability row pointing at it.
+
+Read the IDs already issued before issuing more. The published specs are the ledger; `docs/agents/issue-tracker.md` says where they live.
+
+Specs written before IDs existed get numbered **on demand** — a promise takes a number when something downstream first needs to cite it, never in one sweep. Bulk numbering freezes hundreds of IDs the moment it writes them, and most are never cited.
+
 ## Rules
 
 - **Use the project's vocabulary.** Read `CONTEXT.md` first. A spec that invents its own words forces a translation step on every reader.
+- **A promise that cannot be enumerated is not a promise.** 「登入要好用」 cannot be traced or tested; 「會員以正確憑證登入後導向儀表板」 can. A Scope line that resists being written as a numbered promise means the conversation left it vague — that belongs under Open questions, not under a number.
 - **Behaviour, not implementation.** The spec says what must be true. How to build it is `/to-tickets` and `/implement`.
 - **Do not invent.** Anything not settled in the conversation goes under Open questions. Filling a gap with a plausible guess is how a spec quietly becomes wrong.
 - **Show the draft before publishing.** Let the user edit, then publish.
