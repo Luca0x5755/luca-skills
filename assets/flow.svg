@@ -114,7 +114,7 @@
   <rect x="724" y="452" width="220" height="68" rx="8" class="box user draft"/>
   <text x="834" y="474" text-anchor="middle" class="skill-sm">/test-blueprint</text>
   <text x="834" y="492" text-anchor="middle" class="sub">提案層佈局、縫清單（供 /tdd）、CI 時段</text>
-  <text x="834" y="507" text-anchor="middle" class="sub">核准才落檔；產靜態檢查與 CI workflow</text>
+  <text x="834" y="507" text-anchor="middle" class="sub">核准才落檔；產檢查腳本、CI 與現況報告</text>
   <path d="M 834 520 L 834 552" class="edge"/>
   <text x="842" y="542" class="edge-label">指派驗收層</text>
 
