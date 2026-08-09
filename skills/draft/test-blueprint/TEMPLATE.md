@@ -54,4 +54,4 @@ The shape of `docs/test-blueprint.md` in the target project. Content in Traditio
 - 偏離預設：<無，或逐條列偏離＋理由>
 ```
 
-承諾欄用 `/to-spec` 發的凍結編號，不用 spec 章節號。章節號會隨改版漂走，整欄同時失真；凍結編號撐得過規格被重寫。
+承諾欄用凍結編號，不用 spec 章節號。章節號會隨改版漂走，整欄同時失真；凍結編號撐得過規格被重寫。編號沿用專案既有的需求編號體系（FR-／NFR-／SC-）；範例中的 `PR-` 是專案沒有體系時 `/to-spec` 發的預設，不是規範。

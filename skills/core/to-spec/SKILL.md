@@ -25,7 +25,7 @@ What this covers.
 
 ## Promises
 Every testable commitment this spec makes, one line each, carrying a frozen
-ID: `PR-<AREA>-NN — <the behaviour promised>`. Everything downstream — test
+ID: `<ID> — <the behaviour promised>`. Everything downstream — test
 cases, test markers, the blueprint's traceability table — keys on these.
 
 ## Out of scope
@@ -43,7 +43,9 @@ one here is not.
 
 ## Promise IDs
 
-A **promise** is a commitment this spec makes that something downstream can test. `PR-<AREA>-NN` — area from the project's domain language, reusing the areas `/uat-cases` already issued against when a case list exists.
+A **promise** is a commitment this spec makes that something downstream can test.
+
+**The ID format is the project's, not this skill's.** A project with a requirement numbering scheme already in use (`FR-REF-03`, `NFR-Aud-004`, `SC-16`) keeps it — issuing a parallel scheme beside a working one creates a second source of truth for the same fact, and every downstream reference then has two names to disagree over. Only a project with no scheme gets one issued here: `PR-<AREA>-NN`, area from the project's domain language, reusing the areas `/uat-cases` already issued against when a case list exists. What this skill owns is the discipline, whatever the prefix:
 
 **Issued once, frozen forever, never reissued.** A promise whose wording changed keeps its number. A promise that is dropped keeps its line, flipped to `retired` with a one-line reason — the retired line standing in the spec is what makes "never reissue" checkable by grep instead of by archaeology. Same discipline `/uat-cases` holds for `TC-` numbers, and for the same reason: a renumbered promise silently breaks every test marker, case and traceability row pointing at it.
 

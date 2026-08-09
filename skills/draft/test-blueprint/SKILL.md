@@ -18,7 +18,7 @@ A `docs/test-blueprint.md` already present means revision mode: the proposal in 
 
 Three inventories. Sources are named, not guessed — anything missing, ask for:
 
-- **Promises** — what the spec, stories, and scenarios commit to, each one cited by the frozen ID `/to-spec` issued (`PR-AUTH-01`). A promise still living as a section number has no stable key; have `/to-spec` issue one before it enters the table. Taking scenarios by dictation is normal (same discipline as `/uat-cases`).
+- **Promises** — what the spec, stories, and scenarios commit to, each one cited by its frozen ID: the project's own requirement numbering (`FR-REF-03`), or the `PR-` ID `/to-spec` issued where the project had none. A promise still living as a section number has no stable key; have `/to-spec` issue one before it enters the table. Taking scenarios by dictation is normal (same discipline as `/uat-cases`).
 - **Existing tests** — where current tests sit: which layer each belongs to, where and when it runs today.
 - **Seams** — the module boundaries where integration bugs live. List them; the project's bug history marks the sore ones (defects cluster).
 

@@ -28,7 +28,7 @@ For each behaviour the sources promise, write one case:
 
 - **ID** `TC-<AREA>-NN` — area from the project's domain language (use the `/domain-modeling` glossary when one exists). Reuse an existing area whenever one fits; a new area is issued as deliberately as a new number, because areas freeze too.
 - **標題** — one line, the behaviour under test.
-- **來源** — the promise ID this case proves (`PR-AUTH-01`), plus the story where one exists. A frozen promise ID survives the spec being rewritten around it, which a section number does not; when the source changes, this column is how the affected cases are found. A spec with no IDs yet is the moment to have `/to-spec` issue one.
+- **來源** — the promise ID this case proves, plus the story where one exists. The ID follows the project's own requirement numbering (`FR-REF-03`); the `PR-` form is `/to-spec`'s default for projects that had none. A frozen promise ID survives the spec being rewritten around it, which a section number does not; when the source changes, this column is how the affected cases are found. A spec with no IDs yet is the moment to have `/to-spec` issue one.
 - **角色** — who performs it. The same flow under two roles is two cases; a `403`-vs-`200` divergence between them is how authorization holes surface.
 - **前置條件** — what the operator prepares: accounts, seeded data, feature flags. Naming another case's ID here（「TC-AUTH-01 已跑過」）is the legal way to state a dependency between cases — no separate dependency column.
 - **步驟** — ordered, each one an observable action a browser driver can perform and photograph. "驗證登入功能" is a title; "在 #login-email 輸入帳號" is a step.
