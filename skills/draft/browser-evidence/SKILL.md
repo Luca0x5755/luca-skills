@@ -29,20 +29,27 @@ Either one missing means the numbering cannot be generated and every file lands 
 
 ## 1. Open the evidence worktree
 
-Evidence lives on `evidence`, an **orphan branch** — no common ancestor with `main`, so it never merges in by accident and never tangles the graph. Create it once:
+Evidence lives on `evidence`, an **orphan branch** — no common ancestor with `main`, so it never merges in by accident and never tangles the graph. The worktree mounts at `.evidence/` **inside the project**, so the exhibit travels with the repo instead of sitting in a sibling directory the next person never finds.
+
+`.evidence/` goes into the project's `.gitignore` **before the first mount**. That directory is a working tree for another branch; left untracked-but-visible, it turns `git status` on `main` permanently dirty and any `git add .` sweeps the whole exhibit onto the wrong branch. The leading dot also keeps test runners, linters and IDE indexers out of it by default. So:
 
 ```bash
-git worktree add --detach ../<repo>-evidence
-git -C ../<repo>-evidence checkout --orphan evidence
+echo '.evidence/' >> .gitignore    # once, committed to main
+git worktree add --detach .evidence
+git -C .evidence checkout --orphan evidence
 ```
 
-Thereafter `git worktree add ../<repo>-evidence evidence`. The main working tree stays untouched — capture runs while code stays checked out on the branch under test.
+Thereafter `git worktree add .evidence evidence`. The main working tree stays untouched — capture runs while code stays checked out on the branch under test.
 
-Layout on that branch: `<TC-ID>/NN-slug.png`, `<TC-ID>/manifest.json`, `<TC-ID>/network.json`, `<TC-ID>/console.json`, and the driver under `scripts/`.
+Layout on that branch is keyed by **run first, case second**: `<YYYY-MM-DD>-<short-SHA>/<TC-ID>/NN-slug.png`, with `manifest.json`, `network.json` and `console.json` beside the shots, and the driver at the root of the run directory.
 
-**Reconcile before capturing.** List the `<TC-ID>/` directories already there against the IDs in this run's list, and report every directory no incoming case claims. Report them; deleting is the user's call.
+The run key carries a date for the human and a short SHA for the machine. The date alone collides the moment a build is captured twice in a day; the SHA states which build the exhibit tested without opening a single file.
 
-Re-running a case **overwrites its directory**. Version history is git's job, and a second copy under a dated name is that job done worse.
+**A run directory is never overwritten.** Each one is a complete exhibit of one build, so pinning a release means keeping its directory — not checking out an old commit to reconstruct what was captured. Within a run, re-capturing a case does overwrite that case's directory; across runs, nothing is ever touched again.
+
+Storage therefore grows monotonically, by design. When that starts to hurt, retention is a policy decision and belongs in the project's `docs/test-blueprint.md` alongside the other scheduling policy — not a rule this skill invents.
+
+**Reconcile before capturing.** Compare this run's ID list against the **most recent previous run directory**, never against every directory on the branch — the whole history would come back as orphans. Report every ID that run captured and this list no longer claims: those are cases retired or renumbered upstream. Report them; deleting is the user's call.
 
 ## 2. Generate the driver
 
@@ -82,7 +89,7 @@ Stage the files this run produced — the case directories and the driver, by pa
 
 Report: cases captured, orphan directories found, and every step that needed a redaction. **Anything skipped gets said out loud.** Every claim in the report names its exhibit file (`TC-ONSITE-01/03-submit.png`); "should", "probably" and "seems" have no place in one — a statement without an exhibit behind it is an opinion, and opinions are the reviewer's department.
 
-Once they have committed, `git worktree remove ../<repo>-evidence`. The worktree goes; **the branch stays.** `evidence` accumulates every exhibit ever captured — the defects one documents getting fixed is not a reason to retire it. An abandoned worktree, meanwhile, stays invisible until `git worktree list` is long enough to hurt.
+Once they have committed, `git worktree remove .evidence`. The worktree goes; **the branch stays.** `evidence` accumulates every exhibit ever captured — the defects one documents getting fixed is not a reason to retire it. An abandoned worktree, meanwhile, stays invisible until `git worktree list` is long enough to hurt.
 
 ## Where this sits
 
