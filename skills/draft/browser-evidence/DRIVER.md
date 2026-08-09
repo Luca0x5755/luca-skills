@@ -4,6 +4,14 @@ The Playwright mechanics behind [`browser-evidence`](SKILL.md): what the generat
 
 Each run generates both files from scratch — a `drv.py` holding the helpers below, and a script per run that imports it. A `drv.py` left over from last time is a liability, not a head start: the helpers are stable, the selectors they wrap are not.
 
+## Run root — every written path hangs off it
+
+```python
+RUN = "2026-08-09-4b17006"   # <date>-<short SHA of the commit under test>
+```
+
+Set it once, at the top, from the build being captured. Every file the driver writes lands under `RUN/<TC-ID>/`. A helper that builds its path from the case ID alone writes into whatever run came before — silently, and the exhibit it corrupts is the one already committed.
+
 ## Launch — headed on purpose
 
 ```python
@@ -50,7 +58,7 @@ Call it before each step, then let the page settle so it makes the shot.
 def step_shot(pg, tcids, slug):
     for tc in tcids:
         _seq[tc] = _seq.get(tc, 0) + 1
-        pg.screenshot(path=f"{tc}/{_seq[tc]:02d}-{slug}.png", full_page=True)
+        pg.screenshot(path=f"{RUN}/{tc}/{_seq[tc]:02d}-{slug}.png", full_page=True)
 ```
 
 One image can serve several cases — the same screen is often step 1 of one case and the precondition of another — so the counter is per case, keeping each sequence aligned with its own step numbers.
@@ -80,7 +88,7 @@ Writes only. Static assets, polling and analytics would bury the three lines tha
 
 Widen to `GET` when the case is specifically about data exposure in a response body.
 
-Write the collected list to `<TC-ID>/network.json`.
+Write the collected list to `<RUN>/<TC-ID>/network.json`.
 
 ## Console — the layer the page hides
 
@@ -92,7 +100,7 @@ pg.on("console", lambda m: logs.append({"t": m.type, "x": m.text})
 pg.on("pageerror", lambda e: logs.append({"t": "pageerror", "x": str(e)}))
 ```
 
-Errors and warnings only — `log`/`debug` chatter would bury them, same reasoning as the network filter. Write to `<TC-ID>/console.json`. Like the network log, it is unrecoverable after the fact.
+Errors and warnings only — `log`/`debug` chatter would bury them, same reasoning as the network filter. Write to `<RUN>/<TC-ID>/console.json`. Like the network log, it is unrecoverable after the fact.
 
 ## API without UI
 
