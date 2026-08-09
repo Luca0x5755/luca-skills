@@ -54,6 +54,8 @@ The acceptance cell carries **both** verdict and freshness. A verdict alone lies
 
 **未實作** is a set difference, not a judgment: the promise IDs in the blueprint's traceability table, minus every promise ID the sources above accounted for.
 
+Promise IDs follow the project's own requirement numbering (`FR-REF-03`); the `PR-` in the examples above is `/to-spec`'s default for projects that had none, not a norm.
+
 ## What this file must never do
 
 Restate the plan. The layer table, the seam list and the CI tiers live in the blueprint and are cited from here by reference. Two copies of a plan diverge, and the generated one always wins by being newer — which is how a machine's snapshot quietly replaces a human's decision.
