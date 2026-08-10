@@ -50,7 +50,7 @@ The shape of `docs/test-blueprint.md` in the target project. Content in Traditio
 - 覆蓋率：追溯覆蓋為完成定義；行覆蓋僅儀表，不設門檻
 - 未實作門：新增硬擋、存量軟報，界線為上方豁免清單
 - 現況報告：`docs/test-status.md`，CI 於 merge 後生成
-- 證據保留：<留最近 N 次＋每次發佈一份，或「暫不設限」>
+- 證據保留：<留最近 N 次＋每次發佈一份，或「暫不設限」>；單 run 超過約 50MB 或 `docs/uat/` 累計超過約 1GB 時，改上 Git LFS
 - 偏離預設：<無，或逐條列偏離＋理由>
 ```
 

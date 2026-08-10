@@ -147,7 +147,7 @@
   <rect x="560" y="740" width="384" height="68" rx="8" class="box user draft"/>
   <text x="752" y="762" text-anchor="middle" class="skill-sm">/browser-evidence</text>
   <text x="752" y="780" text-anchor="middle" class="sub">驗收證據要交給別人時才跑：截圖、網路紀錄、被測版本</text>
-  <text x="752" y="796" text-anchor="middle" class="sub">清單來自 /uat-cases 或外部；判定不歸它管；證據進 evidence 分支</text>
+  <text x="752" y="796" text-anchor="middle" class="sub">清單來自 /uat-cases 或外部；判定不歸它管；證據 PR 合回基底分支</text>
   <path d="M 484 764 L 556 764" class="edge"/>
   <text x="520" y="758" text-anchor="middle" class="edge-label">可選</text>
 
