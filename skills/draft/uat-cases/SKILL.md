@@ -32,7 +32,7 @@ For each behaviour the sources promise, write one case:
 - **來源** — the promise ID this case proves, plus the story where one exists. The ID follows the project's own requirement numbering (`FR-REF-03`); the `PR-` form is `/to-spec`'s default for projects that had none. A frozen promise ID survives the spec being rewritten around it, which a section number does not; when the source changes, this column is how the affected cases are found. A spec with no IDs yet is the moment to have `/to-spec` issue one.
 - **角色** — who performs it. The same flow under two roles is two cases; a `403`-vs-`200` divergence between them is how authorization holes surface.
 - **前置條件** — what the operator prepares: accounts, seeded data, feature flags. Naming another case's ID here（「TC-AUTH-01 已跑過」）is the legal way to state a dependency between cases — no separate dependency column.
-- **步驟** — ordered, each one an observable action a browser driver can perform and photograph. "驗證登入功能" is a title; "在 #login-email 輸入帳號" is a step.
+- **步驟** — ordered, each one an observable action the capture channel can perform and record. "驗證登入功能" is a title; "在 #login-email 輸入帳號" is a step. A step only a human can perform（收 OTP 簡訊）is legal — `/browser-evidence` hands it to the operator — but write it as concretely as a machine step.
 - **期望結果** — what the human reviewer should see. The verdict is theirs; this column is what they judge against.
 
 **Every promise also gets at least one negative case** — wrong input, a role without permission, a boundary value. Testing is sampling, and the happy path is one sample; a promise left with only its happy path carries a stated reason in the proposal, not silence.
