@@ -132,14 +132,57 @@ def flush_case(tc, fields, steps, commit, env, operator, channel="chromium"):
                 lines += [f"[{p.name}]({p.name})",
                           "```json" if p.suffix == ".json" else "```", snip, "```"]
         lines += [f"- **機器事實**：{f}" for f in _facts.get(tc, {}).get(i, [])]
-        lines += ["- **觀察**：", ""]   # the agent's half — filled before the next case
+        lines += ["- **觀察**：", ""]   # the agent's half — filled in the 觀察 pass
+    lines.append("- **對照**：")   # case-level: 觀察 vs 期望結果 — same debt gate
     (d / "REPORT.md").write_text("\n".join(lines), "utf-8")
+
+
+def _debt_line():
+    # Blank 觀察/對照 lines across the run's case reports — the agent's unpaid half.
+    per = [(rp.parent.name, n) for rp in sorted((ROOT / RUN).glob("*/REPORT.md"))
+           if (n := sum(1 for l in rp.read_text("utf-8").splitlines()
+                        if l.strip() in ("- **觀察**：", "- **對照**：")))]
+    line = f"- 未填：{sum(n for _, n in per)} 處"
+    return line + ("（" + "、".join(f"{tc} {n}" for tc, n in per) + "）" if per else "")
+
+
+def _cmp_value(tc):
+    # The case's filled 對照 value, tag-sized: 相符／無法對照, or 不符 with its
+    # step number — the grounds stay in the case report, the index only lists.
+    rp = ROOT / RUN / tc / "REPORT.md"
+    if rp.exists():
+        for l in rp.read_text("utf-8").splitlines():
+            if l.startswith("- **對照**：") and l.strip() != "- **對照**：":
+                v = l[len("- **對照**："):].strip()
+                return v.split("，")[0].split(" — ")[0]
+
+
+def verify_run():
+    # Re-runnable after the 觀察/對照 pass: recounts the blanks, rewrites the
+    # count line and each case link's 對照 tag, prints the count. Staging is
+    # legal only when it prints 0.
+    if not RUN:
+        raise RuntimeError("set drv.RUN before capturing anything")
+    idx = ROOT / RUN / "REPORT.md"
+    debt, out = _debt_line(), []
+    for l in idx.read_text("utf-8").splitlines():
+        if l.startswith("- 未填："):
+            l = debt
+        elif l.startswith("- [") and "/REPORT.md)（" in l:
+            tc = l[3:l.index("]")]
+            chan = l.split(")（")[1].split("｜")[0].rstrip("）")
+            v = _cmp_value(tc)
+            l = f"- [{tc}]({tc}/REPORT.md)（{chan}{'｜' + v if v else ''}）"
+        out.append(l)
+    idx.write_text("\n".join(out), "utf-8")
+    print(debt)
 
 
 def flush_run(operator, listed, covered, skips=()):
     lines = [f"# {RUN} — run index",
              f"- 測試者：{operator}",
-             f"- 覆蓋：{len(covered)}／{len(listed)}", ""]
+             f"- 覆蓋：{len(covered)}／{len(listed)}",
+             _debt_line(), ""]
     lines += [f"- [{tc}]({tc}/REPORT.md)（{_chan.get(tc, 'chromium')}）" for tc in covered]
     if skips:
         lines += ["", "## 跳過"] + [f"- {s}" for s in skips]
