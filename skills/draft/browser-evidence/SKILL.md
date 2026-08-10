@@ -14,7 +14,7 @@ That is the line against `/run`. `/run` is *let me see it work*: a screenshot, g
 
 Capture only. The case list arrives from outside — by default from `/uat-cases`, whose ledger holds the other half of the ID discipline; a list from any other source is equally welcome as long as it meets the contract below. The verdict is a human's.
 
-So: record a `403`, and leave whether it should have been a `200` to the reader. Every temptation to judge inside this skill is the skill exceeding itself.
+So: record a `403`, and state in the 對照 line (step 4) how it compares to the written 期望結果 — both ends of that comparison are on paper, so the reader can check it. Whether the case passes acceptance stays the reader's call; every temptation to go further than the comparison is the skill exceeding itself.
 
 **The exhibit, not the browser, is the identity.** The browser is the usual capture channel, never the boundary. A case with no UI at all — an API contract, a CLI job, a database state — runs through the `api`/`cli` channel under the same numbering, manifest and report discipline (the `evidence` helper in [`DRIVER.md`](DRIVER.md)). A case automatable except for one human step — an OTP, a CAPTCHA, an external mailbox — runs with that step handed to the operator (step 3). Only a case whose environment is genuinely out of reach — a physical device, a system with no automatable surface — is skipped, and every skip is reported, never silent.
 
@@ -68,23 +68,31 @@ Headed, slowed, and narrated: the operator watches it happen, and the narration 
 
 **A human step does not break the chain.** When one step defeats automation — an OTP, a CAPTCHA, a mail to fetch from an external inbox — call `manual()`: the banner shows the instruction, the run waits for Enter, the operator performs the step in the same headed browser, the run resumes. The shot is still taken and the network still recorded; what changes is a 機器事實 line naming the step as operator-performed, and a row in the run index's 人工接手 table. A non-browser step captures with `evidence()` instead of a shot — same counter, so a case can mix channels without its numbering forking.
 
+**Capture and the 觀察 pass run in parallel.** A case's skeleton `REPORT.md` landing on disk is the hand-off signal: from that moment its 觀察 and 對照 lines and its 測試結果 belong to the agent (step 4), while the script drives the next case. A run containing `manual()` steps is executed by the operator in their own terminal — `input()` needs an interactive stdin, and a background process's answers EOF — with the agent filling alongside; a run without them the agent launches in the background itself. Re-capturing a case overwrites its directory and takes the hand-off back; refill after. If parallel filling fails, filling after the run ends is legal: the gate sits at staging, not at the clock.
+
 **Self-healing is fenced to location.** When a selector no longer finds its element, repair the locator and continue the run — a heal may change **how a step locates**, never **what it does or asserts**. A "heal" that lands on a different control turns the exhibit green while photographing the wrong thing; when the right element is genuinely gone, that is a red step to capture, not a locator to widen. Every heal leaves three traces: the healed case script committed with the run, a 機器事實 line on that step（`selector 由 X 改為 Y`）, and the heal table in the run index. No per-heal approval — the traces are the accountability.
 
-Done when every ID on the list has a directory, every step of every case has a numbered artifact — a shot on a browser step, an `evidence` payload otherwise — and every case's report has its 觀察 lines filled. A run that covered five of eight cases is reported as five of eight.
+Done when every ID on the list has a directory, every step of every case has a numbered artifact — a shot on a browser step, an `evidence` payload otherwise — and every case's report has its 觀察 and 對照 lines and its 測試結果 filled. A run that covered five of eight cases is reported as five of eight.
 
 ## 4. The report — capture made readable
 
 A pile of PNGs and JSON is raw material; the reader was promised an exhibit. Two files per run:
 
-- `<RUN>/<TC-ID>/REPORT.md` — one per case, the document a reviewer actually reads. The driver writes the skeleton (see [DRIVER.md](DRIVER.md)), so a report *exists* for every captured case by construction; the agent fills the 觀察 lines **the moment the case finishes**, while the frame is still up. A description reconstructed later from stale screenshots is where "should" and "probably" creep in.
-- `<RUN>/REPORT.md` — the run index: operator, which cases ran (five of eight is five of eight), a link per case report with its channel, every skip, every redaction, orphan directories, the 人工接手 table — every operator-performed step — and the heal table — every selector repaired this run, old and new. **It lists, it never restates** — a copy of case content is a second document waiting to diverge.
+- `<RUN>/<TC-ID>/REPORT.md` — one per case, the document a reviewer actually reads. The driver writes the skeleton (see [DRIVER.md](DRIVER.md)), so a report *exists* for every captured case by construction; the agent fills the 觀察 and 對照 lines and the header 測試結果 **as each skeleton lands** (the hand-off in step 3). All are written from reading the case's shots and `evidence` payloads, never from memory of the run — the exhibit is on disk, and memory is where "should" and "probably" creep in.
+- `<RUN>/REPORT.md` — the run index: operator, which cases ran (five of eight is five of eight), the 未填 count（觀察、對照與測試結果）, a link per case report tagged with its channel and — once filled — its 測試結果, every skip, every redaction, orphan directories, the 人工接手 table — every operator-performed step — and the heal table — every selector repaired this run, old and new. **It lists, it never restates** — a copy of case content is a second document waiting to diverge.
 
 The reader never leaves the `.md`. A browser step embeds its shot; a non-browser step embeds its captured payload as a fenced block the same way — excerpted when long, with the raw `NN-slug.json`/`.txt` always linked beside it.
 
-In the case report, steps expand one by one, each step's screenshot embedded under it, followed by two lines:
+In the case report, steps expand one by one, each step's screenshot embedded under it, followed by three lines:
 
 - **機器事實** — what the capture files recorded: status codes, console errors, final URL.
 - **觀察** — the literal words of the frame. The line between observation and verdict: **a sentence that still reads without the 期望結果 is an observation; one that only means something against it is a verdict.** 「覆核率統計顯示 100%」 stands on its own — write it. 「覆核率符合要求」 doesn't — verdicts live in `docs/uat-cases.md`'s 最近判定, registered by the human who read this report.
+
+- **對照** — this step's 觀察 set against **the clause of the 期望結果 it bears on**, quoted — `符合`／`不符合`／`部分符合`／`無法對照`, with the exhibit and the quoted clause as grounds. A step the 期望結果 never speaks to writes 「無法對照 — 期望結果未涉及此步」; an expectation the run's evidence cannot observe writes 無法對照 plus one line naming what is missing — that value's job is to accuse the upstream field or the step list, never to shade into 符合. **A 對照 is a comparison statement, not a verdict**: it quotes both ends so the reader can check it, and what it may never say is whether the case passes acceptance.
+
+One line in the header, directly below 期望結果:
+
+- **測試結果** — the roll-up of the steps' 對照 values, by a fixed rule: comparable steps all 符合 → `符合`; all 不符合 → `不符合`; mixed → `部分符合`; nothing comparable → `無法對照`. One word, no grounds — the reader gets the outcome before the first screenshot, and the grounds stay in the steps.
 
 Every sentence names its exhibit (`03-escalation.png`, `network.json`); "should", "probably" and "seems" have no place here — a statement without an exhibit behind it is an opinion, and opinions are the reviewer's department.
 
@@ -94,11 +102,13 @@ Every sentence names its exhibit (`03-escalation.png`, `network.json`); "should"
 - **來源**：Excel ch11／FR-REF-03、NFR-Aud-004
 - **前置條件**：一份未經 family review 的 SOP draft
 - **期望結果**：adopt 必須失敗；覆核率 100%
+- **測試結果**：符合
 
 ### 步驟 1 — 直接對該 draft 執行 adopt
 ![](01-adopt.png)
 - **機器事實**：`POST /api/sop/adopt → 403`（network.json）
 - **觀察**：畫面顯示紅字「需完成 family review」，adopt 按鈕呈灰階（01-adopt.png）
+- **對照**：符合 — `403` 與紅字（network.json、01-adopt.png）對期望結果「adopt 必須失敗」
 ```
 
 ## 5. Record the chain of custody
@@ -116,7 +126,7 @@ The `commit` is the whole point: the evidence branch's own commits say when the 
 
 ## 6. Hand off
 
-Stage the files this run produced — the run directory (the case script already lives inside it), by path, on the `evidence/…` branch. Then stop: **committing is the user's move** via `/git-commit`, and so are opening the PR back into the base branch and merging it. The PR is the last gate where a frame that should have been redacted can still be caught — merge is what makes the exhibit part of the base branch's history, and the user may also leave it unmerged; the branch stands as the exhibit either way.
+Before staging, rerun `drv.verify_run()`: it recounts the blank 觀察／對照／測試結果 lines, rewrites the count and each case link's 測試結果 tag in the run index, and prints the count — **staging is legal only when it prints 0**. A nonzero count is unfinished work, not a footnote. Then stage the files this run produced — the run directory (the case script already lives inside it), by path, on the `evidence/…` branch. Then stop: **committing is the user's move** via `/git-commit`, and so are opening the PR back into the base branch and merging it. The PR is the last gate where a frame that should have been redacted can still be caught — merge is what makes the exhibit part of the base branch's history, and the user may also leave it unmerged; the branch stands as the exhibit either way.
 
 Selector heals that belong in `tests/e2e/lib/` go to the base branch as a **separate code PR** — an evidence PR can sit unmerged or be declined, and the lib repair must not be hostage to that verdict. Cite the run key in that PR's body; the proof of why each selector changed is in the run's reports.
 
