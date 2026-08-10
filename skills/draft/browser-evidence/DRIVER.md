@@ -17,8 +17,10 @@ First line of every case script, from the build being captured. Every path the h
 - **`watch`** — network, console and dialogs on one page. Network records state-changing writes only: static assets and polling would bury the three lines that matter, and a `403`/`200` divergence across roles is how an authorization bypass surfaces. Widen to `GET` when the case is about data exposure in a response body. Console keeps errors and warnings — a JS error can leave the frame looking perfectly normal. Both are unrecoverable after the fact; a rerun may not reproduce the state. Dialogs auto-accept, because a native `confirm()` blocks the run until something answers it.
 - **`step_shot`** — numbered screenshots, counter per case. One image can serve several cases (the same screen is step 1 of one and the precondition of another), so each sequence stays aligned with its own step numbers. `full_page=True` is a choice: it catches what scrolled out of view, and on a long list page it costs megabytes — use the viewport when the proof is on screen.
 - **`fact` / `heal`** — the machine-facts channel. `heal` records a selector repair and writes its 機器事實 line in one move; the fence (location only, never action or assertion) is in [SKILL.md](SKILL.md) step 3.
-- **`flush_case`** — writes `network.json`, `console.json`, `manifest.json` and the report skeleton: fields as given (missing ones as 「未提供」), one heading per step with its shots embedded, the recorded 機器事實 lines — and a blank **觀察** line, the agent's half, filled before the next case starts. A report exists for every captured case by construction, not by memory.
-- **`flush_run`** — the run index: operator, covered-of-listed, a link per case report, the skip list, and the heal table.
+- **`evidence`** — the non-browser step's `step_shot`: writes a numbered `NN-slug.json` (dict/list payload) or `.txt` (anything else) through the same per-case counter, so a case mixing browser and api steps keeps one unbroken sequence. Pass the raw request-plus-response, not a summary — the file is the exhibit.
+- **`manual`** — hands one step to the operator: banner shows the instruction, `input()` blocks until Enter, then a 機器事實 line and a 人工接手 row record it. The operator acts in the same headed browser, so the shot and the network log around the step survive intact.
+- **`flush_case`** — writes `network.json`, `console.json`, `manifest.json` (with the case's `channel`) and the report skeleton: fields as given (missing ones as 「未提供」), one heading per step with its shots and `evidence` payloads embedded (fenced block, excerpted past 1500 chars, raw file linked), the recorded 機器事實 lines — and a blank **觀察** line, the agent's half, filled before the next case starts. A report exists for every captured case by construction, not by memory.
+- **`flush_run`** — the run index: operator, covered-of-listed, a link per case report tagged with its channel, the skip list, the 人工接手 table, and the heal table.
 
 > **Pitfall — the banner is page text.** Searching the DOM for a phrase can match the caption instead of the application, which once turned a passing case into a reported defect. Query the HTML for field names (`cost`, `unit_price`) rather than rendered words.
 
@@ -36,10 +38,12 @@ Prefer stable ids (`#login-email`). Where the app gives none, index visible inpu
 
 ## API without UI
 
-Forged signatures, internal tokens, cross-origin endpoints:
+Forged signatures, internal tokens, cross-origin endpoints — and whole cases with no UI at all:
 
 ```python
 api = p.request.new_context()
+r = api.post(f"{BASE}/api/sop/adopt", data={...})
+drv.evidence(["TC-API-01"], "adopt-403", {"req": {...}, "status": r.status, "body": r.json()})
 ```
 
-`APIRequestContext` is outside the browser's CORS rules, so it reaches endpoints the page cannot.
+`APIRequestContext` is outside the browser's CORS rules, so it reaches endpoints the page cannot. An api-channel case follows the same discipline as a browser one — numbered evidence per step via `evidence`, `flush_case(..., channel="api")` — it just has no shots. A CLI-channel case does the same with `subprocess` output and `channel="cli"`.
