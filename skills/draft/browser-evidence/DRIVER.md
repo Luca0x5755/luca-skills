@@ -24,7 +24,7 @@ First line of every case script, from the build being captured. Every path the h
 
 > **Pitfall — the banner is page text.** Searching the DOM for a phrase can match the caption instead of the application, which once turned a passing case into a reported defect. Query the HTML for field names (`cost`, `unit_price`) rather than rendered words.
 
-> **Pitfall — the screenshot counter is module state.** It resets with the process, so splitting one case across two scripts restarts its numbering at `01`. Keep a case inside one run.
+> **Pitfall — the screenshot counter is module state.** It resets with the process, so splitting one case across two scripts restarts its numbering at `01`. Keep a case inside one script.
 
 ## Login — real form, session reused
 

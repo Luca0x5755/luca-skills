@@ -1,6 +1,6 @@
 ---
 name: browser-evidence
-description: 開一個真的瀏覽器跑過既定步驟，把每一步拍成可交付的證據 — 截圖、網路紀錄與被測版本 manifest，落在 docs/uat/，走 evidence 分支 PR 合回基底分支。
+description: 把既定案例清單跑成可交付的證據 — 截圖或原始回應、網路紀錄與被測版本 manifest。瀏覽器是預設通道，無 UI 案例走 api/cli，卡人一步由操作者接手；落在 docs/uat/，走 evidence 分支 PR 合回基底分支。
 disable-model-invocation: true
 ---
 
@@ -16,7 +16,7 @@ Capture only. The case list arrives from outside — by default from `/uat-cases
 
 So: record a `403`, and leave whether it should have been a `200` to the reader. Every temptation to judge inside this skill is the skill exceeding itself.
 
-**The exhibit, not the browser, is the identity.** The browser is the usual capture channel, never the boundary. A case with no UI at all — an API contract, a CLI job, a database state — runs through the `api`/`cli` channel under the same numbering, manifest and report discipline (the `evidence` helper in step 2). A case automatable except for one human step — an OTP, a CAPTCHA, an external mailbox — runs with that step handed to the operator (step 3). Only a case whose environment is genuinely out of reach — a physical device, a system with no automatable surface — is skipped, and every skip is reported, never silent.
+**The exhibit, not the browser, is the identity.** The browser is the usual capture channel, never the boundary. A case with no UI at all — an API contract, a CLI job, a database state — runs through the `api`/`cli` channel under the same numbering, manifest and report discipline (the `evidence` helper in [`DRIVER.md`](DRIVER.md)). A case automatable except for one human step — an OTP, a CAPTCHA, an external mailbox — runs with that step handed to the operator (step 3). Only a case whose environment is genuinely out of reach — a physical device, a system with no automatable surface — is skipped, and every skip is reported, never silent.
 
 ## 0. Check the contract
 
@@ -25,11 +25,11 @@ Each case needs exactly two things:
 - a **stable ID** (`TC-ONSITE-01`) — it becomes the evidence directory name
 - an **ordered step list** — the order becomes the screenshot filename prefix
 
-Either one missing means the numbering cannot be generated and every file lands unnamed. Stop and ask for it before launching anything.
+Either one missing leaves the evidence unnameable — stop and ask for it before launching anything.
 
 The other fields a case may carry — 狀態, 負責人, 來源, 角色, 前置條件, 期望結果 — are welcome and **flow into the case report** verbatim. A field the list didn't provide is printed as 「未提供」, never silently dropped: a visible gap gets filled, an invisible one doesn't. Priorities stay ignored — a UAT list is run whole.
 
-**Classify the channel while checking the contract.** For each case, decide from its steps which channel runs it — browser, `api`/`cli`, or unreachable. A case carrying an explicit 執行方式 field is respected; the field is optional, never demanded of the list. Announce the classification before launching: all cases browser or api → announce and go, the operator is watching a headed browser and can stop it live. Any case headed for a skip, or a classification you are unsure of, stops the run for the user's ruling first — the gate sits only where there is something to rule on.
+**Classify the channel while checking the contract.** For each case, decide from its steps which channel runs it — browser, `api`/`cli`, or unreachable. A case carrying an explicit 執行方式 field is respected; the field is optional, never demanded of the list. Say the classification out loud, then launch: all cases browser or api need no further gate — the operator is watching a headed browser and can stop it live. Any case headed for a skip, or one you cannot classify with confidence, stops the run for the user's ruling first — the gate sits only where there is something to rule on.
 
 **IDs are frozen once issued** — a case whose content changed keeps its number, and a retired number is never reissued. Holding that line is the list generator's half of the discipline. This skill's half is the reconciliation in step 1, which only tells the truth while the numbers hold still.
 
@@ -37,7 +37,7 @@ The other fields a case may carry — 狀態, 負責人, 來源, 角色, 前置�
 
 Evidence lives in `docs/uat/` and travels on an **ordinary branch**. Cut `evidence/<operator>-<YYYY-MM-DD>-<short-SHA>` from the **base branch** — the branch checked out right now, or the one the user names; the base is theirs to pick, never assumed to be `main`. The run ends as a PR back into that same base, so the exhibit lands where the next person is already working instead of on a side branch they never visit.
 
-The branch key is also the run directory key, one to one: `docs/uat/<operator>-<YYYY-MM-DD>-<short-SHA>/<TC-ID>/NN-slug.png`, with `REPORT.md`, `manifest.json`, `network.json` and `console.json` beside the shots, and the case script plus the run index `REPORT.md` at the root of the run directory. The date reads for the human, the SHA pins the build, and the operator keeps two testers of the same build on the same day apart — two testers is two runs, two directories, by design.
+The branch key is also the run directory key, one to one: `docs/uat/<operator>-<YYYY-MM-DD>-<short-SHA>/<TC-ID>/NN-slug.png`（a non-browser step writes `NN-slug.json`/`.txt` through the same counter）, with `REPORT.md`, `manifest.json`, `network.json` and `console.json` beside the shots, and the case script plus the run index `REPORT.md` at the root of the run directory. The date reads for the human, the SHA pins the build, and the operator keeps two testers of the same build on the same day apart — two testers is two runs, two directories, by design.
 
 **A run directory is never overwritten.** Each one is a complete exhibit of one build, so pinning a release means keeping its directory — not checking out an old commit to reconstruct what was captured. Within a run, re-capturing a case does overwrite that case's directory; across runs, nothing is ever touched again.
 
@@ -70,7 +70,7 @@ Headed, slowed, and narrated: the operator watches it happen, and the narration 
 
 **Self-healing is fenced to location.** When a selector no longer finds its element, repair the locator and continue the run — a heal may change **how a step locates**, never **what it does or asserts**. A "heal" that lands on a different control turns the exhibit green while photographing the wrong thing; when the right element is genuinely gone, that is a red step to capture, not a locator to widen. Every heal leaves three traces: the healed case script committed with the run, a 機器事實 line on that step（`selector 由 X 改為 Y`）, and the heal table in the run index. No per-heal approval — the traces are the accountability.
 
-Done when every ID on the list has a directory, every step of every case has a numbered shot, and every case's report has its 觀察 lines filled. A run that covered five of eight cases is reported as five of eight.
+Done when every ID on the list has a directory, every step of every case has a numbered artifact — a shot on a browser step, an `evidence` payload otherwise — and every case's report has its 觀察 lines filled. A run that covered five of eight cases is reported as five of eight.
 
 ## 4. The report — capture made readable
 
@@ -116,7 +116,7 @@ The `commit` is the whole point: the evidence branch's own commits say when the 
 
 ## 6. Hand off
 
-Stage the files this run produced — the run directory and the case script, by path, on the `evidence/…` branch. Then stop: **committing is the user's move** via `/git-commit`, and so are opening the PR back into the base branch and merging it. The PR is the last gate where a frame that should have been redacted can still be caught — merge is what makes the exhibit part of the base branch's history, and the user may also leave it unmerged; the branch stands as the exhibit either way.
+Stage the files this run produced — the run directory (the case script already lives inside it), by path, on the `evidence/…` branch. Then stop: **committing is the user's move** via `/git-commit`, and so are opening the PR back into the base branch and merging it. The PR is the last gate where a frame that should have been redacted can still be caught — merge is what makes the exhibit part of the base branch's history, and the user may also leave it unmerged; the branch stands as the exhibit either way.
 
 Selector heals that belong in `tests/e2e/lib/` go to the base branch as a **separate code PR** — an evidence PR can sit unmerged or be declined, and the lib repair must not be hostage to that verdict. Cite the run key in that PR's body; the proof of why each selector changed is in the run's reports.
 
