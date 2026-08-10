@@ -28,6 +28,7 @@ For each behaviour the sources promise, write one case:
 
 - **ID** `TC-<AREA>-NN` — area from the project's domain language (use the `/domain-modeling` glossary when one exists). Reuse an existing area whenever one fits; a new area is issued as deliberately as a new number, because areas freeze too.
 - **標題** — one line, the behaviour under test.
+- **負責人** — who signs the verdict and handles this case when it goes red. An attribute of the case, not of any run: who *drove* a given capture is the `operator` in that run's manifest, often the same person by coincidence, never by design.
 - **來源** — the promise ID this case proves, plus the story where one exists. The ID follows the project's own requirement numbering (`FR-REF-03`); the `PR-` form is `/to-spec`'s default for projects that had none. A frozen promise ID survives the spec being rewritten around it, which a section number does not; when the source changes, this column is how the affected cases are found. A spec with no IDs yet is the moment to have `/to-spec` issue one.
 - **角色** — who performs it. The same flow under two roles is two cases; a `403`-vs-`200` divergence between them is how authorization holes surface.
 - **前置條件** — what the operator prepares: accounts, seeded data, feature flags. Naming another case's ID here（「TC-AUTH-01 已跑過」）is the legal way to state a dependency between cases — no separate dependency column.
@@ -53,6 +54,7 @@ Case content in Traditional Chinese; IDs and area names in English. Per case:
 ```markdown
 ## TC-AUTH-01 — 一般會員登入後進入儀表板
 - **狀態**：active
+- **負責人**：Luca
 - **來源**：PR-AUTH-01／story #42
 - **角色**：一般會員
 - **前置條件**：測試帳號 member01 已建立
