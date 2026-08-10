@@ -19,6 +19,7 @@ RUN = ""
 ROOT = Path("docs/uat")
 
 _seq, _net, _logs, _facts, _heals = {}, {}, {}, {}, []
+_manuals, _chan = [], {}
 
 
 def run_dir(tc):
@@ -69,6 +70,26 @@ def step_shot(pg, tcids, slug, full_page=True):
                       full_page=full_page)
 
 
+def evidence(tcids, slug, data):
+    # Non-browser step artifact — same counter as step_shot, so a case can
+    # mix browser and api steps without the numbering forking.
+    for tc in tcids:
+        _seq[tc] = _seq.get(tc, 0) + 1
+        if isinstance(data, (dict, list)):
+            (run_dir(tc) / f"{_seq[tc]:02d}-{slug}.json").write_text(
+                json.dumps(data, ensure_ascii=False, indent=1), "utf-8")
+        else:
+            (run_dir(tc) / f"{_seq[tc]:02d}-{slug}.txt").write_text(str(data), "utf-8")
+
+
+def manual(pg, tc, step_no, instruction):
+    # Hand one step to the operator in the same headed browser, then resume.
+    banner(pg, f"[人工] {instruction}")
+    input(f"[{tc} 步驟 {step_no}] {instruction} — 完成後按 Enter：")
+    _manuals.append({"tc": tc, "step": step_no, "what": instruction})
+    fact(tc, step_no, f"本步驟由操作者人工完成：{instruction}")
+
+
 def fact(tc, step_no, text):
     _facts.setdefault(tc, {}).setdefault(step_no, []).append(text)
 
@@ -79,15 +100,16 @@ def heal(tc, step_no, old, new):
     fact(tc, step_no, f"selector 由 `{old}` 改為 `{new}`（self-heal）")
 
 
-def flush_case(tc, fields, steps, commit, env, operator):
+def flush_case(tc, fields, steps, commit, env, operator, channel="chromium"):
     d = run_dir(tc)
+    _chan[tc] = channel
     (d / "network.json").write_text(
         json.dumps(_net.get(tc, []), ensure_ascii=False, indent=1), "utf-8")
     (d / "console.json").write_text(
         json.dumps(_logs.get(tc, []), ensure_ascii=False, indent=1), "utf-8")
     (d / "manifest.json").write_text(json.dumps({
         "tc": tc, "commit": commit, "env": env, "operator": operator,
-        "ran_at": datetime.now(timezone.utc).isoformat(), "browser": "chromium",
+        "ran_at": datetime.now(timezone.utc).isoformat(), "channel": channel,
     }, ensure_ascii=False, indent=1), "utf-8")
 
     g = lambda k: fields.get(k, "未提供")
@@ -97,9 +119,18 @@ def flush_case(tc, fields, steps, commit, env, operator):
              f"- **前置條件**：{g('前置條件')}",
              f"- **期望結果**：{g('期望結果')}", ""]
     shots = sorted(d.glob("[0-9][0-9]-*.png"))
+    arts = sorted(p for p in d.glob("[0-9][0-9]-*.*") if p.suffix in (".json", ".txt"))
     for i, step in enumerate(steps, 1):
         lines.append(f"### 步驟 {i} — {step}")
         lines += [f"![]({p.name})" for p in shots if p.name.startswith(f"{i:02d}-")]
+        for p in arts:
+            if p.name.startswith(f"{i:02d}-"):
+                # Reader stays in the .md — payload embedded like a shot,
+                # excerpted when long, raw file always linked.
+                body = p.read_text("utf-8")
+                snip = body if len(body) <= 1500 else body[:1500] + "\n…（節錄）"
+                lines += [f"[{p.name}]({p.name})",
+                          "```json" if p.suffix == ".json" else "```", snip, "```"]
         lines += [f"- **機器事實**：{f}" for f in _facts.get(tc, {}).get(i, [])]
         lines += ["- **觀察**：", ""]   # the agent's half — filled before the next case
     (d / "REPORT.md").write_text("\n".join(lines), "utf-8")
@@ -109,9 +140,14 @@ def flush_run(operator, listed, covered, skips=()):
     lines = [f"# {RUN} — run index",
              f"- 測試者：{operator}",
              f"- 覆蓋：{len(covered)}／{len(listed)}", ""]
-    lines += [f"- [{tc}]({tc}/REPORT.md)" for tc in covered]
+    lines += [f"- [{tc}]({tc}/REPORT.md)（{_chan.get(tc, 'chromium')}）" for tc in covered]
     if skips:
         lines += ["", "## 跳過"] + [f"- {s}" for s in skips]
+    if _manuals:
+        lines += ["", "## 人工接手",
+                  "| 案例 | 步驟 | 內容 |",
+                  "| --- | --- | --- |"]
+        lines += [f"| {m['tc']} | {m['step']} | {m['what']} |" for m in _manuals]
     if _heals:
         lines += ["", "## Self-heal",
                   "| 案例 | 步驟 | 原 selector | 新 selector |",

@@ -16,6 +16,8 @@ Capture only. The case list arrives from outside — by default from `/uat-cases
 
 So: record a `403`, and leave whether it should have been a `200` to the reader. Every temptation to judge inside this skill is the skill exceeding itself.
 
+**The exhibit, not the browser, is the identity.** The browser is the usual capture channel, never the boundary. A case with no UI at all — an API contract, a CLI job, a database state — runs through the `api`/`cli` channel under the same numbering, manifest and report discipline (the `evidence` helper in step 2). A case automatable except for one human step — an OTP, a CAPTCHA, an external mailbox — runs with that step handed to the operator (step 3). Only a case whose environment is genuinely out of reach — a physical device, a system with no automatable surface — is skipped, and every skip is reported, never silent.
+
 ## 0. Check the contract
 
 Each case needs exactly two things:
@@ -26,6 +28,8 @@ Each case needs exactly two things:
 Either one missing means the numbering cannot be generated and every file lands unnamed. Stop and ask for it before launching anything.
 
 The other fields a case may carry — 狀態, 負責人, 來源, 角色, 前置條件, 期望結果 — are welcome and **flow into the case report** verbatim. A field the list didn't provide is printed as 「未提供」, never silently dropped: a visible gap gets filled, an invisible one doesn't. Priorities stay ignored — a UAT list is run whole.
+
+**Classify the channel while checking the contract.** For each case, decide from its steps which channel runs it — browser, `api`/`cli`, or unreachable. A case carrying an explicit 執行方式 field is respected; the field is optional, never demanded of the list. Announce the classification before launching: all cases browser or api → announce and go, the operator is watching a headed browser and can stop it live. Any case headed for a skip, or a classification you are unsure of, stops the run for the user's ruling first — the gate sits only where there is something to rule on.
 
 **IDs are frozen once issued** — a case whose content changed keeps its number, and a retired number is never reissued. Holding that line is the list generator's half of the discipline. This skill's half is the reconciliation in step 1, which only tells the truth while the numbers hold still.
 
@@ -62,6 +66,8 @@ Headed, slowed, and narrated: the operator watches it happen, and the narration 
 
 **A red case does not stop the run.** Capture the failure as carefully as a pass — shots, network, console — then move to the next case. The list is run whole; stopping at the first failure delivers one defect and hides the rest.
 
+**A human step does not break the chain.** When one step defeats automation — an OTP, a CAPTCHA, a mail to fetch from an external inbox — call `manual()`: the banner shows the instruction, the run waits for Enter, the operator performs the step in the same headed browser, the run resumes. The shot is still taken and the network still recorded; what changes is a 機器事實 line naming the step as operator-performed, and a row in the run index's 人工接手 table. A non-browser step captures with `evidence()` instead of a shot — same counter, so a case can mix channels without its numbering forking.
+
 **Self-healing is fenced to location.** When a selector no longer finds its element, repair the locator and continue the run — a heal may change **how a step locates**, never **what it does or asserts**. A "heal" that lands on a different control turns the exhibit green while photographing the wrong thing; when the right element is genuinely gone, that is a red step to capture, not a locator to widen. Every heal leaves three traces: the healed case script committed with the run, a 機器事實 line on that step（`selector 由 X 改為 Y`）, and the heal table in the run index. No per-heal approval — the traces are the accountability.
 
 Done when every ID on the list has a directory, every step of every case has a numbered shot, and every case's report has its 觀察 lines filled. A run that covered five of eight cases is reported as five of eight.
@@ -71,7 +77,9 @@ Done when every ID on the list has a directory, every step of every case has a n
 A pile of PNGs and JSON is raw material; the reader was promised an exhibit. Two files per run:
 
 - `<RUN>/<TC-ID>/REPORT.md` — one per case, the document a reviewer actually reads. The driver writes the skeleton (see [DRIVER.md](DRIVER.md)), so a report *exists* for every captured case by construction; the agent fills the 觀察 lines **the moment the case finishes**, while the frame is still up. A description reconstructed later from stale screenshots is where "should" and "probably" creep in.
-- `<RUN>/REPORT.md` — the run index: operator, which cases ran (five of eight is five of eight), a link per case report, every skip, every redaction, orphan directories, and the heal table — every selector repaired this run, old and new. **It lists, it never restates** — a copy of case content is a second document waiting to diverge.
+- `<RUN>/REPORT.md` — the run index: operator, which cases ran (five of eight is five of eight), a link per case report with its channel, every skip, every redaction, orphan directories, the 人工接手 table — every operator-performed step — and the heal table — every selector repaired this run, old and new. **It lists, it never restates** — a copy of case content is a second document waiting to diverge.
+
+The reader never leaves the `.md`. A browser step embeds its shot; a non-browser step embeds its captured payload as a fenced block the same way — excerpted when long, with the raw `NN-slug.json`/`.txt` always linked beside it.
 
 In the case report, steps expand one by one, each step's screenshot embedded under it, followed by two lines:
 
@@ -99,7 +107,7 @@ One `manifest.json` per case directory — per case, so that rerunning a single 
 
 ```json
 { "tc": "TC-ONSITE-01", "commit": "<SHA under test>", "env": "<base URL>",
-  "ran_at": "<ISO 8601>", "browser": "<chromium version>", "operator": "<who drove>" }
+  "ran_at": "<ISO 8601>", "channel": "<chromium｜api｜cli>", "operator": "<who drove>" }
 ```
 
 `operator` is who drove the browser this run — an attribute of the execution. Who *owns* the case (負責人) is an attribute of the case and lives upstream in `docs/uat-cases.md`. Often the same person; by coincidence, never by design.
