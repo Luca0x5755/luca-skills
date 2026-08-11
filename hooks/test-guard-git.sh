@@ -34,6 +34,14 @@ ALLOW	git add file.txt other/file.md
 BLOCK	git push --force origin main
 BLOCK	git push -f
 BLOCK	git commit --no-verify -m "x"
+BLOCK	gh pr merge 100 --merge
+BLOCK	gh pr merge --squash --delete-branch
+BLOCK	gh pr view 100 --json state && gh pr merge 100
+BLOCK	gh api repos/o/r/pulls/100/merge --method PUT
+ALLOW	gh pr view 100 --json state,mergedAt
+ALLOW	gh pr create --title "x" --body-file body.md
+ALLOW	git commit -m "tell the user to run gh pr merge themselves"
+ALLOW	gh api repos/o/r/pulls/100 --jq .mergeable
 CASES
 
 exit $fail

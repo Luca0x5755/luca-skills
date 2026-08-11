@@ -36,4 +36,15 @@ if printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+commit[^;|&]*[[:space:]](
   deny "Blocked: commit with hooks bypassed. A failing hook is a signal to fix, not to mute. Investigate the failure; bypassing is the user's call."
 fi
 
+# Merging a PR lands code on a shared branch and can trigger deploys — the one
+# button in the whole flow that nobody can un-press. 'gh pr merge' is the front
+# door; a PUT to the REST merge endpoint is the same act through the back one.
+if printf '%s\n' "$cmd" | grep -qE "${P}gh[[:space:]]+pr[[:space:]]+merge([[:space:]]|;|\)|$)"; then
+  deny "Blocked: merging a PR. Opening the PR is the agent's job; pressing merge is the user's, typed by the user. Report the PR URL and its check status, then stop."
+fi
+
+if printf '%s\n' "$cmd" | grep -qE "${P}gh[[:space:]]+api[^;|&]*/merge([[:space:]]|'|\"|;|\)|$)"; then
+  deny "Blocked: merging a PR through the REST API. Going around 'gh pr merge' does not change what it is — the merge button belongs to the user. Report the PR URL and stop."
+fi
+
 exit 0
