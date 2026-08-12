@@ -20,13 +20,15 @@ git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 # Added lines only. A literal already in history is someone else's finding;
 # this gate owns what this commit introduces.
 #
-# This gate's own two files are excluded: defining the rule means writing the
+# This gate's own files are excluded: defining the rule means writing the
 # shapes it catches, so scanning them blocks every edit to the gate itself.
 # The exclusion is by path, not by an in-line marker — a marker the model can
-# type is a gate the model can open.
+# type is a gate the model can open. .claude/hooks/guard-secrets.sh is where
+# setup-skills installs the copy in other projects; same file, same reason.
 added=$(git diff --cached -U0 -- . \
           ':(exclude)hooks/guard-secrets.sh' \
-          ':(exclude)hooks/test-guard-secrets.sh' 2>/dev/null \
+          ':(exclude)hooks/test-guard-secrets.sh' \
+          ':(exclude).claude/hooks/guard-secrets.sh' 2>/dev/null \
         | grep -E '^\+' | grep -vE '^\+\+\+')
 [ -z "$added" ] && exit 0
 

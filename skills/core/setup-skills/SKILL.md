@@ -1,6 +1,6 @@
 ---
 name: setup-skills
-description: 為這個 repo 設定工程技能所需的組態 — 議題追蹤器與領域文件位置。每個 repo 跑一次。
+description: 為這個 repo 設定工程技能所需的組態 — 議題追蹤器、領域文件位置與 git 護欄 hook。初始化跑一次；重跑可換追蹤器或補裝、更新護欄。
 disable-model-invocation: true
 ---
 
@@ -13,6 +13,7 @@ Produces:
 - `docs/agents/issue-tracker.md` — where issues live
 - `docs/agents/domain.md` — where `CONTEXT.md` and ADRs live, and the collaboration mode
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
+- Copies of `guard-git.sh` and `guard-secrets.sh` in `.claude/hooks/`, registered in `.claude/settings.json`
 - In private mode: entries in `.git/info/exclude`
 
 ## 1. Explore
@@ -24,6 +25,7 @@ Read what exists. Assume nothing.
 - `CONTEXT.md`, `docs/adr/` — is a domain layer already here?
 - `docs/agents/` — has this skill already run?
 - `.scratch/` — sign of a local-markdown issue convention
+- `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
 - Monorepo signals: `pnpm-workspace.yaml`, a `workspaces` field, populated `packages/*`
 
 ## 2. Present and ask
@@ -44,6 +46,13 @@ Propose from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remo
 **Section D — Comment language.** What language code comments are written in. Skills that write or restyle comments (`refactor` among them) follow the project's *documented* conventions — this section does the documenting. Propose from what the existing comments already do; when the repo is silent, propose Traditional Chinese. The answer is **team truth**: comments ship with the code, so like `docs/adr/` it stays in the committed file in every mode — step 4 has the private-mode placement.
 
 Record the reasoning in `domain.md` so future sessions apply it: a document only your tooling reads has no rot-detection loop. And a private file must not become a shadow copy of team truth — a fact teammates should read gets promoted into the committed `CLAUDE.md`/`AGENTS.md` or an ADR, never fixed by committing the private file.
+
+**Section E — Guard hooks.** Two PreToolUse hooks on `Bash`, copied in from the luca-skills repo: `guard-git.sh` (blocks `git add -A`/`git add .`, force push, `git reset --hard` beyond HEAD, `--no-verify`, and PR merges — merging is the user's button) and `guard-secrets.sh` (blocks `git commit` while a credential literal sits in the staged diff). Prose rules hold roughly 70% compliance; these red lines ride on exit code 2 instead. Propose both, one nod per hook.
+
+- **Source**: resolve the luca-skills repo from this skill folder's link target (`(Get-Item <skill-dir> -Force).Target` — the repo root is two levels up); the files are `<repo>/hooks/guard-git.sh` and `<repo>/hooks/guard-secrets.sh`. Unresolvable → ask where the repo lives.
+- **Copy byte-for-byte into `.claude/hooks/`**, never reference the repo by path: a copy that ages still runs the old guard, while a pointer to a moved repo guards nothing and says nothing. Their tests stay in luca-skills — the copy is verbatim, so a green source is a green copy.
+- **Drift**: copies present but differing from source → show the diff, propose refreshing.
+- **Register** each under `PreToolUse`, matcher `Bash`, in `.claude/settings.json` as `bash .claude/hooks/<name>.sh`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
 ## 3. Confirm
 
@@ -79,4 +88,4 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is only for switching trackers.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for switching trackers or refreshing the guard-hook copies.
