@@ -3,7 +3,7 @@ name: git-pr
 description: 檢視分支的所有 commit 撰寫並開出 PR；PR 合併後同步 main、清理本地與遠端分支。
 disable-model-invocation: true
 argument-hint: 開 PR；或 PR 已合併後輸入 cleanup 做清理
-allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git push:*), Bash(git switch:*), Bash(git pull:*), Bash(git branch:*), Bash(git fetch:*), Bash(gh pr view:*), Bash(gh pr create:*)
+allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git push:*), Bash(git switch:*), Bash(git pull:*), Bash(git branch:*), Bash(git fetch:*), Bash(git rebase:*), Bash(gh pr view:*), Bash(gh pr create:*)
 ---
 
 # Git PR
@@ -15,9 +15,17 @@ The head and tail of a branch's lifecycle: **opening the PR** and **cleaning up 
 ### 1. Gather material
 
 ```bash
-git log --oneline main..HEAD     # the PR's content is these commits, not your memory
+git log --oneline <base>..HEAD   # the PR's content is these commits, not your memory
 git status                       # uncommitted changes → stop, ask the user to deal with them first
 ```
+
+`<base>` is the branch this PR will merge into — usually `main`, but ask when the user named a different one. **Every commit that range prints must be yours.** A branch cut from `dev` while the PR targets an older `release/x` drags in whatever landed on `dev` between them, and that cargo is charged to your PR: it inflates the diff, and the repo's secret scanner blocks on other people's commits with findings you cannot fix. Foreign commits in the range → resolve it before opening, either by pointing the PR at the branch you actually cut from, or:
+
+```bash
+git rebase --onto <base> <fork-point> <branch>   # replant your commits on the real base
+```
+
+Report which you did and why. The check costs one command; discovering it from a red PR costs the round trip.
 
 ### 2. Write it
 
@@ -92,4 +100,5 @@ Also check `git branch -v` for other branches marked `[gone]`. List them and ask
 | "The user said the PR passed, just delete" | Claims get verified with `gh pr view`. Checking costs three seconds; deleting wrong costs half an hour. |
 | "`-d` refused, switch to `-D`" | `-D` needs the evidence first: `git diff origin/main <branch>` empty. Without it, `-d` refusing means commits never reached main, and `-D` mutes the warning. |
 | "`--ff-only` refused, drop the flag and pull again" | The refusal *is* the finding. Dropping the flag merges whatever moved `main` and duplicates this change in its history. |
-| "I'll write the PR body from memory" | The material is `git log main..HEAD`. The branch in your memory and the actual branch are not the same branch. |
+| "I'll write the PR body from memory" | The material is `git log <base>..HEAD`. The branch in your memory and the actual branch are not the same branch. |
+| "Extra commits in the range aren't mine — I'll note them in the body and open anyway" | A note does not take them out of the diff or out of the scanner's range. Repoint the base or `rebase --onto` first. |

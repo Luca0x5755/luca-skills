@@ -48,6 +48,14 @@ Add fuzzy matching to plugin search
 - Updated search tests for ranked results
 ```
 
+**Pass the message as a file**, always — even a one-liner, so there is no judgment call about when it applies:
+
+```bash
+git commit -F <path>   # write the message with the Write tool first
+```
+
+Two shells live on this machine and their quoting rules differ; a message embedded in the command line gets mangled by whichever one you guessed wrong. That failure is silent — a PowerShell here-string (`@'…'@`) run under Bash lands a bare `@` as the subject line and demotes the real one to the body, which is only visible in `git log --oneline` after the push. The same rule covers every multi-line argument: `gh pr create --body-file`, `gh issue create -F`.
+
 ## 4. Push
 
 ```bash
@@ -64,3 +72,4 @@ Push rejected → the remote has moved. **Never force push.** Report the situati
 | "A quick `git add -A` is faster" | Faster at shipping things the user chose not to commit. |
 | "Staging is empty, I'll helpfully stage things" | An empty staging area is a message: the user hasn't drawn the line yet. Stop and ask. |
 | "Push rejected — a `--force` will fix it" | Rejection means the remote has history you haven't seen. Force is the user's call. |
+| "This subject is one short line, `-m` is fine" | The shell you guessed wrong mangles one line as easily as ten, and the damage shows up after the push. Write the file. |
