@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1266" viewBox="0 0 1200 1266" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1332" viewBox="0 0 1200 1332" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
-  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），中欄「文件驅動軌」是真相層 docs/specs/ — to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、consolidate-docs 把老專案的凌散文件盤點遷入；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor 與 git-merge 隨時可用。實線框為 core，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），中欄「文件驅動軌」是真相層 docs/specs/ — to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、consolidate-docs 把老專案的凌散文件盤點遷入；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用。實線框為 core，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -26,7 +26,7 @@
     </style>
   </defs>
 
-  <rect width="1200" height="1266" fill="#ffffff"/>
+  <rect width="1200" height="1332" fill="#ffffff"/>
 
   <!-- header -->
   <text x="24" y="34" font-size="20" font-weight="700" fill="#1f2328">主流程：想法 → 出貨</text>
@@ -247,16 +247,22 @@
   <text x="700" y="132" class="edge-label">回到階段 1，換下一個想法</text>
 
   <!-- anytime layer -->
-  <rect x="24" y="1166" width="1152" height="84" rx="10" fill="#f6f8fa"/>
-  <text x="44" y="1190" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
-  <text x="44" y="1214" class="skill-sm">/domain-modeling</text>
-  <text x="180" y="1214" class="note">術語模糊、一詞多義；夠格的決策才立 ADR</text>
-  <text x="470" y="1214" class="skill-sm">/grilling</text>
-  <text x="550" y="1214" class="note">一問一答的基本功；還沒有 codebase 時用這個</text>
-  <rect x="40" y="1222" width="96" height="22" rx="6" class="box model draft"/>
-  <text x="88" y="1237" text-anchor="middle" class="skill-sm">/refactor</text>
-  <text x="180" y="1237" class="note">不改可觀察行為的結構重整</text>
-  <rect x="460" y="1222" width="106" height="22" rx="6" class="box user draft"/>
-  <text x="513" y="1237" text-anchor="middle" class="skill-sm">/git-merge</text>
-  <text x="580" y="1237" class="note">把分支併進來；衝突停下來，解法你決定</text>
+  <rect x="24" y="1166" width="1152" height="150" rx="10" fill="#f6f8fa"/>
+  <text x="44" y="1192" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
+
+  <text x="44" y="1222" class="skill-sm">/domain-modeling</text>
+  <text x="180" y="1222" class="note">術語模糊、一詞多義；夠格的決策才立 ADR</text>
+  <text x="470" y="1222" class="skill-sm">/grilling</text>
+  <text x="550" y="1222" class="note">一問一答的基本功；還沒有 codebase 時用這個</text>
+
+  <rect x="40" y="1238" width="96" height="26" rx="6" class="box model draft"/>
+  <text x="88" y="1256" text-anchor="middle" class="skill-sm">/refactor</text>
+  <text x="180" y="1256" class="note">不改可觀察行為的結構重整</text>
+  <rect x="460" y="1238" width="106" height="26" rx="6" class="box user draft"/>
+  <text x="513" y="1256" text-anchor="middle" class="skill-sm">/git-merge</text>
+  <text x="580" y="1256" class="note">把分支併進來；衝突停下來，解法你決定</text>
+
+  <rect x="40" y="1272" width="110" height="26" rx="6" class="box user draft"/>
+  <text x="95" y="1290" text-anchor="middle" class="skill-sm">/study-repo</text>
+  <text x="180" y="1290" class="note">讀懂別人的 repo：先跑起來，再追一條核心路徑；報告拋棄式，看完就刪</text>
 </svg>
