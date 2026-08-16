@@ -6,6 +6,8 @@ The headings below are the skeleton to copy. The prose under each heading is ins
 
 Write in Traditional Chinese; technical nouns stay English (`進入點 entry point`, `PostgreSQL`). Every section obeys the evidence discipline in [`SKILL.md`](SKILL.md).
 
+Angle brackets go inside backticks — `` `<tool-agent>` ``. Bare ones render as HTML tags and vanish from the page.
+
 ---
 
 # Project Analysis: <專案名稱>

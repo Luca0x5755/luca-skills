@@ -18,6 +18,7 @@ Four marks, obeyed by every step. They are what separates this report from a con
 
 - **Commands carry a verification mark** — `⚠️ 未驗證` when copied out of a build file, `✅ 已驗證（Node 20.11）` when actually executed in step 2.
 - **Claims name their source** — `src/server.ts:41`. A claim with no path is a hypothesis and says so.
+- **Quantities are counted** — every number (file counts, field totals, line counts) comes from a command run against the repo. A number quoted from the project's own docs imports their staleness into your report.
 - **Absence is a finding** — `資訊缺失：無部署設定` states something true about the project.
 - **Coverage is declared** — the report ends with the list of files actually read, and every claim traces back to that list.
 
@@ -33,7 +34,11 @@ Extract the Dev and Prod commands from `package.json`, `requirements.txt` / `pyp
 
 Then stop and ask the user whether to execute them. Running a stranger's build scripts is irreversible — `postinstall` hooks execute arbitrary code — so the human decides. Always put the offer to them; a report that skips the question ships half-finished.
 
-**Yes** — run them, record what actually broke (wrong runtime version, an env var missing from `.env.example`, an undeclared system dependency), and upgrade the marks. These lines are the most valuable in the report: they are precisely what the project's own README does not tell you.
+**Yes** — start the install in the background and read code while it builds. A cold install of a large project outlasts the entire reading pass; waiting on it doubles the run for nothing.
+
+Then run the test suite the project's own CI runs, and characterize the failures — platform-specific, environment-specific, or real. A failure pattern (all path handling, all on one OS) states more about a project than any prose about its quality.
+
+Record what actually broke — wrong runtime version, an env var missing from `.env.example`, an undeclared system dependency, a suite that only passes under WSL — and upgrade the marks. These lines are the most valuable in the report: they are precisely what the project's own README does not tell you.
 
 **No** — the marks stay `⚠️`.
 
