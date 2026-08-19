@@ -6,6 +6,8 @@ The headings below are the skeleton to copy. The prose under each heading is ins
 
 Write in Traditional Chinese; technical nouns stay English (`進入點 entry point`, `PostgreSQL`). Every section obeys the evidence discipline in [`SKILL.md`](SKILL.md).
 
+Readability: open every section with one orienting sentence — where the reader is, before any detail. Then short sentences, one point per sentence, plain words. This is information, not padding — when it collides with terseness, readability wins; the ban on transitions（首先、接著）and hedges stands regardless.
+
 Angle brackets go inside backticks — `` `<tool-agent>` ``. Bare ones render as HTML tags and vanish from the page.
 
 ---
