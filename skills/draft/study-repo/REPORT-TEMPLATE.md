@@ -18,11 +18,15 @@ Angle brackets go inside backticks — `` `<tool-agent>` ``. Bare ones render as
 
 ## 2. 跑起來
 
+### 環境前提
+
+runtime 版本、env vars、系統依賴。內容來自 step 2 的執行前簡報。
+
 ### 開發環境 (Development)
 
 ### 正式環境 (Production)
 
-指令逐條列出，每條帶 `✅ 已驗證（…）` 或 `⚠️ 未驗證`。實跑踩到的坑寫在該指令下方——那是這一節最值錢的部分。
+指令逐條列出，每條帶一行白話說明（做什麼、動到哪裡）與 `✅ 已驗證（…）` 或 `⚠️ 未驗證`。會執行任意碼的指令附出處 `path:line` 的警示。Production 指令永不實跑，恆為 `⚠️`。實跑踩到的坑寫在該指令下方——那是這一節最值錢的部分。
 
 ## 3. 地圖與入口點
 

@@ -32,7 +32,9 @@ State the reading budget out loud. A 300-line script gets read whole; a 3000-fil
 
 Extract the Dev and Prod commands from `package.json`, `requirements.txt` / `pyproject.toml`, `Dockerfile`, `docker-compose.yml`, and CI workflows. Mark every one `⚠️ 未驗證`.
 
-Then stop and ask the user whether to execute them. Running a stranger's build scripts is irreversible — `postinstall` hooks execute arbitrary code — so the human decides. Always put the offer to them; a report that skips the question ships half-finished.
+Brief the user before asking: one plain line per command — what it does, what it touches — plus the environment prerequisites (runtime version, env vars, system dependencies). A command that executes arbitrary code (`postinstall`, `curl | sh`, `docker build`) gets a warning citing the `path:line` it came from; a harmless one stays at one line. The briefing is report material — it becomes section 2 of the report, not throwaway chat.
+
+Then stop and ask the user whether to execute them. Running a stranger's build scripts is irreversible, so the human decides — and the briefing is what makes their decision informed. Always put the offer to them; a report that skips the question ships half-finished. A yes authorizes install and tests only: deploy and production commands are listed and briefed, never executed, and stay `⚠️ 未驗證`.
 
 **Yes** — start the install in the background and read code while it builds. A cold install of a large project outlasts the entire reading pass; waiting on it doubles the run for nothing.
 
