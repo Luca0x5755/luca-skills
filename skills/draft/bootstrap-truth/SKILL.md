@@ -16,7 +16,7 @@ Two phases with a human gate between them. Phase A never writes; Phase B never i
 
 The truth layer's own shape decides. Three grades:
 
-- **Global facts** (`docs/architecture.md`): stack table and data model — code-verifiable, land directly. The ADR column reads `資訊缺失：無決策紀錄`; never backfill a plausible rationale.
+- **Global facts** (`docs/architecture.md`): stack table and data model — code-verifiable, land directly. The data model is tables or a Mermaid ER diagram, whichever is shorter — same rule as `/to-architecture`, which maintains it per change afterwards. The ADR column reads `資訊缺失：無決策紀錄`; never backfill a plausible rationale.
 - **API surface** (`docs/specs/<capability>.md`): contracts from routes and schemas, each carrying its source (`src/routes/order.ts:41`).
 - **Behaviour rules**: code states what the system does, not whether that is a rule or an accident. Every inferred rule goes through the questionnaire (Phase A step 5); only user-confirmed rules land. Rejected → dropped. Unsure → a `資訊缺失` line.
 
