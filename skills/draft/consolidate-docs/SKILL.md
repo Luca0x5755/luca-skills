@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Consolidate Docs
 
-One-time brownfield surgery: turn a project's scattered spec documents into the **truth layer** — documents stating what the system *is now*, one fact per home. Day-to-day maintenance is the pipeline's job (`/to-architecture`, `/frontend-spec`, `/implement` edit the truth layer per change); this skill only bootstraps it, or recovers it after neglect.
+One-time brownfield surgery: turn a project's scattered spec documents into the **truth layer** — documents stating what the system *is now*, one fact per home. Day-to-day maintenance is the pipeline's job (`/to-architecture`, `/frontend-spec`, `/implement` edit the truth layer per change); this skill only bootstraps it, or recovers it after neglect. A project with code but no documents is `/bootstrap-truth`'s job — it reverse-engineers from code; mixed legacy runs this skill first, then `/bootstrap-truth` fills the holes.
 
 Two phases with a human gate between them. Phase A never writes; Phase B never decides.
 

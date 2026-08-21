@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1332" viewBox="0 0 1200 1332" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1332" viewBox="0 0 1320 1332" font-family="ui-sans-serif, -apple-system, 'Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
-  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），中欄「文件驅動軌」是真相層 docs/specs/ — to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、consolidate-docs 把老專案的凌散文件盤點遷入；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用。實線框為 core，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），中欄「文件驅動軌」是真相層 docs/specs/ — to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、consolidate-docs 把老專案的凌散文件盤點遷入、bootstrap-truth 為無文件的接管專案讀碼逆向立層（先 consolidate 後 bootstrap）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用。實線框為 core，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -26,17 +26,17 @@
     </style>
   </defs>
 
-  <rect width="1200" height="1332" fill="#ffffff"/>
+  <rect width="1320" height="1332" fill="#ffffff"/>
 
   <!-- header -->
   <text x="24" y="34" font-size="20" font-weight="700" fill="#1f2328">主流程：想法 → 出貨</text>
   <text x="24" y="54" class="note">不確定用哪個？先打 /ask-luca。藍 = 你打字才會動，紫 = AI 也會自己用。</text>
-  <rect x="1020" y="22" width="14" height="14" rx="3" class="box user"/>
-  <text x="1042" y="34" class="note">使用者觸發</text>
-  <rect x="1020" y="42" width="14" height="14" rx="3" class="box model"/>
-  <text x="1042" y="54" class="note">模型觸發</text>
-  <rect x="1020" y="62" width="14" height="14" rx="3" class="box user draft"/>
-  <text x="1042" y="74" class="note">虛線框 = draft，試用中</text>
+  <rect x="1140" y="22" width="14" height="14" rx="3" class="box user"/>
+  <text x="1162" y="34" class="note">使用者觸發</text>
+  <rect x="1140" y="42" width="14" height="14" rx="3" class="box model"/>
+  <text x="1162" y="54" class="note">模型觸發</text>
+  <rect x="1140" y="62" width="14" height="14" rx="3" class="box user draft"/>
+  <text x="1162" y="74" class="note">虛線框 = draft，試用中</text>
 
   <!-- stage bands -->
   <rect x="24" y="70"  width="516" height="64"  rx="10" fill="#f6f8fa"/>
@@ -69,8 +69,8 @@
   <text x="365" y="196" text-anchor="middle" class="sub">一問一答磨利想法，定了案才寫檔</text>
 
   <!-- detour out / back -->
-  <path d="M 480 176 L 788 176" class="edge"/>
-  <path d="M 792 225 L 440 225 L 440 232" class="edge"/>
+  <path d="M 480 176 L 908 176" class="edge"/>
+  <path d="M 912 225 L 440 225 L 440 232" class="edge"/>
 
   <!-- decision -->
   <rect x="225" y="236" width="280" height="46" rx="8" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.5"/>
@@ -95,9 +95,9 @@
   <path d="M 365 418 L 365 480" class="edge"/>
 
   <!-- optional detour into the document-driven track -->
-  <path d="M 480 399 L 568 399" class="edge"/>
+  <path d="M 480 399 L 628 399" class="edge"/>
   <text x="524" y="392" text-anchor="middle" class="edge-label">可選繞道</text>
-  <path d="M 572 503 L 484 503" class="edge"/>
+  <path d="M 628 503 L 484 503" class="edge"/>
 
   <rect x="250" y="480" width="230" height="44" rx="8" class="box user"/>
   <text x="365" y="500" text-anchor="middle" class="skill">/to-tickets</text>
@@ -106,38 +106,45 @@
   <text x="376" y="566" class="edge-label">先 /clear</text>
 
   <!-- document-driven track -->
-  <rect x="556" y="348" width="216" height="412" rx="10" fill="#ffffff" stroke="#57606a" stroke-width="1.5"/>
-  <text x="664" y="370" text-anchor="middle" class="panel-title">文件驅動軌</text>
+  <rect x="556" y="348" width="336" height="424" rx="10" fill="#ffffff" stroke="#57606a" stroke-width="1.5"/>
+  <text x="724" y="370" text-anchor="middle" class="panel-title">文件驅動軌</text>
 
-  <rect x="572" y="380" width="184" height="38" rx="8" class="box user draft"/>
-  <text x="664" y="397" text-anchor="middle" class="skill-sm">/to-architecture</text>
-  <text x="664" y="412" text-anchor="middle" class="sub">技術棧、資料模型、API 合約</text>
-  <path d="M 664 418 L 664 480" class="edge"/>
+  <rect x="632" y="380" width="184" height="38" rx="8" class="box user draft"/>
+  <text x="724" y="397" text-anchor="middle" class="skill-sm">/to-architecture</text>
+  <text x="724" y="412" text-anchor="middle" class="sub">技術棧、資料模型、API 合約</text>
+  <path d="M 724 418 L 724 480" class="edge"/>
 
-  <rect x="572" y="484" width="184" height="38" rx="8" class="box user draft"/>
-  <text x="664" y="501" text-anchor="middle" class="skill-sm">/frontend-spec</text>
-  <text x="664" y="516" text-anchor="middle" class="sub">路由、四態畫面、Pencil 稿</text>
-  <path d="M 664 522 L 664 556" class="edge"/>
+  <rect x="632" y="484" width="184" height="38" rx="8" class="box user draft"/>
+  <text x="724" y="501" text-anchor="middle" class="skill-sm">/frontend-spec</text>
+  <text x="724" y="516" text-anchor="middle" class="sub">路由、四態畫面、Pencil 稿</text>
+  <path d="M 724 522 L 724 556" class="edge"/>
 
-  <rect x="572" y="560" width="184" height="64" rx="8" class="store"/>
-  <text x="664" y="586" text-anchor="middle" class="skill">docs/specs/</text>
-  <text x="664" y="606" text-anchor="middle" class="sub">系統現況：行為、合約、頁面</text>
+  <rect x="604" y="560" width="240" height="64" rx="8" class="store"/>
+  <text x="724" y="586" text-anchor="middle" class="skill">docs/specs/</text>
+  <text x="724" y="606" text-anchor="middle" class="sub">系統現況：行為、合約、頁面</text>
 
-  <rect x="572" y="660" width="184" height="38" rx="8" class="box user draft"/>
-  <text x="664" y="677" text-anchor="middle" class="skill-sm">/consolidate-docs</text>
-  <text x="664" y="692" text-anchor="middle" class="sub">老專案文件：盤點→核准→遷入</text>
-  <path d="M 664 660 L 664 628" class="edge"/>
+  <rect x="572" y="660" width="150" height="38" rx="8" class="box user draft"/>
+  <text x="647" y="677" text-anchor="middle" class="skill-sm">/consolidate-docs</text>
+  <text x="647" y="692" text-anchor="middle" class="sub">有文件：盤點→遷入</text>
+  <path d="M 647 660 L 647 628" class="edge"/>
 
-  <text x="664" y="720" text-anchor="middle" class="note">真相文件只在 feature branch 上改，</text>
-  <text x="664" y="736" text-anchor="middle" class="note">隨 PR 與程式碼一起合併回 main。</text>
-  <text x="664" y="752" text-anchor="middle" class="note">每個技能都讀它；讀取邊不畫。</text>
+  <rect x="730" y="660" width="150" height="38" rx="8" class="box user draft"/>
+  <text x="805" y="677" text-anchor="middle" class="skill-sm">/bootstrap-truth</text>
+  <text x="805" y="692" text-anchor="middle" class="sub">沒文件：讀碼→問卷</text>
+  <path d="M 805 660 L 805 628" class="edge"/>
+
+  <text x="724" y="716" text-anchor="middle" class="note">接管老專案：先盤文件，再讀碼補洞</text>
+
+  <text x="724" y="736" text-anchor="middle" class="note">真相文件只在 feature branch 上改，</text>
+  <text x="724" y="750" text-anchor="middle" class="note">隨 PR 與程式碼一起合併回 main。</text>
+  <text x="724" y="764" text-anchor="middle" class="note">每個技能都讀它；讀取邊不畫。</text>
 
   <!-- 3. implement (+ write edge into the truth layer) -->
   <rect x="250" y="600" width="230" height="72" rx="8" class="box user"/>
   <text x="365" y="624" text-anchor="middle" class="skill">/implement</text>
   <text x="365" y="642" text-anchor="middle" class="sub">一個 session 做一張票</text>
   <text x="365" y="658" text-anchor="middle" class="sub">會自動跑 /tdd 與 /code-review</text>
-  <path d="M 480 616 L 568 616" class="edge"/>
+  <path d="M 480 616 L 600 616" class="edge"/>
   <path d="M 365 672 L 365 796" class="edge"/>
 
   <!-- 4. close out -->
@@ -172,52 +179,52 @@
   <text x="824" y="952" text-anchor="middle" class="sub">要發版才跑：版號、摘要、tag</text>
 
   <!-- detour panel -->
-  <rect x="792" y="146" width="384" height="142" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5" stroke-dasharray="5 4"/>
-  <text x="808" y="166" class="panel-title">繞道：要跑起來才能回答的問題</text>
-  <text x="808" y="182" class="note">狀態模型、商業邏輯、非看不可的 UI</text>
-  <text x="808" y="206" class="note">1. 跑 <tspan class="mono">/handoff</tspan>，它會印出一個文件路徑</text>
-  <text x="808" y="226" class="note">2. 開新 session，第一句貼上路徑，跑 <tspan class="mono">/prototype</tspan></text>
-  <text x="808" y="246" class="note">3. 答案到手，再跑 <tspan class="mono">/handoff</tspan> 拿新路徑</text>
-  <text x="808" y="266" class="note">4. 再開新 session，貼上路徑，回到主流程</text>
+  <rect x="912" y="146" width="384" height="142" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="928" y="166" class="panel-title">繞道：要跑起來才能回答的問題</text>
+  <text x="928" y="182" class="note">狀態模型、商業邏輯、非看不可的 UI</text>
+  <text x="928" y="206" class="note">1. 跑 <tspan class="mono">/handoff</tspan>，它會印出一個文件路徑</text>
+  <text x="928" y="226" class="note">2. 開新 session，第一句貼上路徑，跑 <tspan class="mono">/prototype</tspan></text>
+  <text x="928" y="246" class="note">3. 答案到手，再跑 <tspan class="mono">/handoff</tspan> 拿新路徑</text>
+  <text x="928" y="266" class="note">4. 再開新 session，貼上路徑，回到主流程</text>
 
   <!-- session rules -->
-  <rect x="792" y="300" width="384" height="88" rx="10" fill="#f6f8fa"/>
-  <text x="808" y="322" class="panel-title">session 規則</text>
-  <text x="808" y="342" class="note">階段 1 到 2 同一個 session 一路做完，中間不 /clear。</text>
-  <text x="808" y="359" class="note">/to-tickets 之後，每張票各開一個新 session。</text>
-  <text x="808" y="376" class="note">session 快滿了 → /handoff，開新 session 貼路徑接著做。</text>
+  <rect x="912" y="300" width="384" height="88" rx="10" fill="#f6f8fa"/>
+  <text x="928" y="322" class="panel-title">session 規則</text>
+  <text x="928" y="342" class="note">階段 1 到 2 同一個 session 一路做完，中間不 /clear。</text>
+  <text x="928" y="359" class="note">/to-tickets 之後，每張票各開一個新 session。</text>
+  <text x="928" y="376" class="note">session 快滿了 → /handoff，開新 session 貼路徑接著做。</text>
 
   <!-- test-blueprint -->
-  <rect x="792" y="420" width="384" height="68" rx="8" class="box user draft"/>
-  <text x="984" y="442" text-anchor="middle" class="skill-sm">/test-blueprint</text>
-  <text x="984" y="460" text-anchor="middle" class="sub">提案層佈局、縫清單（供 /tdd）、CI 時段</text>
-  <text x="984" y="475" text-anchor="middle" class="sub">核准才落檔；產檢查腳本、CI 與現況報告</text>
-  <path d="M 984 488 L 984 520" class="edge"/>
-  <text x="992" y="510" class="edge-label">指派驗收層</text>
+  <rect x="912" y="420" width="384" height="68" rx="8" class="box user draft"/>
+  <text x="1104" y="442" text-anchor="middle" class="skill-sm">/test-blueprint</text>
+  <text x="1104" y="460" text-anchor="middle" class="sub">提案層佈局、縫清單（供 /tdd）、CI 時段</text>
+  <text x="1104" y="475" text-anchor="middle" class="sub">核准才落檔；產檢查腳本、CI 與現況報告</text>
+  <path d="M 1104 488 L 1104 520" class="edge"/>
+  <text x="1112" y="510" class="edge-label">指派驗收層</text>
 
   <!-- uat-cases -->
-  <rect x="792" y="520" width="384" height="54" rx="8" class="box user draft"/>
-  <text x="984" y="542" text-anchor="middle" class="skill-sm">/uat-cases</text>
-  <text x="984" y="560" text-anchor="middle" class="sub">從 spec／user story 推導案例；TC 編號一發即凍結</text>
-  <path d="M 1130 574 L 1130 800" class="edge"/>
-  <text x="1138" y="690" class="edge-label">清單</text>
+  <rect x="912" y="520" width="384" height="54" rx="8" class="box user draft"/>
+  <text x="1104" y="542" text-anchor="middle" class="skill-sm">/uat-cases</text>
+  <text x="1104" y="560" text-anchor="middle" class="sub">從 spec／user story 推導案例；TC 編號一發即凍結</text>
+  <path d="M 1250 574 L 1250 800" class="edge"/>
+  <text x="1258" y="690" class="edge-label">清單</text>
 
   <!-- implement-all -->
-  <rect x="792" y="610" width="320" height="72" rx="8" class="box user draft"/>
-  <text x="952" y="634" text-anchor="middle" class="skill-sm">/implement-all</text>
-  <text x="952" y="652" text-anchor="middle" class="sub">票多時一次派完：每票一個子代理跑 /implement</text>
-  <text x="952" y="668" text-anchor="middle" class="sub">排程你點頭才派；合併還是你按</text>
+  <rect x="912" y="610" width="320" height="72" rx="8" class="box user draft"/>
+  <text x="1072" y="634" text-anchor="middle" class="skill-sm">/implement-all</text>
+  <text x="1072" y="652" text-anchor="middle" class="sub">票多時一次派完：每票一個子代理跑 /implement</text>
+  <text x="1072" y="668" text-anchor="middle" class="sub">排程你點頭才派；合併還是你按</text>
 
   <!-- browser-evidence -->
-  <rect x="792" y="800" width="384" height="68" rx="8" class="box user draft"/>
-  <text x="984" y="822" text-anchor="middle" class="skill-sm">/browser-evidence</text>
-  <text x="984" y="840" text-anchor="middle" class="sub">驗收證據要交給別人時才跑：截圖、網路紀錄、被測版本</text>
-  <text x="984" y="856" text-anchor="middle" class="sub">清單來自 /uat-cases 或外部；判定不歸它管；證據 PR 合回基底分支</text>
-  <path d="M 480 820 L 788 820" class="edge"/>
-  <text x="620" y="814" text-anchor="middle" class="edge-label">可選</text>
+  <rect x="912" y="800" width="384" height="68" rx="8" class="box user draft"/>
+  <text x="1104" y="822" text-anchor="middle" class="skill-sm">/browser-evidence</text>
+  <text x="1104" y="840" text-anchor="middle" class="sub">驗收證據要交給別人時才跑：截圖、網路紀錄、被測版本</text>
+  <text x="1104" y="856" text-anchor="middle" class="sub">清單來自 /uat-cases 或外部；判定不歸它管；證據 PR 合回基底分支</text>
+  <path d="M 480 820 L 908 820" class="edge"/>
+  <text x="680" y="814" text-anchor="middle" class="edge-label">可選</text>
 
   <!-- on-ramps -->
-  <rect x="24" y="1000" width="1152" height="150" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <rect x="24" y="1000" width="1272" height="150" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
   <text x="44" y="1026" class="panel-title">交流道：從外面匯進主流程</text>
 
   <rect x="44" y="1038" width="196" height="26" rx="8" class="box user"/>
@@ -241,13 +248,13 @@
   <text x="296" y="1132" class="note">題目大到不知從何下手。出來後接 /to-spec，不能直接跳 /implement。</text>
 
   <!-- development loop -->
-  <path d="M 924 940 L 1188 940" class="edge-plain" stroke-dasharray="6 4"/>
-  <path d="M 924 1085 L 1188 1085" class="edge-plain" stroke-dasharray="6 4"/>
-  <path d="M 1188 1085 L 1188 138 L 390 138 L 390 156" class="edge" stroke-dasharray="6 4"/>
+  <path d="M 924 940 L 1308 940" class="edge-plain" stroke-dasharray="6 4"/>
+  <path d="M 924 1085 L 1308 1085" class="edge-plain" stroke-dasharray="6 4"/>
+  <path d="M 1308 1085 L 1308 138 L 390 138 L 390 156" class="edge" stroke-dasharray="6 4"/>
   <text x="700" y="132" class="edge-label">回到階段 1，換下一個想法</text>
 
   <!-- anytime layer -->
-  <rect x="24" y="1166" width="1152" height="150" rx="10" fill="#f6f8fa"/>
+  <rect x="24" y="1166" width="1272" height="150" rx="10" fill="#f6f8fa"/>
   <text x="44" y="1192" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
 
   <text x="44" y="1222" class="skill-sm">/domain-modeling</text>
