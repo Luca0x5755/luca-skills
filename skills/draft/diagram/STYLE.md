@@ -26,10 +26,27 @@ derived from them — house rules are marked.
    simple geometry (`rect`/`circle`/`line`). A glyph, where the genre expects
    one, is assembled from at most ~4 such primitives — never freehand `path`
    data.
-3. **Anchor the look with one style idiom per diagram**: architecture blocks →
-   "Microsoft architecture diagram style"; executive one-pager → "IBM
-   consulting infographic style". One anchor buys more consistency than ten
-   adjectives; colors still come from `/svg-palette`, never from the idiom.
+3. **Anchor the look with one style idiom per diagram**: architecture blocks
+   and stacks → "clean consulting slide style — white cards, thin rules";
+   executive one-pager → "IBM consulting infographic style". One anchor buys
+   more consistency than ten adjectives; colors still come from
+   `/svg-palette`, never from the idiom.
+
+## Color and light-first grammar
+
+All color decisions come from the `/svg-palette` skill: roles, the
+**Light-first** rule (white cards, reading spine, accent on thin carriers),
+semantic encodings, override mapping. Layout-side additions:
+
+- The reading spine anchors flush left: rail labels or header rows carry the
+  read; everything else is white cards and pale tiers.
+- A verdict/priority block is a white card with an accent edge strip and
+  accent title text, not an accent-filled banner.
+
+Two palette rules restated because they kill diagrams when missed:
+
+- White ground, dark text. Light-gray text dies on projectors.
+- One accent per diagram — the single thing the audience must see.
 
 ## Type
 
@@ -64,15 +81,6 @@ Mermaid's default font has no CJK and 16px is too small projected. Prepend:
 to the SVG tiers — 18px is the meeting-room default; bump to 20px for large
 venues.)
 
-## Color
-
-All color decisions come from the `/svg-palette` skill (roles, override
-mapping, as-is/to-be encoding). Two rules restated because they kill diagrams
-when missed:
-
-- White ground, dark text. Light-gray text dies on projectors.
-- One accent per diagram — the single thing the audience must see.
-
 ## Executive one-pager
 
 The densest genre — a pitch poster read on screen or as a handout, not across
@@ -97,11 +105,48 @@ page, the bottom band carries the conclusions).
 - **Parallel domains take categorical hues.** A band enumerating peer domains
   (capability pillars, product families) is `/svg-palette`'s categorical case:
   each domain gets its own hue, and the cell's title, glyph, and highlighted
-  numbers wear it. Single-thread bands keep the monochrome ramp.
+  numbers wear it. Single-thread bands keep the monochrome ramp. This is
+  still light-first — the hues ride thin carriers (title, glyph, numbers),
+  never block fills; the genre's exception is density only, not color.
 - **Hub-and-spoke** may replace a band's grid when the story has a center — a
   platform or agent with radiating capabilities.
 - **No methodology prose on the poster.** One footnote line at most; caveats,
   formulas, and sources live in the report the poster references.
+
+## Capability tech stack (能力層技術堆疊)
+
+The stack for 技術主管: rows are capability layers (e.g. 應用 → 服務 → 基礎),
+each row naming the products that realize it. Layers are pale tiers
+(`primary-5..3`, `ink` text); each layer wears one sourcing badge
+(自建／商用／混合) per `/svg-palette`'s semantic badges. It differs from the
+engineers' tech stack by granularity: capabilities and product names, never
+internal components or protocols.
+
+## Target architecture map (目標架構圖，四域)
+
+The business-facing stack for 主管: building blocks (ABB), never products —
+a block says what the capability is, not what it is bought as. Read as
+domain bands top-down.
+
+**Core skeleton** (every instance has these):
+
+- Four domain bands, top-down: 業務 → 應用 → 資料 → 技術. Left rail carries
+  one dark label block per band (the reading spine, same as the one-pager).
+- Cards follow the light-first grammar above; color appears only in
+  badges, the rail, and the sidebar.
+- Every card wears one **gap-disposition badge** (新增／演進／保留／汰換) —
+  vocabulary and colors from `/svg-palette`'s semantic badges. The legend
+  lists all four terms.
+- 第一優先 marking: `accent` edge strip on the card (one per diagram — the
+  accent rule holds).
+
+**Optional parts** (add only when the case has the concern):
+
+- Cross-cutting sidebar (right column) — governance/security concerns that
+  span all bands.
+- Standards catalog band (bottom) — the open interfaces each domain boundary
+  is pinned to.
+- Footer line mapping capabilities to the roadmap/Gantt.
 
 ## Per-diagram checklist
 
