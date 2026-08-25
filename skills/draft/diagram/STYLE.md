@@ -26,10 +26,26 @@ derived from them — house rules are marked.
    simple geometry (`rect`/`circle`/`line`). A glyph, where the genre expects
    one, is assembled from at most ~4 such primitives — never freehand `path`
    data.
-3. **Anchor the look with one style idiom per diagram**: architecture blocks →
-   "Microsoft architecture diagram style"; executive one-pager → "IBM
-   consulting infographic style". One anchor buys more consistency than ten
-   adjectives; colors still come from `/svg-palette`, never from the idiom.
+3. **Anchor the look with one style idiom per diagram**: architecture blocks
+   and stacks → "clean consulting slide style — white cards, thin rules";
+   executive one-pager → "IBM consulting infographic style". One anchor buys
+   more consistency than ten adjectives; colors still come from
+   `/svg-palette`, never from the idiom.
+
+## Default visual grammar (light-first)
+
+Every SVG diagram starts from this grammar; `/svg-palette`'s Light-first rule
+is the color half, this is the layout half:
+
+- Blocks are **white cards**: `bg` fill, `line` or `primary-4` border (≥2px),
+  `ink` title, `muted` sub-line. Tiers/categories separate by pale fills
+  (`primary-5..3`, `ink` text), never by full-width dark bars.
+- Solid `primary-1`/`primary-2` blocks are the **reading spine** only: left
+  rail labels, header rows, at most one main node.
+- Accent rides thin carriers: edge strip, underline, colored text, small
+  badge. A verdict/priority block is a white card with an accent edge strip
+  and accent title text, not an accent-filled banner.
+- Badges (gap disposition, sourcing) per `/svg-palette`'s semantic badges.
 
 ## Type
 
@@ -102,6 +118,32 @@ page, the bottom band carries the conclusions).
   platform or agent with radiating capabilities.
 - **No methodology prose on the poster.** One footnote line at most; caveats,
   formulas, and sources live in the report the poster references.
+
+## Target architecture map (目標架構圖，四域)
+
+The business-facing stack for 主管: building blocks (ABB), never products —
+a block says what the capability is, not what it is bought as. Read as
+domain bands top-down.
+
+**Core skeleton** (every instance has these):
+
+- Four domain bands, top-down: 業務 → 應用 → 資料 → 技術. Left rail carries
+  one dark label block per band (the reading spine, same as the one-pager).
+- Cards follow the default visual grammar above; color appears only in
+  badges, the rail, and the sidebar.
+- Every card wears one **gap-disposition badge** (新增／演進／保留／汰換) —
+  vocabulary and colors from `/svg-palette`'s semantic badges. The legend
+  lists all four terms.
+- 第一優先 marking: `accent` edge strip on the card (one per diagram — the
+  accent rule holds).
+
+**Optional parts** (add only when the case has the concern):
+
+- Cross-cutting sidebar (right column) — governance/security concerns that
+  span all bands.
+- Standards catalog band (bottom) — the open interfaces each domain boundary
+  is pinned to.
+- Footer line mapping capabilities to the roadmap/Gantt.
 
 ## Per-diagram checklist
 

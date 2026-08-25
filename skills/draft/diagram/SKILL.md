@@ -16,9 +16,14 @@ First fork is **who will look at this**. Ask via AskUserQuestion when unclear.
 
 | Audience | Their concern | Reach for |
 | --- | --- | --- |
-| 主管／客戶 (execs, clients) | schedule, shape, cost, why-do-this | Gantt, milestone chart, informal architecture block diagram, executive one-pager (高階總覽圖) |
+| 主管／客戶 (execs, clients) | schedule, shape, cost, why-do-this | Gantt, milestone chart, informal architecture block diagram, executive one-pager (高階總覽圖), target architecture map (目標架構圖，四域 — see STYLE.md) |
+| 技術主管 (tech leads) | which function runs on what, sourcing, consistency of choices | capability-layer tech stack (能力層技術堆疊 — pale tiers per STYLE.md's light-first grammar, product names, sourcing badges) |
 | 標案／文件審查 (tender & document review) | responsibility, coverage, compliance | swimlane, network/deployment diagram, WBS |
 | 工程師 (engineers) | contracts, data, interactions | sequence, use case, ERD, tech stack |
+
+「主管」 alone is ambiguous between 業務主管 and 技術主管, and the two get
+different stacks — when a stack-type diagram is requested for 「主管」,
+resolve which one via AskUserQuestion before drawing.
 
 **Fourth exit — not a diagram.** Inventory and comparison questions are answered
 by a markdown table or matrix, not a picture: system portfolios, capability ×
@@ -37,15 +42,16 @@ protocol names, no internal components. Precision there is noise, abstraction is
 respect.
 
 Vocabulary: say 技術堆疊, not 系統堆疊圖 — the latter is not a practitioner
-term. C4 and TOGAF are discussed in Taiwan but rarely used in reporting; apply
-them only when the user names them.
+term. Genre follows the audience table above; the framework **label** (C4 /
+TOGAF wording in a title or caption) appears only when the user names the
+framework — the diagram itself is reachable either way.
 
 ## 2. Pick the medium
 
 | Diagram | Medium |
 | --- | --- |
 | Flow, swimlane, sequence, use case, ERD, Gantt, milestone | Mermaid |
-| Architecture blocks, tech stack, network/deployment, WBS, executive one-pager | SVG |
+| Architecture blocks, tech stack, target architecture map, network/deployment, WBS, executive one-pager | SVG |
 
 - **Mermaid** — structure-heavy, cheap to revise, renders in markdown/artifacts.
 - **SVG** — slide-bound diagrams that must look good projected and screenshot
