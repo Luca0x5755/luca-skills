@@ -32,20 +32,21 @@ derived from them — house rules are marked.
    more consistency than ten adjectives; colors still come from
    `/svg-palette`, never from the idiom.
 
-## Default visual grammar (light-first)
+## Color and light-first grammar
 
-Every SVG diagram starts from this grammar; `/svg-palette`'s Light-first rule
-is the color half, this is the layout half:
+All color decisions come from the `/svg-palette` skill: roles, the
+**Light-first** rule (white cards, reading spine, accent on thin carriers),
+semantic encodings, override mapping. Layout-side additions:
 
-- Blocks are **white cards**: `bg` fill, `line` or `primary-4` border (≥2px),
-  `ink` title, `muted` sub-line. Tiers/categories separate by pale fills
-  (`primary-5..3`, `ink` text), never by full-width dark bars.
-- Solid `primary-1`/`primary-2` blocks are the **reading spine** only: left
-  rail labels, header rows, at most one main node.
-- Accent rides thin carriers: edge strip, underline, colored text, small
-  badge. A verdict/priority block is a white card with an accent edge strip
-  and accent title text, not an accent-filled banner.
-- Badges (gap disposition, sourcing) per `/svg-palette`'s semantic badges.
+- The reading spine anchors flush left: rail labels or header rows carry the
+  read; everything else is white cards and pale tiers.
+- A verdict/priority block is a white card with an accent edge strip and
+  accent title text, not an accent-filled banner.
+
+Two palette rules restated because they kill diagrams when missed:
+
+- White ground, dark text. Light-gray text dies on projectors.
+- One accent per diagram — the single thing the audience must see.
 
 ## Type
 
@@ -80,15 +81,6 @@ Mermaid's default font has no CJK and 16px is too small projected. Prepend:
 to the SVG tiers — 18px is the meeting-room default; bump to 20px for large
 venues.)
 
-## Color
-
-All color decisions come from the `/svg-palette` skill (roles, override
-mapping, as-is/to-be encoding). Two rules restated because they kill diagrams
-when missed:
-
-- White ground, dark text. Light-gray text dies on projectors.
-- One accent per diagram — the single thing the audience must see.
-
 ## Executive one-pager
 
 The densest genre — a pitch poster read on screen or as a handout, not across
@@ -113,11 +105,22 @@ page, the bottom band carries the conclusions).
 - **Parallel domains take categorical hues.** A band enumerating peer domains
   (capability pillars, product families) is `/svg-palette`'s categorical case:
   each domain gets its own hue, and the cell's title, glyph, and highlighted
-  numbers wear it. Single-thread bands keep the monochrome ramp.
+  numbers wear it. Single-thread bands keep the monochrome ramp. This is
+  still light-first — the hues ride thin carriers (title, glyph, numbers),
+  never block fills; the genre's exception is density only, not color.
 - **Hub-and-spoke** may replace a band's grid when the story has a center — a
   platform or agent with radiating capabilities.
 - **No methodology prose on the poster.** One footnote line at most; caveats,
   formulas, and sources live in the report the poster references.
+
+## Capability tech stack (能力層技術堆疊)
+
+The stack for 技術主管: rows are capability layers (e.g. 應用 → 服務 → 基礎),
+each row naming the products that realize it. Layers are pale tiers
+(`primary-5..3`, `ink` text); each layer wears one sourcing badge
+(自建／商用／混合) per `/svg-palette`'s semantic badges. It differs from the
+engineers' tech stack by granularity: capabilities and product names, never
+internal components or protocols.
 
 ## Target architecture map (目標架構圖，四域)
 
@@ -129,7 +132,7 @@ domain bands top-down.
 
 - Four domain bands, top-down: 業務 → 應用 → 資料 → 技術. Left rail carries
   one dark label block per band (the reading spine, same as the one-pager).
-- Cards follow the default visual grammar above; color appears only in
+- Cards follow the light-first grammar above; color appears only in
   badges, the rail, and the sidebar.
 - Every card wears one **gap-disposition badge** (新增／演進／保留／汰換) —
   vocabulary and colors from `/svg-palette`'s semantic badges. The legend

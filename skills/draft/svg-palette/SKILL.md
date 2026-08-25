@@ -13,12 +13,12 @@ role slots, so swapping palettes never changes the drawing logic.
 
 | Role | Purpose | Default (Indigo) |
 | --- | --- | --- |
-| `primary-1` (darkest) | Spine only: rail labels, header rows, at most one main node | `#28406B` |
-| `primary-2` | Spine second shade | `#4A648F` |
-| `primary-3` | Darkest pale tier fill (with `ink` text) | `#7E93B4` |
+| `primary-1` (darkest) | Reading spine (see Light-first) | `#28406B` |
+| `primary-2` | Reading spine, second shade | `#4A648F` |
+| `primary-3` | Darkest pale tier fill (`ink` text) | `#7E93B4` |
 | `primary-4` | Pale tier fills, card borders | `#B9C6D9` |
 | `primary-5` (lightest) | Background washes, bands, pale tier fills | `#E3EAF3` |
-| `accent` | The one thing to emphasize — thin strips, text, small badges | `#E07B39` |
+| `accent` | The one thing to emphasize (see accent rule) | `#E07B39` |
 | `ink` | Text on light ground | `#1F2933` |
 | `muted` | Secondary text, arrows, borders | `#5B6B78` |
 | `line` | Gridlines, dividers | `#D9E0E6` |
@@ -48,17 +48,22 @@ role slots, so swapping palettes never changes the drawing logic.
 - **No red/green semantics in solid fills.** Shapes never encode status as
   red/green (user decision, also colorblind-hostile). The one sanctioned
   exception is semantic badges (below), where the printed word carries the
-  meaning. Three-state As-Is/To-Be encoding is fixed:
-  - **added / changed** → `accent` on thin carriers: accent border + accent
-    title text on a white card (never a solid accent fill)
-  - **removed / deprecated** → `primary-5` fill with `muted` dashed border
-  - **unchanged** → the light-first default (white card / pale tier)
-
-  When a diagram needs the four-state gap disposition
-  (新增／演進／保留／汰換), the three-state encoding cannot express it — use
-  the gap-disposition badge vocabulary instead.
+  meaning.
 - **Ground is white.** `bg` stays `#FFFFFF` for anything that may land on a
   slide — screenshots must paste clean into PowerPoint.
+
+## As-Is/To-Be encoding
+
+Three states, fixed:
+
+- **added / changed** → `accent` on thin carriers: accent border + accent
+  title text on a white card (never a solid accent fill)
+- **removed / deprecated** → `primary-5` fill with `muted` dashed border
+- **unchanged** → the light-first default (white card / pale tier)
+
+When a diagram needs the four-state gap disposition (新增／演進／保留／汰換),
+the three-state encoding cannot express it — use the gap-disposition badge
+vocabulary below.
 
 ## Semantic badges
 

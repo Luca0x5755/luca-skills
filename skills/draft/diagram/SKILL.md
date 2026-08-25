@@ -16,8 +16,8 @@ First fork is **who will look at this**. Ask via AskUserQuestion when unclear.
 
 | Audience | Their concern | Reach for |
 | --- | --- | --- |
-| 主管／客戶 (execs, clients) | schedule, shape, cost, why-do-this | Gantt, milestone chart, informal architecture block diagram, executive one-pager (高階總覽圖), target architecture map (目標架構圖，四域 — see STYLE.md) |
-| 技術主管 (tech leads) | which function runs on what, sourcing, consistency of choices | capability-layer tech stack (能力層技術堆疊 — pale tiers per STYLE.md's light-first grammar, product names, sourcing badges) |
+| 業務主管／客戶 (business execs, clients) | schedule, shape, cost, why-do-this | Gantt, milestone chart, informal architecture block diagram, executive one-pager (高階總覽圖), target architecture map (目標架構圖，四域 — see STYLE.md) |
+| 技術主管 (tech leads) | which function runs on what, sourcing, consistency of choices | capability-layer tech stack (能力層技術堆疊 — see STYLE.md) |
 | 標案／文件審查 (tender & document review) | responsibility, coverage, compliance | swimlane, network/deployment diagram, WBS |
 | 工程師 (engineers) | contracts, data, interactions | sequence, use case, ERD, tech stack |
 
