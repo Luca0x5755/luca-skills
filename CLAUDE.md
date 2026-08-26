@@ -35,11 +35,11 @@
 
 技能放在 `skills/` 下的桶裡。桶的分界是**對外發佈與否**，不是能不能用：
 
-| 桶 | 本機可用 | 對外發佈 | 受不變量 2–6 約束 |
+| 桶 | 本機可用 | 對外發佈（plugin.json） | README |
 | --- | --- | --- | --- |
-| `core/` | ✅ | ✅ | ✅ |
-| `draft/` | ✅ | ❌ | ❌ |
-| `archive/` | ❌ | ❌ | ❌ |
+| `core/` | ✅ | ✅ | 正式清單 |
+| `draft/` | ✅ | ❌ | 〈試用中〉小節 |
+| `archive/` | ❌ | ❌ | 不得出現 |
 
 `scripts/install.ps1` 連結 `core/` 與 `draft/`。draft 叫得動才試得了，試得了才畢得了業。
 
@@ -49,7 +49,7 @@
 
 1. 每個技能資料夾都有 `SKILL.md`，其 `name` 等於資料夾名，且有 `description`。
 2. `core/` 的每個技能在 `README.md` 都有指向 `./skills/core/<name>/SKILL.md` 的連結。
-3. `draft/` 與 `archive/` 的技能不得出現在 `README.md`。
+3. `draft/` 的每個技能在 `README.md` 的〈試用中〉小節都有指向 `./skills/draft/<name>/SKILL.md` 的連結；`archive/` 的技能不得出現在 `README.md`。
 4. `.claude-plugin/plugin.json` 的 `skills` 陣列，與 `skills/core/` 的內容完全相等。
 5. `.claude-plugin/plugin.json` 與 `package.json` 的 `version` 相等。
 6. `skills/core/ask-luca/SKILL.md` 提到每一個 core 技能。路由器漏掉一個，就是一張說謊的地圖。
@@ -90,7 +90,7 @@
 
 draft 的畢業流程：
 
-1. `skills/draft/<name>/SKILL.md`，跑一次 `scripts/install.ps1` 讓它可被叫用。
+1. `skills/draft/<name>/SKILL.md`，跑一次 `scripts/install.ps1` 讓它可被叫用，並在 `README.md` 的〈試用中〉小節補一行（不變量 3）。
 2. 用兩週。從來沒被觸發 → `description` 的觸發語句寫壞了。觸發了但做錯事 → 該鎖成使用者觸發。內容在真實情境下改過至少一輪。
-3. `git mv` 進 `core/`，同時補 `README.md` 條目、`plugin.json` 條目、`ask-luca` 的路由。
+3. `git mv` 進 `core/`，同時把 `README.md` 條目從〈試用中〉搬進正式清單、補 `plugin.json` 條目、`ask-luca` 的路由。
 4. `bash scripts/check.sh` 綠了才 commit。

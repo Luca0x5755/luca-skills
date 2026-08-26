@@ -32,12 +32,12 @@ for n in $core; do
   grep -qF "(./skills/core/$n/SKILL.md)" README.md || err "README.md 缺少 $n 的連結"
 done
 
-echo "[3] draft / archive 技能不得出現在 README.md"
-# 管轄範圍是「可安裝的連結」（skills/ 路徑）。圖上的虛線框傳達「存在但沒畢業」，
-# 是正確資訊，不在此列 — 見 assets/ 的 SVG。
-for n in $draft $archive; do
-  grep -qF "skills/draft/$n" README.md  && err "README.md 不該提到未推廣技能 $n"
-  grep -qF "skills/archive/$n" README.md && err "README.md 不該提到未推廣技能 $n"
+echo "[3] draft 技能全部在 README.md 有連結（試用中小節）；archive 不得出現"
+for n in $draft; do
+  grep -qF "(./skills/draft/$n/SKILL.md)" README.md || err "README.md 缺少試用技能 $n 的連結"
+done
+for n in $archive; do
+  grep -qF "skills/archive/$n" README.md && err "README.md 不該提到已封存技能 $n"
 done
 
 echo "[4] plugin.json 的 skills 陣列 == core 集合"
