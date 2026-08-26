@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2280" viewBox="0 0 1320 2280" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
-  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層 docs/specs/ — to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、consolidate-docs 把老專案的凌散文件盤點遷入、bootstrap-truth 為無文件的接管專案讀碼逆向立層（先 consolidate 後 bootstrap）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層 docs/specs/ — to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、consolidate-docs 把老專案的凌散文件盤點遷入、bootstrap-truth 為無文件的接管專案讀碼逆向立層（先 consolidate 後 bootstrap）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段 git-mr（GitLab 版 git-pr）與 git-pr 並排。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -137,24 +137,31 @@
     <rect x="196" y="1100" width="420" height="64" rx="8" class="box user"/>
     <text x="406" y="1128" text-anchor="middle" class="skill">/git-commit</text>
     <text x="406" y="1154" text-anchor="middle" class="sub">只 commit 你 stage 的，英文訊息，推上遠端</text>
-    <path d="M 406 1164 L 406 1196" class="edge"/>
-    <text x="418" y="1186" class="edge-label">票全部做完</text>
+    <text x="441" y="1195" text-anchor="middle" class="edge-label">票全部做完</text>
 
     <!-- ticket loop -->
     <path d="M 196 1132 L 180 1132 L 180 896 L 192 896" class="edge"/>
     <text x="164" y="948" text-anchor="end" class="edge-label">還有票 → /clear，</text>
     <text x="164" y="972" text-anchor="end" class="edge-label">開下一張</text>
 
-    <rect x="196" y="1200" width="420" height="64" rx="8" class="box user"/>
-    <text x="406" y="1228" text-anchor="middle" class="skill">/git-pr</text>
-    <text x="406" y="1254" text-anchor="middle" class="sub">開 PR；你按 merge 後再跑一次清分支</text>
-    <path d="M 406 1264 L 406 1296" class="edge"/>
-    <text x="418" y="1288" class="edge-label">merge 是你按</text>
+    <rect x="196" y="1200" width="205" height="64" rx="8" class="box user"/>
+    <text x="298" y="1228" text-anchor="middle" class="skill">/git-pr</text>
+    <text x="298" y="1254" text-anchor="middle" class="sub">開 PR；合併後清分支</text>
+
+    <rect x="411" y="1200" width="205" height="64" rx="8" class="box user draft"/>
+    <text x="514" y="1228" text-anchor="middle" class="skill">/git-mr</text>
+    <text x="514" y="1254" text-anchor="middle" class="sub">GitLab 版：開 MR</text>
+
+    <path d="M 406 1164 L 406 1176 L 298 1176 L 298 1196" class="edge"/>
+    <path d="M 406 1164 L 406 1176 L 514 1176 L 514 1196" class="edge"/>
+    <path d="M 298 1264 L 298 1296" class="edge"/>
+    <path d="M 514 1264 L 514 1296" class="edge"/>
+    <text x="310" y="1288" class="edge-label">merge 是你按</text>
 
     <!-- ship: the one accent of this diagram -->
     <rect x="196" y="1300" width="420" height="64" rx="8" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
     <rect x="196" y="1300" width="8" height="64" fill="#E07B39"/>
-    <text x="410" y="1340" text-anchor="middle" font-size="24" font-weight="700" fill="#E07B39">PR 合併，出貨</text>
+    <text x="410" y="1340" text-anchor="middle" font-size="24" font-weight="700" fill="#E07B39">合併，出貨</text>
     <path d="M 406 1364 L 406 1396" class="edge"/>
     <text x="418" y="1388" class="edge-label">可選</text>
 
@@ -261,20 +268,20 @@
     <text x="192" y="1769" text-anchor="middle" class="skill-sm">/triage</text>
     <path d="M 312 1762 L 352 1762" class="edge"/>
     <text x="360" y="1756" class="note">匯入 /implement</text>
-    <text x="360" y="1782" class="note">別人回報的 bug 與需求。自己用 /to-tickets 開的票直接 /implement。</text>
+    <text x="360" y="1782" class="note">別人回報的 bug；自己開的票不用</text>
 
     <rect x="72" y="1812" width="240" height="44" rx="8" class="box model"/>
     <text x="192" y="1841" text-anchor="middle" class="skill-sm">/diagnosing-bugs</text>
-    <path d="M 312 1834 L 652 1834" class="edge"/>
-    <rect x="660" y="1812" width="430" height="44" rx="8" class="box user"/>
-    <text x="875" y="1841" text-anchor="middle" class="skill-sm">/improve-codebase-architecture</text>
-    <text x="360" y="1860" class="note">難修的 bug。修完發現病根在架構，才走這條。</text>
+    <path d="M 312 1834 L 664 1834" class="edge"/>
+    <rect x="672" y="1812" width="430" height="44" rx="8" class="box user"/>
+    <text x="887" y="1841" text-anchor="middle" class="skill-sm">/improve-codebase-architecture</text>
+    <text x="360" y="1860" class="note">難修的 bug；病根在架構才走右邊</text>
 
     <rect x="72" y="1880" width="240" height="44" rx="8" class="box user"/>
     <text x="192" y="1909" text-anchor="middle" class="skill-sm">/wayfinder</text>
     <path d="M 312 1902 L 352 1902" class="edge"/>
     <text x="360" y="1896" class="note">匯入 /to-spec</text>
-    <text x="360" y="1922" class="note">題目大到不知從何下手。出來後接 /to-spec，不能直接跳 /implement。</text>
+    <text x="360" y="1922" class="note">題目太大不知從何下手，不能跳過切開</text>
   </g>
 
   <!-- anytime layer -->
@@ -282,20 +289,25 @@
     <rect x="48" y="1992" width="1224" height="240" rx="12" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
     <text x="72" y="2026" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
 
-    <text x="72" y="2072" class="skill-sm">/domain-modeling</text>
-    <text x="280" y="2072" class="note">術語模糊、一詞多義；夠格的決策才立 ADR</text>
-    <text x="672" y="2072" class="skill-sm">/grilling</text>
-    <text x="790" y="2072" class="note">一問一答的基本功；還沒有 codebase 時用這個</text>
+    <rect x="72" y="2048" width="240" height="44" rx="8" class="box model"/>
+    <text x="192" y="2077" text-anchor="middle" class="skill-sm">/domain-modeling</text>
+    <text x="340" y="2066" class="note">術語模糊、一詞多義；</text>
+    <text x="340" y="2090" class="note">夠格的決策才立 ADR</text>
+    <rect x="672" y="2048" width="240" height="44" rx="8" class="box model"/>
+    <text x="792" y="2077" text-anchor="middle" class="skill-sm">/grilling</text>
+    <text x="940" y="2066" class="note">一問一答的基本功；</text>
+    <text x="940" y="2090" class="note">還沒有 codebase 時用這個</text>
 
-    <rect x="72" y="2100" width="150" height="44" rx="8" class="box model draft"/>
-    <text x="147" y="2129" text-anchor="middle" class="skill-sm">/refactor</text>
-    <text x="280" y="2129" class="note">不改可觀察行為的結構重整</text>
-    <rect x="672" y="2100" width="160" height="44" rx="8" class="box user draft"/>
-    <text x="752" y="2129" text-anchor="middle" class="skill-sm">/git-merge</text>
-    <text x="850" y="2129" class="note">把分支併進來；衝突停下來，解法你決定</text>
+    <rect x="72" y="2104" width="240" height="44" rx="8" class="box model draft"/>
+    <text x="192" y="2133" text-anchor="middle" class="skill-sm">/refactor</text>
+    <text x="340" y="2133" class="note">不改可觀察行為的結構重整</text>
+    <rect x="672" y="2104" width="240" height="44" rx="8" class="box user draft"/>
+    <text x="792" y="2133" text-anchor="middle" class="skill-sm">/git-merge</text>
+    <text x="940" y="2133" class="note">把分支併進來；衝突停下來，解法你決定</text>
 
-    <rect x="72" y="2164" width="170" height="44" rx="8" class="box user draft"/>
-    <text x="157" y="2193" text-anchor="middle" class="skill-sm">/study-repo</text>
-    <text x="280" y="2193" class="note">讀懂別人的 repo：先跑起來，再追一條核心路徑；報告拋棄式，看完就刪</text>
+    <rect x="72" y="2160" width="240" height="44" rx="8" class="box user draft"/>
+    <text x="192" y="2189" text-anchor="middle" class="skill-sm">/study-repo</text>
+    <text x="340" y="2178" class="note">讀懂別人的 repo：先跑起來，</text>
+    <text x="340" y="2202" class="note">再追核心路徑；報告看完就刪</text>
   </g>
 </svg>
