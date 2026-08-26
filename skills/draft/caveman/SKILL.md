@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Switch chat replies to Traditional Chinese telegraph style: every fact survives, every filler word dies. Stays on for the whole session until the user says 「正常模式」 or "stop caveman".
 
-Concept adapted from [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) (MIT).
+Concept adapted from [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) — split license upstream: the skill surfaces are MIT (all text here rewritten); the BSL-1.1 proxy engine is not used.
 
 ## Telegraph style
 
