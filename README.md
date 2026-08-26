@@ -123,6 +123,7 @@ session 規則：
 - [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) — 規格流程研究的對照組。
 - [bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) — 多代理流程與模板設計的對照組。
 - [eyaltoledano/claude-task-master](https://github.com/eyaltoledano/claude-task-master) — 任務分解與切票研究的對照組。
+- [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) — 電報體回覆技能（caveman）的概念來源（MIT，文字全部重寫）。只取輸出端 skill 的規則骨架——否定詞護欄、持久化豁免、tokenizer 紀律；輸入端 proxy 與 Pixel Mode 經評估不取（破壞 prompt cache、61% 為本地估算非帳單實測）。
 
 驗收測試技能（uat-cases、browser-evidence）的設計依據：
 
