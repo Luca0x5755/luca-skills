@@ -85,6 +85,24 @@ for n in $core $draft; do
     || err "技能 $n 不在任何一張圖上 — 補進 assets/flow.svg 或 assets/toolbox.svg"
 done
 
+echo "[10] hook 三方對齊：settings.json ↔ hooks/ 目錄 ↔ HOOKS.md，缺一即紅"
+if [ ! -f hooks/HOOKS.md ]; then
+  err "hooks/HOOKS.md 不存在 — hook 地圖是規則的一部分"
+else
+  for h in hooks/*.sh; do
+    b=$(basename "$h")
+    case "$b" in test-*) continue ;; esac
+    grep -qF "hooks/$b" .claude/settings.json || err "$b 在 hooks/ 但沒掛進 .claude/settings.json"
+    grep -q "^## $b" hooks/HOOKS.md || err "$b 在 hooks/ 但 HOOKS.md 沒有它的條目（## $b）"
+  done
+  for b in $(sed -n 's/^## \(.*\.sh\)$/\1/p' hooks/HOOKS.md); do
+    [ -f "hooks/$b" ] || err "HOOKS.md 記載 $b，但 hooks/$b 不存在 — 地圖在說謊"
+  done
+  for b in $(grep -o 'hooks/[a-z-]*\.sh' .claude/settings.json | sed 's|hooks/||' | sort -u); do
+    [ -f "hooks/$b" ] || err "settings.json 掛載 $b，但 hooks/$b 不存在 — 掛載在說謊"
+  done
+fi
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

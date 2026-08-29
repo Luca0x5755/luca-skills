@@ -56,11 +56,7 @@
 
 ## Hooks（機器護欄）
 
-`.claude/settings.json` 掛兩條 hook，腳本在 `hooks/`。技能裡的禁令是模型自律，hook 是機器強制 — 兩者同構，後者不會忘。
-
-- `guard-git.sh`（PreToolUse: Bash）— 擋 `git add -A`/`git add .`、force push、`git reset --hard`（唯一放行 `git reset --hard HEAD`：只丟未提交變更、不動分支指標，/refactor 撤退用）、`--no-verify`、`gh pr merge`（連同 `gh api …/merge` 這條後門）。exit 2，stderr 告訴模型正確做法。
-- `guard-secrets.sh`（PreToolUse: Bash）— `git commit` 時掃 staged diff 的新增行，抓憑證字面值（`TEST_PW = "…"`、`"password": "…"`）。讀環境變數、樣板佔位、散文提及都放行。exit 2。這條是 `/browser-evidence` 「憑證一律讀環境或庫外檔」那條散文的機器版 — 2026-08-11 實測散文擋不住，密碼進了公開分支，而 force-push 不等於刪除。
-- `check-on-stop.sh`（Stop）— 不變量表面（`skills/`、`.claude-plugin/`、`README.md`、`package.json`）有未提交變更且 `check.sh` 紅著，不准收工。查 `stop_hook_active` 防無限迴圈。
+腳本在 `hooks/`、掛載在 `.claude/settings.json`、地圖在 `hooks/HOOKS.md` — 每條 hook 掛哪個事件、擋什麼、為什麼，都寫在地圖裡，此處不重述。三方對齊（settings.json 的掛載 ↔ `hooks/` 目錄的腳本 ↔ HOOKS.md 的條目）由 `check.sh` 強制，缺一即紅。技能裡的禁令是模型自律，hook 是機器強制 — 兩者同構，後者不會忘。
 
 原則：確定性檢查優先、訊息帶「擋了什麼＋為什麼＋正確做法」、少而必然 — 每加一條 hook 就加一份延遲與誤擋風險。
 

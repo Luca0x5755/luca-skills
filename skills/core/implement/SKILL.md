@@ -41,7 +41,7 @@ Between slices: typecheck, and run **that** test file. Not the whole suite — t
 - Load the `/code-review` skill via the Skill tool — mandatory, not optional — and review against the ticket. Fix what it finds; push back in writing on what you disagree with.
 - Re-read the ticket's *Done when* list and check each condition literally.
 - Any ADR this ticket implements that is still `Status: Proposed` → flip it to `Accepted` in the same commit. An ADR for work that has landed is no longer a proposal.
-- The truth layer reflects what this ticket made true: behaviour rules land in `docs/specs/<capability>.md` on this branch, so the docs merge with the code. Update only what this ticket changed — contracts `/to-architecture` or `/frontend-spec` already wrote need no restating. A project with no `docs/specs/` skips this line, and says so in the report.
+- The truth layer reflects what this ticket made true: behaviour rules land in the owning `docs/capabilities/<name>.md` (or the consolidated spec section it points at) on this branch, so the docs merge with the code. Update only what this ticket changed — contracts `/to-architecture` or `/frontend-spec` already wrote need no restating. A project with no truth layer skips this line, and says so in the report.
 
 ## 5. Commit
 
