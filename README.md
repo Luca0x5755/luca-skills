@@ -18,7 +18,7 @@ Linux / macOS：
 bash scripts/install.sh          # 同樣吃 claude / copilot / all
 ```
 
-連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。改這個 repo 的檔案立刻生效。
+連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。改這個 repo 的檔案立刻生效。`skills/core/` 與 `skills/draft/` 都會連入 —— draft 是還在試用、尚未畢業的技能，清單見下方[試用中](#試用中draft)。
 
 > Windows 上不要用 Git Bash 跑 `install.sh`：MSYS 的 `ln -s` 會退化成複製目錄，裝出一份不會跟著更新的技能。腳本會擋下來要你改用 `install.ps1`。
 
@@ -77,6 +77,30 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[wizard](./skills/core/wizard/SKILL.md)** — 生成一支互動式 bash 精靈，一步步引導人類完成只有人能做的步驟。當要開通基礎設施、設定憑證或 CI secrets、走一遍陌生的第三方後台、或跑一次性的遷移／切換時使用。代理自己能做的步驟不要用它。
 - **[writing-for-agents](./skills/core/writing-for-agents/SKILL.md)** — 撰寫給代理讀的文件的通用工法：context pointer、兩種負載、資訊階梯、completion criteria。建立或編輯技能、修改 `CLAUDE.md` 時使用。
 
+### 試用中（draft）
+
+還沒畢業的技能 —— 安裝會一併連入、已可呼叫，但內容仍在真實使用中修訂，隨時可能改動或撤下。用滿試用期、內容修過至少一輪才會搬進上面的正式清單：
+
+- **[audit-truth](./skills/draft/audit-truth/SKILL.md)** — 持續性稽核刀：掃真相層找語意矛盾（文件↔程式碼、文件↔文件），問卷裁決後寫進漂移總帳；宿主已有帳本就寫宿主格式。
+- **[bootstrap-truth](./skills/draft/bootstrap-truth/SKILL.md)** — 一次性正規化刀：在宿主既有治理的形狀內把文件瘦身變準、補業務能力薄檔、標上能力對應；砍字與改事實分開 commit。
+- **[briefing](./skills/draft/briefing/SKILL.md)** — 把簡報圖變成上台用的口頭講稿＋導讀：結論先行、節間串場、預期質詢與建議答法，寫成 `briefing.md`。
+- **[browser-evidence](./skills/draft/browser-evidence/SKILL.md)** — 把既定案例清單跑成可交付的證據 —— 截圖、網路紀錄與被測版本 manifest，落在 `docs/uat/`。
+- **[caveman](./skills/draft/caveman/SKILL.md)** — 聊天回覆切換為繁中電報體，砍廢話省輸出 token；程式碼、commit、文件照常散文。
+- **[diagram](./skills/draft/diagram/SKILL.md)** — 依受眾與情境挑選最合適的圖表並繪製，缺資訊時先畫草稿再問。
+- **[feasibility](./skills/draft/feasibility/SKILL.md)** — 在規格與拆票之間補上可行性判決（✅／⚠️／❌），以 comment 掛回 spec issue。
+- **[frontend-spec](./skills/draft/frontend-spec/SKILL.md)** — 為有 UI 的規格定前端真相：路由表、四態頁面、style tokens 與 `.pen` mockup。
+- **[git-merge](./skills/draft/git-merge/SKILL.md)** — 把指定分支合併進當前分支；衝突時停下來分析與建議，解法是使用者的決定。
+- **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 git-pr：開 MR（有 glab 直建，沒有就給連結、標題、內文自己貼）與合併後清理分支。
+- **[implement-all](./skills/draft/implement-all/SKILL.md)** — 從議題追蹤器抓可動工的票，每張派一個子代理跑 `/implement`。只編排不動手。
+- **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** — 管理框架知識庫與診斷：OKR、精實、六標準差、Scrum 等的選用判準。
+- **[refactor](./skills/draft/refactor/SKILL.md)** — 不改變可觀察行為的結構重整：特徵測試護網、一次一個 transform、綠燈即提交。
+- **[study-repo](./skills/draft/study-repo/SKILL.md)** — 讀懂一個第三方 repo：先跑起來、追一條核心路徑，產出拋棄式的學習報告。
+- **[svg-palette](./skills/draft/svg-palette/SKILL.md)** — SVG 繪圖的色盤與用色規則 —— 預設靛青深淺＋橘強調，可套品牌色。
+- **[test-blueprint](./skills/draft/test-blueprint/SKILL.md)** — 分析專案並提案測試藍圖：層佈局、縫清單、CI 時段，核准後寫入 `docs/test-blueprint.md`。
+- **[to-architecture](./skills/draft/to-architecture/SKILL.md)** — 在規格與拆票之間定架構：技術棧、資料模型、API 合約，直接寫進真相層。
+- **[uat-cases](./skills/draft/uat-cases/SKILL.md)** — 從規格推導 UAT 案例清單，發出凍結的 TC 編號 —— `/browser-evidence` 的上游。
+- **[writing-hooks](./skills/draft/writing-hooks/SKILL.md)** — 撰寫與審查 Claude Code hook 的判準：什麼規則該降到 hook、怎麼防靜默腐爛。
+
 ## 主流程
 
 [![主流程：想法 → 出貨](./assets/flow.svg)](./assets/flow.svg)
@@ -90,7 +114,7 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 | 1・繞道 | 有問題要跑起來才能回答 | ① `/handoff` 拿文件路徑 → ② 開新 session 貼路徑，跑 `/prototype` → ③ 答完再 `/handoff` 拿新路徑 → ④ 開新 session 貼路徑，回主流程 |
 | 2・切開 | 一個 session 做不完，先切小 | `/to-spec` → `/to-tickets` |
 | 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear` |
-| 4・收尾 | 審查通過才 commit | `/code-review`（`/implement` 收尾自動跑） |
+| 4・收尾 | 審查、提交、開 PR 到合併出貨 | `/code-review`（`/implement` 收尾自動跑）→ `/git-commit` → `/git-pr`（GitLab 用 `/git-mr`，試用中）→ 要發版才跑 `/git-release` |
 
 session 規則：
 
@@ -123,6 +147,7 @@ session 規則：
 - [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) — 規格流程研究的對照組。
 - [bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) — 多代理流程與模板設計的對照組。
 - [eyaltoledano/claude-task-master](https://github.com/eyaltoledano/claude-task-master) — 任務分解與切票研究的對照組。
+- [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) — 電報體回覆技能（caveman）的概念來源（分割授權：skill 部分 MIT，proxy 引擎 BSL-1.1 未取用；文字全部重寫）。只取輸出端 skill 的規則骨架——否定詞護欄、持久化豁免、tokenizer 紀律；輸入端 proxy 與 Pixel Mode 經評估不取（破壞 prompt cache、61% 為本地估算非帳單實測）。
 
 驗收測試技能（uat-cases、browser-evidence）的設計依據：
 

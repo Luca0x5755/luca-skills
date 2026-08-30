@@ -32,12 +32,12 @@ for n in $core; do
   grep -qF "(./skills/core/$n/SKILL.md)" README.md || err "README.md 缺少 $n 的連結"
 done
 
-echo "[3] draft / archive 技能不得出現在 README.md"
-# 管轄範圍是「可安裝的連結」（skills/ 路徑）。圖上的虛線框傳達「存在但沒畢業」，
-# 是正確資訊，不在此列 — 見 assets/ 的 SVG。
-for n in $draft $archive; do
-  grep -qF "skills/draft/$n" README.md  && err "README.md 不該提到未推廣技能 $n"
-  grep -qF "skills/archive/$n" README.md && err "README.md 不該提到未推廣技能 $n"
+echo "[3] draft 技能全部在 README.md 有連結（試用中小節）；archive 不得出現"
+for n in $draft; do
+  grep -qF "(./skills/draft/$n/SKILL.md)" README.md || err "README.md 缺少試用技能 $n 的連結"
+done
+for n in $archive; do
+  grep -qF "skills/archive/$n" README.md && err "README.md 不該提到已封存技能 $n"
 done
 
 echo "[4] plugin.json 的 skills 陣列 == core 集合"
@@ -84,6 +84,24 @@ for n in $core $draft; do
   grep -qF "/$n" assets/flow.svg 2>/dev/null || grep -qF "/$n" assets/toolbox.svg 2>/dev/null \
     || err "技能 $n 不在任何一張圖上 — 補進 assets/flow.svg 或 assets/toolbox.svg"
 done
+
+echo "[10] hook 三方對齊：settings.json ↔ hooks/ 目錄 ↔ HOOKS.md，缺一即紅"
+if [ ! -f hooks/HOOKS.md ]; then
+  err "hooks/HOOKS.md 不存在 — hook 地圖是規則的一部分"
+else
+  for h in hooks/*.sh; do
+    b=$(basename "$h")
+    case "$b" in test-*) continue ;; esac
+    grep -qF "hooks/$b" .claude/settings.json || err "$b 在 hooks/ 但沒掛進 .claude/settings.json"
+    grep -q "^## $b" hooks/HOOKS.md || err "$b 在 hooks/ 但 HOOKS.md 沒有它的條目（## $b）"
+  done
+  for b in $(sed -n 's/^## \(.*\.sh\)$/\1/p' hooks/HOOKS.md); do
+    [ -f "hooks/$b" ] || err "HOOKS.md 記載 $b，但 hooks/$b 不存在 — 地圖在說謊"
+  done
+  for b in $(grep -o 'hooks/[a-z-]*\.sh' .claude/settings.json | sed 's|hooks/||' | sort -u); do
+    [ -f "hooks/$b" ] || err "settings.json 掛載 $b，但 hooks/$b 不存在 — 掛載在說謊"
+  done
+fi
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
