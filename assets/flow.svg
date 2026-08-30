@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2280" viewBox="0 0 1320 2280" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
-  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層 docs/specs/ — to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、consolidate-docs 把老專案的凌散文件盤點遷入、bootstrap-truth 為無文件的接管專案讀碼逆向立層（先 consolidate 後 bootstrap）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段 git-mr（GitLab 版 git-pr）與 git-pr 並排。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層（少數合訂規格本＋docs/capabilities/ 能力薄檔，章節標能力、能力反列章節）—to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、bootstrap-truth 為接管專案一次性正規化真相層（在宿主治理的形狀內瘦身文件、補能力層、安裝機械檢查）、audit-truth 持續稽核語意矛盾並把裁決寫進漂移總帳（一把立真相、一把守真相）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段 git-mr（GitLab 版 git-pr）與 git-pr 並排。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -215,20 +215,20 @@
 
     <!-- truth layer store: second dark block of the spine -->
     <rect x="772" y="830" width="420" height="84" rx="8" class="rail"/>
-    <text x="982" y="864" text-anchor="middle" class="store-title">docs/specs/</text>
-    <text x="982" y="894" text-anchor="middle" class="store-sub">系統現況：行為、合約、頁面</text>
+    <text x="982" y="864" text-anchor="middle" class="store-title">docs/ 真相層</text>
+    <text x="982" y="894" text-anchor="middle" class="store-sub">合訂規格本＋能力薄檔，互指對應</text>
 
     <rect x="716" y="994" width="256" height="64" rx="8" class="box user draft"/>
-    <text x="844" y="1020" text-anchor="middle" class="skill-sm">/consolidate-docs</text>
-    <text x="844" y="1044" text-anchor="middle" class="sub">有文件：盤點→遷入</text>
+    <text x="844" y="1020" text-anchor="middle" class="skill-sm">/bootstrap-truth</text>
+    <text x="844" y="1044" text-anchor="middle" class="sub">立真相：瘦身＋能力層</text>
     <path d="M 844 990 L 844 918" class="edge"/>
 
     <rect x="1008" y="994" width="256" height="64" rx="8" class="box user draft"/>
-    <text x="1136" y="1020" text-anchor="middle" class="skill-sm">/bootstrap-truth</text>
-    <text x="1136" y="1044" text-anchor="middle" class="sub">沒文件：讀碼→問卷</text>
+    <text x="1136" y="1020" text-anchor="middle" class="skill-sm">/audit-truth</text>
+    <text x="1136" y="1044" text-anchor="middle" class="sub">守真相：掃矛盾→裁決</text>
     <path d="M 1136 990 L 1136 918" class="edge"/>
 
-    <text x="982" y="1094" text-anchor="middle" class="note">接管老專案：先盤文件，再讀碼補洞</text>
+    <text x="982" y="1094" text-anchor="middle" class="note">接管老專案：一把立真相，一把守真相</text>
     <text x="982" y="1122" text-anchor="middle" class="note">真相文件只在 feature branch 上改，隨 PR 與程式碼一起合併回 main。</text>
     <text x="982" y="1150" text-anchor="middle" class="note">每個技能都讀它；讀取邊不畫。</text>
   </g>
