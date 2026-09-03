@@ -63,4 +63,11 @@ Specs written before IDs existed get numbered **on demand** — a promise takes 
 
 ## Finish
 
-Publish per `docs/agents/issue-tracker.md` and report the URL or path. Say the next step: `/to-tickets` to split it, or `/implement` if it turned out to be one session of work.
+Publish per `docs/agents/issue-tracker.md` and report the URL or path.
+
+Then answer two questions out loud, from the spec just written — the answers pick the next step:
+
+1. **Multi-session build whose stack, data model or API contracts are not yet in the truth layer?** Yes → `/to-architecture` first.
+2. **Does the spec have a UI surface?** Yes → `/frontend-spec` next (after `/to-architecture` when both fired).
+
+Then `/to-tickets` to split it, or `/implement` if it is one session of work — the detours above do not change which.
