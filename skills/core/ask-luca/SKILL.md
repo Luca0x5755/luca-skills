@@ -19,7 +19,7 @@ A **flow** is a path through the skills. Most work runs along one **main flow**;
 1. **`/grill-with-docs`** — sharpen the idea by interview, leaving a paper trail in `CONTEXT.md` and ADRs. No codebase to write into? Run `/grilling` on its own.
 2. **Branch — does a question need a runnable answer?** State model, business logic, a UI you have to see. Detour: **`/handoff`** out → fresh session → **`/prototype`** → **`/handoff`** back.
 3. **Branch — does a document need writing before the build?** Either of: more than one session of build; a UI surface changes.
-   - **Yes** → **`/to-spec`**, then **`/to-tickets`**. Each ticket declares its blocking edges. Run **`/implement`** once per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable. A one-session build that only needed its documents skips `/to-tickets` and goes straight to `/implement`.
+   - **Yes** → **`/to-spec`**. Before cutting tickets, write the truth the tickets will build against: **`/to-architecture`** when the change touches tech stack, data model, or API contracts; **`/frontend-spec`** when a UI surface changes. Then **`/to-tickets`**. Each ticket declares its blocking edges. Run **`/implement`** once per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable. A one-session build that only needed its documents skips `/to-tickets` and goes straight to `/implement`.
    - **No** → **`/implement`** right here.
 
 `/implement` drives `/tdd` internally and closes with `/code-review` before committing. Reach for `/tdd` alone to build one concrete behaviour test-first; `/code-review` alone to review any branch against a fixed point.
@@ -29,6 +29,14 @@ A **flow** is a path through the skills. Most work runs along one **main flow**;
 Steps 1–3 stay in **one unbroken context window** — no compact, no clear, until `/to-tickets` is done. The limit is the **smart zone**: the window (~150k tokens) where the model still reasons sharply. If a session approaches it early, don't push on degraded — `/compact` at the nearest phase boundary and carry on.
 
 At every **phase boundary** — the gap between two chunks of work — there are five options: Continue, `/clear`, `/handoff`, subagent, `/compact`. Read [PHASE-BOUNDARIES.md](PHASE-BOUNDARIES.md) for the ordered tree: the five questions, why **Continue** is ruled out first (primary-source cost), and why `/compact` is the default at the bottom, not the first reach. Make the decision **at** a boundary; mid-phase, continue or split the rest into subagents.
+
+## Acceptance
+
+Between `/implement` and the merge, for the work someone other than you has to sign off:
+
+- **`/test-blueprint`** — once per project, before the first ticket: propose the test layer layout, the seam list `/tdd` builds against, and the CI schedule. Approval writes `docs/test-blueprint.md`.
+- **`/uat-cases`** — derive the acceptance case list from the spec and user stories; TC numbers freeze on issue. Upstream of `/browser-evidence`.
+- **`/browser-evidence`** — run a case list into deliverable evidence: screenshots or raw responses, network logs, the version under test. Verdicts are not its job; the evidence PR merges back to the base branch.
 
 ## On-ramps
 

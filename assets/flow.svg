@@ -204,12 +204,12 @@
     <rect x="692" y="580" width="580" height="600" rx="12" fill="#FFFFFF" stroke="#5B6B78" stroke-width="2"/>
     <text x="982" y="612" text-anchor="middle" class="panel-title">文件驅動軌</text>
 
-    <rect x="772" y="630" width="420" height="64" rx="8" class="box user draft"/>
+    <rect x="772" y="630" width="420" height="64" rx="8" class="box user"/>
     <text x="982" y="658" text-anchor="middle" class="skill">/to-architecture</text>
     <text x="982" y="684" text-anchor="middle" class="sub">技術棧、資料模型、API 合約</text>
     <path d="M 982 694 L 982 726" class="edge"/>
 
-    <rect x="772" y="730" width="420" height="64" rx="8" class="box user draft"/>
+    <rect x="772" y="730" width="420" height="64" rx="8" class="box user"/>
     <text x="982" y="758" text-anchor="middle" class="skill">/frontend-spec</text>
     <text x="982" y="784" text-anchor="middle" class="sub">路由、四態畫面、Pencil 稿</text>
     <path d="M 982 794 L 982 826" class="edge"/>
@@ -236,20 +236,20 @@
 
   <!-- side cards -->
   <g id="side-cards">
-    <rect x="692" y="1210" width="580" height="92" rx="8" class="box user draft"/>
+    <rect x="692" y="1210" width="580" height="92" rx="8" class="box user"/>
     <text x="982" y="1242" text-anchor="middle" class="skill">/test-blueprint</text>
     <text x="982" y="1268" text-anchor="middle" class="sub">提案層佈局、縫清單（供 /tdd）、CI 時段</text>
     <text x="982" y="1292" text-anchor="middle" class="sub">核准才落檔；產檢查腳本、CI 與現況報告</text>
     <path d="M 982 1302 L 982 1330" class="edge"/>
     <text x="994" y="1322" class="edge-label">指派驗收層</text>
 
-    <rect x="692" y="1334" width="580" height="64" rx="8" class="box user draft"/>
+    <rect x="692" y="1334" width="580" height="64" rx="8" class="box user"/>
     <text x="982" y="1362" text-anchor="middle" class="skill">/uat-cases</text>
     <text x="982" y="1388" text-anchor="middle" class="sub">從 spec／user story 推導案例；TC 編號一發即凍結</text>
     <path d="M 982 1398 L 982 1424" class="edge"/>
     <text x="994" y="1418" class="edge-label">清單</text>
 
-    <rect x="692" y="1428" width="580" height="92" rx="8" class="box user draft"/>
+    <rect x="692" y="1428" width="580" height="92" rx="8" class="box user"/>
     <text x="982" y="1460" text-anchor="middle" class="skill">/browser-evidence</text>
     <text x="982" y="1486" text-anchor="middle" class="sub">驗收證據要交給別人時才跑：截圖、網路紀錄、被測版本</text>
     <text x="982" y="1510" text-anchor="middle" class="sub">清單來自 /uat-cases 或外部；判定不歸它管；證據 PR 合回基底分支</text>
