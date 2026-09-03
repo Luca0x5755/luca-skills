@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2280" viewBox="0 0 1320 2280" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2158" viewBox="0 0 1320 2158" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
   <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層（少數合訂規格本＋docs/capabilities/ 能力薄檔，章節標能力、能力反列章節）—to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、bootstrap-truth 為接管專案一次性正規化真相層（在宿主治理的形狀內瘦身文件、補能力層、安裝機械檢查）、audit-truth 持續稽核語意矛盾並把裁決寫進漂移總帳（一把立真相、一把守真相）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段 git-mr（GitLab 版 git-pr）與 git-pr 並排。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
@@ -28,7 +28,7 @@
     </style>
   </defs>
 
-  <rect width="1320" height="2280" fill="#FFFFFF"/>
+  <rect width="1320" height="2158" fill="#FFFFFF"/>
 
   <!-- header -->
   <g id="header">
@@ -246,8 +246,8 @@
     <rect x="692" y="1334" width="580" height="64" rx="8" class="box user draft"/>
     <text x="982" y="1362" text-anchor="middle" class="skill">/uat-cases</text>
     <text x="982" y="1388" text-anchor="middle" class="sub">從 spec／user story 推導案例；TC 編號一發即凍結</text>
-    <path d="M 1252 1398 L 1252 1424" class="edge"/>
-    <text x="1244" y="1419" text-anchor="end" class="edge-label">清單</text>
+    <path d="M 982 1398 L 982 1424" class="edge"/>
+    <text x="994" y="1418" class="edge-label">清單</text>
 
     <rect x="692" y="1428" width="580" height="92" rx="8" class="box user draft"/>
     <text x="982" y="1460" text-anchor="middle" class="skill">/browser-evidence</text>
@@ -257,53 +257,53 @@
 
   <!-- on-ramps -->
   <g id="on-ramps">
-    <rect x="48" y="1682" width="1224" height="270" rx="12" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
-    <text x="72" y="1716" class="panel-title">交流道：從外面匯進主流程</text>
+    <rect x="48" y="1560" width="1224" height="270" rx="12" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
+    <text x="72" y="1594" class="panel-title">交流道：從外面匯進主流程</text>
 
-    <rect x="72" y="1740" width="240" height="44" rx="8" class="box user"/>
-    <text x="192" y="1769" text-anchor="middle" class="skill-sm">/triage</text>
-    <path d="M 312 1762 L 352 1762" class="edge"/>
-    <text x="360" y="1756" class="note">匯入 /implement</text>
-    <text x="360" y="1782" class="note">別人回報的 bug；自己開的票不用</text>
+    <rect x="72" y="1618" width="240" height="44" rx="8" class="box user"/>
+    <text x="192" y="1647" text-anchor="middle" class="skill-sm">/triage</text>
+    <path d="M 312 1640 L 352 1640" class="edge"/>
+    <text x="360" y="1634" class="note">匯入 /implement</text>
+    <text x="360" y="1660" class="note">別人回報的 bug；自己開的票不用</text>
 
-    <rect x="72" y="1812" width="240" height="44" rx="8" class="box model"/>
-    <text x="192" y="1841" text-anchor="middle" class="skill-sm">/diagnosing-bugs</text>
-    <path d="M 312 1834 L 664 1834" class="edge"/>
-    <rect x="672" y="1812" width="430" height="44" rx="8" class="box user"/>
-    <text x="887" y="1841" text-anchor="middle" class="skill-sm">/improve-codebase-architecture</text>
-    <text x="360" y="1860" class="note">難修的 bug；病根在架構才走右邊</text>
+    <rect x="72" y="1690" width="240" height="44" rx="8" class="box model"/>
+    <text x="192" y="1719" text-anchor="middle" class="skill-sm">/diagnosing-bugs</text>
+    <path d="M 312 1712 L 664 1712" class="edge"/>
+    <rect x="672" y="1690" width="430" height="44" rx="8" class="box user"/>
+    <text x="887" y="1719" text-anchor="middle" class="skill-sm">/improve-codebase-architecture</text>
+    <text x="360" y="1738" class="note">難修的 bug；病根在架構才走右邊</text>
 
-    <rect x="72" y="1880" width="240" height="44" rx="8" class="box user"/>
-    <text x="192" y="1909" text-anchor="middle" class="skill-sm">/wayfinder</text>
-    <path d="M 312 1902 L 352 1902" class="edge"/>
-    <text x="360" y="1896" class="note">匯入 /to-spec</text>
-    <text x="360" y="1922" class="note">題目太大不知從何下手，不能跳過切開</text>
+    <rect x="72" y="1758" width="240" height="44" rx="8" class="box user"/>
+    <text x="192" y="1787" text-anchor="middle" class="skill-sm">/wayfinder</text>
+    <path d="M 312 1780 L 352 1780" class="edge"/>
+    <text x="360" y="1774" class="note">匯入 /to-spec</text>
+    <text x="360" y="1800" class="note">題目太大不知從何下手，不能跳過切開</text>
   </g>
 
   <!-- anytime layer -->
   <g id="anytime">
-    <rect x="48" y="1992" width="1224" height="240" rx="12" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
-    <text x="72" y="2026" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
+    <rect x="48" y="1870" width="1224" height="240" rx="12" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
+    <text x="72" y="1904" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
 
-    <rect x="72" y="2048" width="240" height="44" rx="8" class="box model"/>
-    <text x="192" y="2077" text-anchor="middle" class="skill-sm">/domain-modeling</text>
-    <text x="340" y="2066" class="note">術語模糊、一詞多義；</text>
-    <text x="340" y="2090" class="note">夠格的決策才立 ADR</text>
-    <rect x="672" y="2048" width="240" height="44" rx="8" class="box model"/>
-    <text x="792" y="2077" text-anchor="middle" class="skill-sm">/grilling</text>
-    <text x="940" y="2066" class="note">一問一答的基本功；</text>
-    <text x="940" y="2090" class="note">還沒有 codebase 時用這個</text>
+    <rect x="72" y="1926" width="240" height="44" rx="8" class="box model"/>
+    <text x="192" y="1955" text-anchor="middle" class="skill-sm">/domain-modeling</text>
+    <text x="340" y="1944" class="note">術語模糊、一詞多義；</text>
+    <text x="340" y="1968" class="note">夠格的決策才立 ADR</text>
+    <rect x="672" y="1926" width="240" height="44" rx="8" class="box model"/>
+    <text x="792" y="1955" text-anchor="middle" class="skill-sm">/grilling</text>
+    <text x="940" y="1944" class="note">一問一答的基本功；</text>
+    <text x="940" y="1968" class="note">還沒有 codebase 時用這個</text>
 
-    <rect x="72" y="2104" width="240" height="44" rx="8" class="box model draft"/>
-    <text x="192" y="2133" text-anchor="middle" class="skill-sm">/refactor</text>
-    <text x="340" y="2133" class="note">不改可觀察行為的結構重整</text>
-    <rect x="672" y="2104" width="240" height="44" rx="8" class="box user draft"/>
-    <text x="792" y="2133" text-anchor="middle" class="skill-sm">/git-merge</text>
-    <text x="940" y="2133" class="note">把分支併進來；衝突停下來，解法你決定</text>
+    <rect x="72" y="1982" width="240" height="44" rx="8" class="box model draft"/>
+    <text x="192" y="2011" text-anchor="middle" class="skill-sm">/refactor</text>
+    <text x="340" y="2011" class="note">不改可觀察行為的結構重整</text>
+    <rect x="672" y="1982" width="240" height="44" rx="8" class="box user draft"/>
+    <text x="792" y="2011" text-anchor="middle" class="skill-sm">/git-merge</text>
+    <text x="940" y="2011" class="note">把分支併進來；衝突停下來，解法你決定</text>
 
-    <rect x="72" y="2160" width="240" height="44" rx="8" class="box user draft"/>
-    <text x="192" y="2189" text-anchor="middle" class="skill-sm">/study-repo</text>
-    <text x="340" y="2178" class="note">讀懂別人的 repo：先跑起來，</text>
-    <text x="340" y="2202" class="note">再追核心路徑；報告看完就刪</text>
+    <rect x="72" y="2038" width="240" height="44" rx="8" class="box user draft"/>
+    <text x="192" y="2067" text-anchor="middle" class="skill-sm">/study-repo</text>
+    <text x="340" y="2056" class="note">讀懂別人的 repo：先跑起來，</text>
+    <text x="340" y="2080" class="note">再追核心路徑；報告看完就刪</text>
   </g>
 </svg>
