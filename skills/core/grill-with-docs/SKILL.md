@@ -36,4 +36,4 @@ Write, before doing anything else:
 
 **A question-sized interview may legitimately end with zero files written.** Write only what the interview settled — never generate a paper trail to prove the session happened.
 
-Then hand back to the main flow: `/to-spec` for a multi-session build, `/implement` for a small one.
+Then answer one question out loud — **is this more than one session of build?** Yes → `/to-spec`. No → `/implement`.
