@@ -61,7 +61,7 @@ In `docs/05_frontend_spec.md`:
 
 ## Finish
 
-Report the files edited and the `.pen` files produced, each verified by screenshot. Say the next step: `/to-tickets` — tickets cite pages and state frames by name; the truth-layer edits and mockups ride the feature branch and merge with the code.
+Report the files edited and the `.pen` files produced, each verified by screenshot. Say the next step: `/to-tickets` — tickets cite pages and state frames by name — or `/implement` when the build is one session of work; the truth-layer edits and mockups ride the feature branch and merge with the code.
 
 ## Rationalization table
 

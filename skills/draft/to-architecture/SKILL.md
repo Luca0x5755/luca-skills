@@ -57,7 +57,7 @@ they bound; no measured target → no constraints prose.
 
 ## Finish
 
-Report the files edited and the ADRs created. Say the next step: `/to-tickets` — tickets cite the contracts and entities by name; the truth-layer edits ride the feature branch and merge with the code.
+Report the files edited and the ADRs created. Say the next step: `/to-tickets` — tickets cite the contracts and entities by name — or `/implement` when the build is one session of work; the truth-layer edits ride the feature branch and merge with the code.
 
 ## Rationalization table
 
