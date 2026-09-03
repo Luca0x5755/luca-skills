@@ -26,3 +26,12 @@ draft 技能的試用紀錄，只增不改。畢業判準見 `CLAUDE.md`〈新�
 定案依據：與使用者 grilling 九題收樹（能力文件多份、規格不拆散、不訂行數、對應機械可查、只改技能不動專案）。
 
 待驗證（回報後才動）：Smart-Lock 手動走分層四步 → bootstrap-truth 補分層段；audit-truth 轉接模式首戰 → 修訂內容；兩處 HOOKS.md 活過 → 修訂 `/writing-hooks`。
+
+## 2026-09-03 — 首批畢業（grilling 定案）
+
+- **to-architecture / frontend-spec** — 畢業進 `core/`：07-28 建、六次修訂、兩輪實測對齊（見 08-27、08-29）。
+- **test-blueprint / uat-cases / browser-evidence** — 畢業進 `core/`：08-07 至 08-10 建、五至九次修訂，驗收三件套一起走。
+- **feasibility / git-merge** — 留 draft：建檔後從未修改、帳本無實戰紀錄，沒有畢業證據。
+- **bootstrap-truth / audit-truth** — 留 draft：成對不拆；audit-truth 轉接模式首戰未回報（見 08-29 待驗證），回報後兩把一起升。
+- **implement-all** — 刪除（分支 `chore/remove-implement-all`）：批次派工的編排未經實戰，先拿掉。
+
