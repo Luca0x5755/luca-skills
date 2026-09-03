@@ -81,7 +81,7 @@
     <!-- decision -->
     <rect x="206" y="400" width="400" height="56" rx="10" fill="#FFFFFF" stroke="#4A648F" stroke-width="3"/>
     <text x="406" y="426" text-anchor="middle" font-size="18" font-weight="600" fill="#1F2933">動手前要先立文件嗎？</text>
-    <text x="406" y="446" text-anchor="middle" font-size="13" fill="#5B6B78">多 session、動 UI、選型未定 — 任一即要</text>
+    <text x="406" y="446" text-anchor="middle" font-size="13" fill="#5B6B78">多 session、動 UI — 任一即要</text>
 
     <path d="M 406 456 L 406 506" class="edge"/>
     <text x="418" y="480" class="edge-label">要 — 先切開</text>

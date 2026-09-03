@@ -18,7 +18,7 @@ A **flow** is a path through the skills. Most work runs along one **main flow**;
 
 1. **`/grill-with-docs`** — sharpen the idea by interview, leaving a paper trail in `CONTEXT.md` and ADRs. No codebase to write into? Run `/grilling` on its own.
 2. **Branch — does a question need a runnable answer?** State model, business logic, a UI you have to see. Detour: **`/handoff`** out → fresh session → **`/prototype`** → **`/handoff`** back.
-3. **Branch — does a document need writing before the build?** Any one of: more than one session of build; a UI surface changes; the stack, data model or API contracts are still open.
+3. **Branch — does a document need writing before the build?** Either of: more than one session of build; a UI surface changes.
    - **Yes** → **`/to-spec`**, then **`/to-tickets`**. Each ticket declares its blocking edges. Run **`/implement`** once per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable. A one-session build that only needed its documents skips `/to-tickets` and goes straight to `/implement`.
    - **No** → **`/implement`** right here.
 

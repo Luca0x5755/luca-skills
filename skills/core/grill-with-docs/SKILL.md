@@ -36,4 +36,4 @@ Write, before doing anything else:
 
 **A question-sized interview may legitimately end with zero files written.** Write only what the interview settled — never generate a paper trail to prove the session happened.
 
-Then answer one question out loud — **does a document need writing before the build?** Yes if any one holds: more than one session of build; a UI surface changes; the stack, data model or API contracts are still open. Yes → `/to-spec`. No → `/implement`.
+Then answer one question out loud — **does a document need writing before the build?** Yes if either holds: more than one session of build; a UI surface changes. Yes → `/to-spec`. No → `/implement`.
