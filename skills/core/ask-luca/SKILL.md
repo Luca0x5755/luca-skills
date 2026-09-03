@@ -30,14 +30,6 @@ Steps 1–3 stay in **one unbroken context window** — no compact, no clear, un
 
 At every **phase boundary** — the gap between two chunks of work — there are five options: Continue, `/clear`, `/handoff`, subagent, `/compact`. Read [PHASE-BOUNDARIES.md](PHASE-BOUNDARIES.md) for the ordered tree: the five questions, why **Continue** is ruled out first (primary-source cost), and why `/compact` is the default at the bottom, not the first reach. Make the decision **at** a boundary; mid-phase, continue or split the rest into subagents.
 
-## Acceptance
-
-Between `/implement` and the merge, for the work someone other than you has to sign off:
-
-- **`/test-blueprint`** — once per project, before the first ticket: propose the test layer layout, the seam list `/tdd` builds against, and the CI schedule. Approval writes `docs/test-blueprint.md`.
-- **`/uat-cases`** — derive the acceptance case list from the spec and user stories; TC numbers freeze on issue. Upstream of `/browser-evidence`.
-- **`/browser-evidence`** — run a case list into deliverable evidence: screenshots or raw responses, network logs, the version under test. Verdicts are not its job; the evidence PR merges back to the base branch.
-
 ## On-ramps
 
 - **Incoming bugs and requests piling up** → **`/triage`**. Only for issues you did *not* create. Tickets from `/to-tickets` are already agent-ready — do not triage them. Output merges at `/implement`.
@@ -47,6 +39,14 @@ Between `/implement` and the merge, for the work someone other than you has to s
 ## Codebase health
 
 - **`/improve-codebase-architecture`** — survey for deepening opportunities. Picking one *generates an idea*, which re-enters the main flow at `/grill-with-docs`.
+
+## Acceptance
+
+Between `/implement` and the merge, for the work someone other than you has to sign off:
+
+- **`/test-blueprint`** — once per project, before the first ticket: propose the test layer layout, the seam list `/tdd` builds against, and the CI schedule. Approval writes `docs/test-blueprint.md`.
+- **`/uat-cases`** — derive the acceptance case list from the spec and user stories; TC numbers freeze on issue. Upstream of `/browser-evidence`.
+- **`/browser-evidence`** — run a case list into deliverable evidence: screenshots or raw responses, network logs, the version under test. Verdicts are not its job; the evidence PR merges back to the base branch.
 
 ## Git flow
 

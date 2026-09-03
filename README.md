@@ -56,7 +56,12 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[handoff](./skills/core/handoff/SKILL.md)** — 把當前對話壓縮成一份交接文件，讓全新的 session 能接手這份工作。
 - **[to-spec](./skills/core/to-spec/SKILL.md)** — 把當前對話收斂成一份規格，並發佈到議題追蹤器。
 - **[to-tickets](./skills/core/to-tickets/SKILL.md)** — 把計畫、規格或對話切成一張張曳光彈票，每張都標明自己的阻塞邊。
+- **[to-architecture](./skills/core/to-architecture/SKILL.md)** — 在規格與拆票之間定架構：技術棧、資料模型、API 合約，直接寫進真相層。
+- **[frontend-spec](./skills/core/frontend-spec/SKILL.md)** — 為有 UI 的規格定前端真相：路由表、四態頁面、style tokens 與 `.pen` mockup。
 - **[implement](./skills/core/implement/SKILL.md)** — 依規格或一組票建置，在議定的接縫上驅動 TDD，收尾跑一次程式碼審查。
+- **[test-blueprint](./skills/core/test-blueprint/SKILL.md)** — 分析專案並提案測試藍圖：層佈局、縫清單、CI 時段，核准後寫入 `docs/test-blueprint.md`。
+- **[uat-cases](./skills/core/uat-cases/SKILL.md)** — 從規格推導 UAT 案例清單，發出凍結的 TC 編號 —— `/browser-evidence` 的上游。
+- **[browser-evidence](./skills/core/browser-evidence/SKILL.md)** — 把既定案例清單跑成可交付的證據 —— 截圖、網路紀錄與被測版本 manifest，落在 `docs/uat/`。
 - **[triage](./skills/core/triage/SKILL.md)** — 把外來議題推過一台由分診角色組成的狀態機，直到每一張都代理可接手或關閉。
 - **[improve-codebase-architecture](./skills/core/improve-codebase-architecture/SKILL.md)** — 勘查程式庫的深化機會，排序後呈上，再對你挑中的那一個進行拷問。
 - **[wayfinder](./skills/core/wayfinder/SKILL.md)** — 把龐大而迷霧重重的工程畫成一張決策票地圖，一次解一張，直到通往終點的路清晰為止。
@@ -65,11 +70,6 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[git-release](./skills/core/git-release/SKILL.md)** — 更新版本檔中的版本號，彙整兩版本間的 commit 寫成繁體中文發布摘要，打 tag 推上遠端並發佈 release 頁面。
 - **[wait-what](./skills/core/wait-what/SKILL.md)** — 停 — 剛才那段沒讓人聽懂，要求代理重新講一次。
 - **[to-questionnaire](./skills/core/to-questionnaire/SKILL.md)** — 把一個你無法獨力回答的決策，做成一份問卷交給掌握答案的人填。
-- **[to-architecture](./skills/core/to-architecture/SKILL.md)** — 在規格與拆票之間定架構：技術棧、資料模型、API 合約，直接寫進真相層。
-- **[frontend-spec](./skills/core/frontend-spec/SKILL.md)** — 為有 UI 的規格定前端真相：路由表、四態頁面、style tokens 與 `.pen` mockup。
-- **[test-blueprint](./skills/core/test-blueprint/SKILL.md)** — 分析專案並提案測試藍圖：層佈局、縫清單、CI 時段，核准後寫入 `docs/test-blueprint.md`。
-- **[uat-cases](./skills/core/uat-cases/SKILL.md)** — 從規格推導 UAT 案例清單，發出凍結的 TC 編號 —— `/browser-evidence` 的上游。
-- **[browser-evidence](./skills/core/browser-evidence/SKILL.md)** — 把既定案例清單跑成可交付的證據 —— 截圖、網路紀錄與被測版本 manifest，落在 `docs/uat/`。
 
 ### 模型觸發
 
