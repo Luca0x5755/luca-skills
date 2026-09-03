@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2280" viewBox="0 0 1320 2280" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
-  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層（少數合訂規格本＋docs/capabilities/ 能力薄檔，章節標能力、能力反列章節）—to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、bootstrap-truth 為接管專案一次性正規化真相層（在宿主治理的形狀內瘦身文件、補能力層、安裝機械檢查）、audit-truth 持續稽核語意矛盾並把裁決寫進漂移總帳（一把立真相、一把守真相）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，implement-all 批次派工，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段 git-mr（GitLab 版 git-pr）與 git-pr 並排。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層（少數合訂規格本＋docs/capabilities/ 能力薄檔，章節標能力、能力反列章節）—to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、bootstrap-truth 為接管專案一次性正規化真相層（在宿主治理的形狀內瘦身文件、補能力層、安裝機械檢查）、audit-truth 持續稽核語意矛盾並把裁決寫進漂移總帳（一把立真相、一把守真相）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段 git-mr（GitLab 版 git-pr）與 git-pr 並排。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -175,7 +175,7 @@
     <text x="440" y="282" class="edge-label">回到階段 1，換下一個想法</text>
 
     <!-- code-review → browser-evidence -->
-    <path d="M 616 1032 L 660 1032 L 660 1596 L 688 1596" class="edge"/>
+    <path d="M 616 1032 L 660 1032 L 660 1474 L 688 1474" class="edge"/>
     <text x="624" y="1024" class="edge-label">可選</text>
   </g>
 
@@ -246,18 +246,13 @@
     <rect x="692" y="1334" width="580" height="64" rx="8" class="box user draft"/>
     <text x="982" y="1362" text-anchor="middle" class="skill">/uat-cases</text>
     <text x="982" y="1388" text-anchor="middle" class="sub">從 spec／user story 推導案例；TC 編號一發即凍結</text>
-    <path d="M 1252 1398 L 1252 1546" class="edge"/>
-    <text x="1244" y="1541" text-anchor="end" class="edge-label">清單</text>
+    <path d="M 1252 1398 L 1252 1424" class="edge"/>
+    <text x="1244" y="1419" text-anchor="end" class="edge-label">清單</text>
 
-    <rect x="692" y="1428" width="540" height="92" rx="8" class="box user draft"/>
-    <text x="962" y="1460" text-anchor="middle" class="skill">/implement-all</text>
-    <text x="962" y="1486" text-anchor="middle" class="sub">票多時一次派完：每票一個子代理跑 /implement</text>
-    <text x="962" y="1510" text-anchor="middle" class="sub">排程你點頭才派；合併還是你按</text>
-
-    <rect x="692" y="1550" width="580" height="92" rx="8" class="box user draft"/>
-    <text x="982" y="1582" text-anchor="middle" class="skill">/browser-evidence</text>
-    <text x="982" y="1608" text-anchor="middle" class="sub">驗收證據要交給別人時才跑：截圖、網路紀錄、被測版本</text>
-    <text x="982" y="1632" text-anchor="middle" class="sub">清單來自 /uat-cases 或外部；判定不歸它管；證據 PR 合回基底分支</text>
+    <rect x="692" y="1428" width="580" height="92" rx="8" class="box user draft"/>
+    <text x="982" y="1460" text-anchor="middle" class="skill">/browser-evidence</text>
+    <text x="982" y="1486" text-anchor="middle" class="sub">驗收證據要交給別人時才跑：截圖、網路紀錄、被測版本</text>
+    <text x="982" y="1510" text-anchor="middle" class="sub">清單來自 /uat-cases 或外部；判定不歸它管；證據 PR 合回基底分支</text>
   </g>
 
   <!-- on-ramps -->
