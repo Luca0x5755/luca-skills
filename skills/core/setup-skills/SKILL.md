@@ -30,11 +30,11 @@ Read what exists. Assume nothing.
 
 ## 2. Present and ask
 
-Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. Skip a section outright when exploration already settled it.
+Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the two sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo. Every other section collects a nod, re-runs included.
 
 **Section A — Issue tracker.** Where issues live for this repo. `to-tickets`, `to-spec`, and `triage` read from and write to it; they need to know whether to run `gh issue create`, write a file under `.scratch/`, or follow something you describe.
 
-Propose from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remote → GitLab Issues (`glab` CLI). No remote → local markdown under `.scratch/<feature>/issues/`. Anything else → ask for one paragraph of description and record it as prose.
+Ask, leading with the proposal from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remote → GitLab Issues (`glab` CLI). No remote → local markdown under `.scratch/<feature>/issues/`. Anything else → ask for one paragraph of description and record it as prose.
 
 **Section B — Domain docs.** Default to **single-context**: one `CONTEXT.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `CONTEXT-MAP.md` pointing at per-package `CONTEXT.md` files — only when exploration found monorepo signals.
 
