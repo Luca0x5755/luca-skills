@@ -72,8 +72,9 @@ Anything else — implementation walkthroughs, module inventories, prose paraphr
 
 One document per batch, each batch its own branch and PR. The capability layer and cross-mapping tags are their own batch; mechanical checks another.
 
+0. **Ledger first, then tickets, once for the whole run.** The ledger is the first batch — steps 1–6 below with the drift ledger as the document, recording the questionnaire verdicts per `/audit-truth` step 5 (record verdicts). Then file tickets per `/audit-truth` step 6 (file tickets) — read its `SKILL.md` first if the rules are not in context; tickets are tracker writes and ride no branch. 程式碼對 verdicts get no ticket: the document change rides a fact commit (step 2); 都錯 gets a ticket for its code half. A bug found while reading is a ticket in the same shape — Context is its `file:line` evidence, no ledger row, no triage.
 1. Branch from the base branch.
-2. **Cut-commits are fact-neutral.** A slimming commit adds and removes zero facts — wording, structure, and deletion of duplicated or code-derivable content only. Every fact change rides its own commit and cites its questionnaire verdict. A reviewer must be able to trust that a cut-commit changed nothing true.
+2. **Cut-commits are fact-neutral.** A slimming commit adds and removes zero facts — wording, structure, and deletion of duplicated or code-derivable content only. Every fact change rides its own commit and cites its ledger row. A reviewer must be able to trust that a cut-commit changed nothing true.
 3. **Write the capability files and stamp the spec headings** per the cross-mapping plan. Capability content comes from Phase A evidence and confirmed verdicts only.
 4. **Install mechanical checks** (once): the two-way orphan check (spec section without capability, capability without spec section — red), plus regen-diff or append-only checks where the host's shape calls for them. A host with partial governance gets only the missing checks, and no templates.
 5. Commit following the `/git-commit` rules — **mandatory**; read its `SKILL.md` first if the rules are not in context. Stage only the files this batch touched.
@@ -95,4 +96,4 @@ Report the whole run: per-document before/after line counts, capability files wr
 | "Fill the ADR column with a plausible rationale" | An invented why is worse than a missing why. `資訊缺失` is a finding. |
 | "A spec file per capability is cleaner" | Scattered specs are the disease this knife cures. Specs stay consolidated; capabilities point into them. |
 | "One big PR is more efficient" | A PR nobody can review is a merge nobody performed. One document, one PR. |
-| "While reading I can fix this small bug" | Phase A never writes. A bug found is a ticket, not a detour. |
+| "While reading I can fix this small bug" | Phase A never writes. A bug found is a ticket — filed at Phase B step 0, not a detour. |
