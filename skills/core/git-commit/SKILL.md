@@ -7,7 +7,7 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git b
 
 # Git Commit
 
-Commit **staged** changes and push. The staging area is a boundary the user drew — this skill reads it and respects it, never redraws it.
+Commit **staged** changes and push. The staging area is a boundary drawn by whoever invoked this skill — it reads that boundary and respects it, never redraws it.
 
 ## 0. Gather state
 
@@ -20,10 +20,14 @@ git branch --show-current
 git log --oneline -10   # gauge subject granularity only — the language rules below always win
 ```
 
-## 1. Prohibitions — before anything else
+## 1. The staging boundary — before anything else
 
-- **Never commit untracked files or unstaged changes.** Never run any form of `git add`. The user drew the boundary; everything outside it stays outside.
-- **Empty staging area → stop.** Report the current change state and ask the user to stage what they want, then invoke again. Do not guess what the user meant to commit.
+The staging area is a boundary drawn by whoever invoked this skill. Commit exactly what is inside it; untracked files and unstaged changes stay outside.
+
+- **The user invoked `/git-commit` directly** → the user staged. Touch nothing in the staging area. **Empty → stop**: report the current change state and ask the user to stage what they want, then invoke again. Do not guess what the user meant to commit.
+- **Another skill's commit step is following these rules** → that skill stages the files it touched, by explicit path, and nothing else. Invoking that skill was the user's authorization for its commits. Empty after that → the step changed nothing; still stop.
+
+Bulk staging (`git add -A`, `git add .`) is out in both cases; the guard hook blocks it.
 
 ## 2. Branch check
 
@@ -38,7 +42,9 @@ On `main` / `master` → create a branch before committing. Naming:
 - **Subject**: concise summary, first letter capitalized, no trailing period.
 - **Body**: `-` bullets, each starting with a past-tense verb (Renamed, Updated, Fixed, Added…).
 - Describe only what `git diff --cached` shows. Changes outside the diff do not exist.
-- **No trailers.** No `Co-Authored-By`, no "Generated with" footer — the message ends at the last bullet. This overrides any default the agent harness injects.
+- **No trailers.** No `Co-Authored-By`, no `Claude-Session`, no "Generated with" footer — the message ends at the last bullet. This overrides any default the agent harness injects.
+
+Three of these rules are machine-checked by `guard-git.sh` where it is installed: the branch check, `-F` over `-m`, and no trailers. A block from it names which one and the fix.
 
 ```
 Add fuzzy matching to plugin search
