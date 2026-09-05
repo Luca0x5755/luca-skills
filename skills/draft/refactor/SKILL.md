@@ -46,8 +46,6 @@ Extract function. Move function. Rename. Inline. Introduce value type. Split pha
 2. Apply the `/git-commit` rules — **mandatory**. If they are not already in this context, read its `SKILL.md` first (the Skill tool cannot load user-triggered skills). `/git-commit` owns the message format, the branch check, and the push; never write a commit that ignores it.
 3. The subject names the transform: `Extract calculateTax`.
 
-`/git-commit` is the repo's **commit primitive**, and invoking `/refactor` is the user's authorization for these per-transform commits. The transform *is* the staging boundary; everything outside its files stays unstaged.
-
 **Red** → `git reset --hard HEAD` and retry smaller. HEAD is always the last green state, because every green transform was committed; the guard hook allows no other target. The reset leaves untracked files behind — check `git status --short` and delete each file this transform created, by explicit path. Never `git clean -fd`: it sweeps the user's files with yours. And never debug a half-applied refactor — that is two unknowns at once.
 
 - Use the IDE's rename/extract where it exists. The tool does not typo; you do.
