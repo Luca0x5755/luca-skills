@@ -86,7 +86,7 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 
 還沒畢業的技能 —— 安裝會一併連入、已可呼叫，但內容仍在真實使用中修訂，隨時可能改動或撤下。用滿試用期、內容修過至少一輪才會搬進上面的正式清單：
 
-- **[audit-truth](./skills/draft/audit-truth/SKILL.md)** — 持續性稽核刀：掃真相層找語意矛盾（文件↔程式碼、文件↔文件），問卷裁決後寫進漂移總帳；宿主已有帳本就寫宿主格式。
+- **[audit-truth](./skills/draft/audit-truth/SKILL.md)** — 持續性稽核刀：掃真相層找語意矛盾（文件↔程式碼、文件↔文件），問卷裁決後開票，裁決留在 commit 的 Adjudicated bullet；宿主已有帳本才寫宿主格式。
 - **[bootstrap-truth](./skills/draft/bootstrap-truth/SKILL.md)** — 一次性正規化刀：在宿主既有治理的形狀內把文件瘦身變準、補業務能力薄檔、標上能力對應；砍字與改事實分開 commit。
 - **[briefing](./skills/draft/briefing/SKILL.md)** — 把簡報圖變成上台用的口頭講稿＋導讀：結論先行、節間串場、預期質詢與建議答法，寫成 `briefing.md`。
 - **[caveman](./skills/draft/caveman/SKILL.md)** — 聊天回覆切換為繁中電報體，砍廢話省輸出 token；程式碼、commit、文件照常散文。

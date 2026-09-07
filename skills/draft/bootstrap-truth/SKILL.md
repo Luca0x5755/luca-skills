@@ -47,7 +47,7 @@ Anything else — implementation walkthroughs, module inventories, prose paraphr
 
 ## Evidence discipline
 
-- Claims name their source (`file:line`); a claim with no path is a hypothesis and says so.
+- Claims name their source in the `/audit-truth` evidence form — file, symbol or heading, verbatim quote; a claim with no path is a hypothesis and says so.
 - Quantities are counted by commands run against the repo.
 - Absence is a finding: `資訊缺失：無部署設定`.
 - The proposal declares coverage — the list of files actually read.
@@ -56,7 +56,7 @@ Anything else — implementation walkthroughs, module inventories, prose paraphr
 
 1. **Brake check** (above): pick the branch — in-host slimming (default) or migration (`MIGRATION.md`).
 2. **Measure.** File count, language mix, entry points, doc and schema locations. State the reading budget out loud.
-3. **Card the documents, then the code.** Fan out sub-agents: every document returns topics, behaviour claims (verbatim, with line refs), duplication and staleness signals; code areas return modules, routes, schemas, DB tables, inferred behaviour claims (`file:line`). Docs first — code fills only the holes the documents left. Sub-agents must never invoke this skill.
+3. **Card the documents, then the code.** Fan out sub-agents: every document returns topics, behaviour claims (verbatim, in the evidence form), duplication and staleness signals; code areas return modules, routes, schemas, DB tables, inferred behaviour claims (evidence form). Docs first — code fills only the holes the documents left. Sub-agents must never invoke this skill.
 4. **Contradiction scan — delegated.** This skill does not implement contradiction detection. Dispatch a sub-agent that applies the `/audit-truth` rules — the sub-agent reads `skills/draft/audit-truth/SKILL.md` first (the Skill tool cannot load user-triggered skills) and returns the contradiction material; it must not invoke this skill.
 5. **Write the slimming proposal**, then stop for approval. One section per document:
    - **cuts** — duplicated passages, process narrative, code-derivable facts, each with line refs and where the surviving copy lives;
@@ -65,16 +65,16 @@ Anything else — implementation walkthroughs, module inventories, prose paraphr
    - **cross-mapping plan** — which spec sections get which capability tags;
    - **fact changes** — anything whose meaning would change goes to the questionnaire, never silently into a cut;
    - coverage and the explicit `資訊缺失` gap list.
-6. **Questionnaire** the contradictions and inferred behaviour rules, applying the `/to-questionnaire` rules — read its `SKILL.md` first if the rules are not in context. One question per item: `file:line` evidence on both sides, closed options, and a recommended answer (`➡️`) with a one-line evidence basis — the `/grilling` split applies: evidence is this skill's to gather, the verdict is the user's. No evidence basis → recommend 不確定.
+6. **Questionnaire** the contradictions and inferred behaviour rules, applying the `/to-questionnaire` rules — read its `SKILL.md` first if the rules are not in context. One question per item: evidence on both sides (the `/audit-truth` evidence form, with any prior `Adjudicated` verdict from `git log`), closed options, and a recommended answer (`➡️`) with a one-line evidence basis — the `/grilling` split applies: evidence is this skill's to gather, the verdict is the user's. No evidence basis → recommend 不確定.
 7. Stop for approval of the proposal and the questionnaire verdicts.
 
 ## Phase B — execute (after approval)
 
 One document per batch, each batch its own branch and PR. The capability layer and cross-mapping tags are their own batch; mechanical checks another.
 
-0. **Ledger first, then tickets, once for the whole run.** The ledger is the first batch — steps 1–6 below with the drift ledger as the document, recording the questionnaire verdicts per `/audit-truth` step 5 (record verdicts). Then file tickets per `/audit-truth` step 6 (file tickets) — read its `SKILL.md` first if the rules are not in context; tickets are tracker writes and ride no branch. 程式碼對 verdicts get no ticket: the document change rides a fact commit (step 2); 都錯 gets a ticket for its code half. A bug found while reading is a ticket in the same shape — Context is its `file:line` evidence, no ledger row, no triage.
+0. **Tickets first, once for the whole run.** File the questionnaire verdicts per `/audit-truth` step 5 (file the tickets) — read its `SKILL.md` first if the rules are not in context; tickets are tracker writes and ride no branch. A host with its own drift ledger gets the verdicts written there first, per the same step. 程式碼對 verdicts get no ticket: the document change rides a fact commit (step 2); 都錯 gets a ticket for its code half. A bug found while reading is a ticket in the same shape — Context is its evidence, no triage.
 1. Branch from the base branch.
-2. **Cut-commits are fact-neutral.** A slimming commit adds and removes zero facts — wording, structure, and deletion of duplicated or code-derivable content only. Every fact change rides its own commit and cites its ledger row. A reviewer must be able to trust that a cut-commit changed nothing true.
+2. **Cut-commits are fact-neutral.** A slimming commit adds and removes zero facts — wording, structure, and deletion of duplicated or code-derivable content only. Every fact change rides its own commit, whose body carries the verdict's `Adjudicated` bullet (the `/audit-truth` record). A reviewer must be able to trust that a cut-commit changed nothing true.
 3. **Write the capability files and stamp the spec headings** per the cross-mapping plan. Capability content comes from Phase A evidence and confirmed verdicts only.
 4. **Install mechanical checks** (once): the two-way orphan check (spec section without capability, capability without spec section — red), plus regen-diff or append-only checks where the host's shape calls for them. A host with partial governance gets only the missing checks, and no templates.
 5. Commit following the `/git-commit` rules — **mandatory**; read its `SKILL.md` first if the rules are not in context. Stage only the files this batch touched.
