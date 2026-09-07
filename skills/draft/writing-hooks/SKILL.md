@@ -44,6 +44,27 @@ The three rot modes ([PATHOLOGY.md](PATHOLOGY.md)) share one root cause: nothing
 
 A rule you cannot write a check for is a rule you should not encode as a hook — an unverified hook is worse than none, because it creates the illusion that someone is watching the door.
 
+## Wiring: how settings.json addresses the hook
+
+The hook command runs in whatever working directory the Bash tool currently holds, and that directory persists across calls — one `cd packages/web && …` earlier in the session moves it for everything after. A relative command path then resolves somewhere else and the hook is simply not found:
+
+```
+PreToolUse:Bash hook error
+Failed with non-blocking status code: bash: .claude/hooks/guard-git.sh: No such file or directory
+```
+
+Not found is **non-blocking**: the tool call proceeds unguarded. This is the loudest-looking silent failure of the set — one line that scrolls away while the door stands open.
+
+Address every hook from the project-root variable, never relatively:
+
+```json
+{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/guard-git.sh\"" }
+```
+
+`$CLAUDE_PROJECT_DIR` is guaranteed in hook environments and stays pinned to the original root when the session enters a worktree while `cwd` follows — so the addressing survives that move too.
+
+Neither check covers this. Invariant [8]'s test invokes the script directly and never exercises the settings.json wiring; invariant [10] checks that the script is mounted, not how it is addressed.
+
 ## Cross-platform: this repo runs on Git Bash
 
 Windows Git Bash returns non-zero from many harmless operations (path conversion, missing `/proc`, `date` quirks). Three rules keep hooks alive there:
