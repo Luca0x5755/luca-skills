@@ -103,6 +103,14 @@ else
   done
 fi
 
+echo "[11] 安裝器拒絕已移除的目標，且不覆寫外來同名技能"
+bash scripts/test-install.sh >/dev/null 2>&1 || err "scripts/test-install.sh 未過 — 跑 bash scripts/test-install.sh 看細節"
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -File scripts/test-install.ps1 >/dev/null 2>&1 || err "scripts/test-install.ps1 未過 — 跑 pwsh -NoProfile -File scripts/test-install.ps1 看細節"
+else
+  echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
+fi
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

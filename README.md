@@ -7,18 +7,25 @@
 Windows：
 
 ```powershell
-.\scripts\install.ps1            # Claude Code（預設）
+.\scripts\install.ps1            # 互動選擇，可多選
+.\scripts\install.ps1 claude     # Claude Code
 .\scripts\install.ps1 copilot    # GitHub Copilot
-.\scripts\install.ps1 all        # 兩邊都裝
+.\scripts\install.ps1 codex      # Codex
 ```
 
 Linux / macOS：
 
 ```bash
-bash scripts/install.sh          # 同樣吃 claude / copilot / all
+bash scripts/install.sh claude   # Claude Code
+bash scripts/install.sh copilot  # GitHub Copilot
+bash scripts/install.sh codex    # Codex
 ```
 
-連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。改這個 repo 的檔案立刻生效。`skills/core/` 與 `skills/draft/` 都會連入 —— draft 是還在試用、尚未畢業的技能，清單見下方[試用中](#試用中draft)。
+連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`，Codex 是 `~/.agents/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。改這個 repo 的檔案立刻生效。`skills/core/` 與 `skills/draft/` 都會連入 —— draft 是還在試用、尚未畢業的技能，清單見下方[試用中](#試用中draft)。同名技能若不是本 repo 建立的連結，安裝器會停止該代理的安裝，不會覆寫它。
+
+### 給 Codex 用的差異
+
+Codex 會自動讀取 `~/.agents/skills`，並追蹤其中的 Junction／symlink；技能更新通常會自動偵測，沒出現時重啟 Codex 即可。輸入 `/skills` 查看清單，並以 `$` 明確呼叫，例如 `$ask-luca 我該怎麼開始？`——技能不是 `/ask-luca` 這種 slash command。若只想讓某個 repo 使用，將技能資料夾放在該 repo 的 `.agents/skills/`；Codex 從啟動目錄一路往 repo 根目錄搜尋這個路徑。[官方文件](https://developers.openai.com/docs/build-skills)有完整的技能載入範圍說明。
 
 > Windows 上不要用 Git Bash 跑 `install.sh`：MSYS 的 `ln -s` 會退化成複製目錄，裝出一份不會跟著更新的技能。腳本會擋下來要你改用 `install.ps1`。
 
@@ -39,9 +46,18 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 
 ## 起手式
 
+Claude Code：
+
 ```
 /setup-skills    # 每個 repo 跑一次
 /ask-luca        # 不確定該用哪個技能時
+```
+
+Codex：把本文所有技能名稱前的 `/` 改成 `$`；例如：
+
+```
+$setup-skills    # 每個 repo 跑一次
+$ask-luca        # 不確定該用哪個技能時
 ```
 
 ## 技能

@@ -5,13 +5,13 @@
 # archive 不連。
 # 連結後改這個 repo 的檔案會立刻生效，不需重裝。
 #
-#   bash scripts/install.sh            # Claude Code（預設）
+#   bash scripts/install.sh claude     # Claude Code
 #   bash scripts/install.sh copilot    # GitHub Copilot
-#   bash scripts/install.sh all        # 兩邊都裝
+#   bash scripts/install.sh codex      # Codex
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-target="${1:-claude}"
+target="${1:-}"
 
 # Git Bash / MSYS 的 ln -s 會退化成「複製目錄」而不是建連結，
 # 複製品不會跟著 repo 更新 —— 靜默地裝出一份會過期的技能。
@@ -25,48 +25,78 @@ esac
 case "$target" in
   claude)  agents="claude" ;;
   copilot) agents="copilot" ;;
-  all)     agents="claude copilot" ;;
-  *)       echo "用法：install.sh [claude|copilot|all]" >&2; exit 2 ;;
+  codex)   agents="codex" ;;
+  *)       echo "用法：install.sh <claude|copilot|codex>" >&2; exit 2 ;;
 esac
 
-# 代理各自的個人技能目錄。Copilot 另外也讀 ~/.agents/skills，
-# 但兩個都連會讓同一個技能被載入兩次，所以只挑一個。
+# 代理各自的個人技能目錄。Codex 讀 ~/.agents/skills；Copilot 也讀這裡，
+# 但 Copilot 改連自己的目錄，避免同一個技能被載入兩次。
 dest_for() {
   case "$1" in
     claude)  echo "$HOME/.claude/skills" ;;
     copilot) echo "$HOME/.copilot/skills" ;;
+    codex)   echo "$HOME/.agents/skills" ;;
   esac
 }
 
+is_managed_skill_link() {
+  [ -L "$1" ] && [ "$(resolve_directory "$1")" = "$(resolve_directory "$2")" ]
+}
+
+resolve_directory() {
+  (cd -P "$1" && pwd)
+}
+
+shopt -s nullglob
+skills=("$repo"/skills/core/*/ "$repo"/skills/draft/*/)
+had_failure=0
+
 for agent in $agents; do
   dest="$(dest_for "$agent")"
-  mkdir -p "$dest"
 
   # 防呆：$dest 本身若指回這個 repo，會把連結寫進 repo 自己的樹裡
   if [ -L "$dest" ]; then
-    resolved="$(readlink -f "$dest")"
+    resolved="$(resolve_directory "$dest")"
     case "$resolved" in
       "$repo"*) echo "$dest 指向本 repo（$resolved）。移除它再重跑。" >&2; exit 1 ;;
     esac
   fi
 
+  conflicts=()
+  for skill in "${skills[@]}"; do
+    name="$(basename "$skill")"
+    link="$dest/$name"
+    if { [ -e "$link" ] || [ -L "$link" ]; } && ! is_managed_skill_link "$link" "${skill%/}"; then
+      conflicts+=("$link")
+    fi
+  done
+  if [ "${#conflicts[@]}" -gt 0 ]; then
+    echo "$agent 無法安裝：以下同名技能不由本 repo 管理，未做任何變更：${conflicts[*]}" >&2
+    had_failure=1
+    continue
+  fi
+
+  mkdir -p "$dest"
+
   echo "→ $agent : $dest"
-  for bucket in core draft; do
-    dir="$repo/skills/$bucket"
-    [ -d "$dir" ] || continue
-    for skill in "$dir"/*/; do
-      [ -d "$skill" ] || continue
-      name="$(basename "$skill")"
-      rm -rf "$dest/$name"
-      ln -s "${skill%/}" "$dest/$name"
-      echo "  linked [$bucket] $name"
-    done
+  for skill in "${skills[@]}"; do
+    name="$(basename "$skill")"
+    bucket="$(basename "$(dirname "${skill%/}")")"
+    link="$dest/$name"
+    if [ -e "$link" ] || [ -L "$link" ]; then rm -rf "$link"; fi
+    ln -s "${skill%/}" "$link"
+    echo "  linked [$bucket] $name"
   done
   echo
 done
 
+[ "$had_failure" -eq 0 ] || exit 1
+
 case " $agents " in
   *" claude "*) echo "Claude Code：重開後輸入 /ask-luca 確認。" ;;
+esac
+case " $agents " in
+  *" codex "*) echo 'Codex：重開後輸入 /skills 查看，並用 $ask-luca 明確呼叫技能。' ;;
 esac
 case " $agents " in
   *" copilot "*)
