@@ -104,7 +104,7 @@ $ask-luca        # 不確定該用哪個技能時
 
 - **[audit-truth](./skills/draft/audit-truth/SKILL.md)** — 持續性稽核刀：掃真相層找語意矛盾（文件↔程式碼、文件↔文件），問卷裁決後開票，裁決留在 commit 的 Adjudicated bullet；宿主已有帳本才寫宿主格式。
 - **[bootstrap-truth](./skills/draft/bootstrap-truth/SKILL.md)** — 一次性正規化刀：在宿主既有治理的形狀內把文件瘦身變準、補業務能力薄檔、標上能力對應；砍字與改事實分開 commit。
-- **[branch-cleanup](./skills/draft/branch-cleanup/SKILL.md)** — 在開 PR 前盤點並整理此分支反覆修改留下的交付雜質。
+- **[branch-cleanup](./skills/draft/branch-cleanup/SKILL.md)** — 在最後提交前收斂功能分支反覆修訂的文件與無用交付內容。
 - **[briefing](./skills/draft/briefing/SKILL.md)** — 把簡報圖變成上台用的口頭講稿＋導讀：結論先行、節間串場、預期質詢與建議答法，寫成 `briefing.md`。
 - **[caveman](./skills/draft/caveman/SKILL.md)** — 聊天回覆切換為繁中電報體，砍廢話省輸出 token；程式碼、commit、文件照常散文。
 - **[diagram](./skills/draft/diagram/SKILL.md)** — 依受眾與情境挑選最合適的圖表並繪製，缺資訊時先畫草稿再問。
@@ -131,7 +131,7 @@ $ask-luca        # 不確定該用哪個技能時
 | 2・切開 | 一個 session 做不完，先切小 | `/to-spec` →（動到架構或 UI 才跑 `/to-architecture`、`/frontend-spec`）→ `/to-tickets` |
 | 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear` |
 | 3.5・驗收 | 證據要交給別人簽核時才走 | 專案第一次先 `/test-blueprint` 定測試藍圖 → `/uat-cases` 產凍結編號的案例 → `/browser-evidence` 跑成截圖與網路紀錄 |
-| 4・收尾 | 審查、提交、分支收尾整理、開 PR 到合併出貨 | `/code-review`（`/implement` 收尾自動跑）→ `/git-commit` → `/branch-cleanup` → `/git-pr`（GitLab 用 `/git-mr`，試用中）→ 要發版才跑 `/git-release` |
+| 4・收尾 | 審查、提交、分支收尾整理、開 PR 到合併出貨 | `/code-review`（`/implement` 收尾自動跑）→ `/git-commit` → `/branch-cleanup` → 由你 squash 並更新遠端 → `/git-pr`（GitLab 用 `/git-mr`，試用中）→ 要發版才跑 `/git-release` |
 
 session 規則：
 
