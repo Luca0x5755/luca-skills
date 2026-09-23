@@ -10,14 +10,19 @@ Tighten one branch before its PR. This is a **branch closeout**, not a general
 cleanup pass: find the delivery debris created by repeated work on this branch,
 let the user choose it, then remove only the chosen items in reviewable commits.
 
-## 1. Establish the comparison
+## 1. Bound the current branch
 
-Find the **target base branch** from the branch upstream or PR metadata. If
-neither gives a reliable answer, ask the user; `main` is not a fallback.
+Read the current branch name. Run this skill only on a feature branch: stop on
+`main`, `dev`, or a detached HEAD. Check `git status` next. An uncommitted
+worktree has no settled boundary: stop and ask the user to commit, discard, or
+otherwise place those changes before continuing.
 
-Read the branch's history and its diff against that base. Check `git status`
-first. An uncommitted worktree has no settled boundary: stop and ask the user to
-commit, discard, or otherwise place those changes before continuing.
+Find the branch's start with `git merge-base HEAD main` and
+`git merge-base HEAD dev`, for whichever local branches exist. Deduplicate the
+commits and choose the one with the fewest commits between it and `HEAD`. If
+distinct candidates tie, or no common ancestor exists, ask for a start commit.
+Read `git log <start>..HEAD` and `git diff <start>..HEAD`. This scope comes from
+local history; upstream tracking and PR metadata are irrelevant.
 
 ## 2. Card the branch debris
 
@@ -63,12 +68,13 @@ For each group:
 
 ## 4. Close
 
-No candidates, or no selected candidates: report the base, scan scope, and that
-no files changed. Hand back to `/git-pr`.
+No candidates, or no selected candidates: report the start commit, scan scope,
+and that no files changed. Hand back to `/git-pr`.
 
 After one or more groups commit, load `/code-review` via the Skill tool —
-mandatory — and review the branch against its base. Fix findings that belong to
-the selected closeout; verify each fix with its affected check, then stage and
-commit it through the `/git-commit` rules before handing off. Report any
-disagreement or out-of-scope finding. Then report the base, candidates selected,
-commits, verification evidence, and items left untouched. Hand back to `/git-pr`.
+mandatory — and review the branch against the same start commit. Fix findings
+that belong to the selected closeout; verify each fix with its affected check,
+then stage and commit it through the `/git-commit` rules before handing off.
+Report any disagreement or out-of-scope finding. Then report the start commit,
+candidates selected, commits, verification evidence, and items left untouched.
+Hand back to `/git-pr`.
