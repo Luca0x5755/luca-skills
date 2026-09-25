@@ -111,6 +111,16 @@ else
   echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
 fi
 
+echo "[12] setup-skills 的議題檢查模板：檔案在、SKILL.md 有引用、workflow 以 base.sha 呼叫腳本、測試跑綠"
+d=skills/core/setup-skills
+for f in issues-check.yml check-issues.sh; do
+  [ -f "$d/$f" ] || { err "$d/$f 不存在 — setup-skills Section F 要複製它"; continue; }
+  grep -qF "$f" "$d/SKILL.md" || err "$d/SKILL.md 沒有提到 $f — 模板沒人會裝"
+done
+grep -q 'check-issues\.sh' "$d/issues-check.yml" 2>/dev/null && grep -q 'base\.sha' "$d/issues-check.yml" 2>/dev/null \
+  || err "$d/issues-check.yml 沒有以 base.sha 呼叫 check-issues.sh — 檢查會失明"
+bash scripts/test-issues-check.sh >/dev/null 2>&1 || err "scripts/test-issues-check.sh 未過 — 跑 bash scripts/test-issues-check.sh 看細節"
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

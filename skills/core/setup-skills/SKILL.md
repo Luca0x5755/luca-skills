@@ -1,6 +1,6 @@
 ---
 name: setup-skills
-description: 為這個 repo 設定工程技能所需的組態 — 議題追蹤器、領域文件位置與 git 護欄 hook。初始化跑一次；重跑可換追蹤器或補裝、更新護欄。
+description: 為這個 repo 設定工程技能所需的組態 — 議題追蹤器、領域文件位置、git 護欄 hook，以及本機議題用的 CI 檢查。初始化跑一次；重跑可換追蹤器或補裝、更新護欄。
 disable-model-invocation: true
 ---
 
@@ -14,6 +14,7 @@ Produces:
 - `docs/agents/domain.md` — where `CONTEXT.md` and ADRs live, and the collaboration mode
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` in `.claude/hooks/`, registered in `.claude/settings.json`
+- On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
 - In private mode: entries in `.git/info/exclude`
 
 ## 1. Explore
@@ -24,17 +25,20 @@ Read what exists. Assume nothing.
 - `CLAUDE.md` / `AGENTS.md` at root — does either exist? Does either already have an `## Agent skills` section?
 - `CONTEXT.md`, `docs/adr/` — is a domain layer already here?
 - `docs/agents/` — has this skill already run?
-- `.scratch/` — sign of a local-markdown issue convention
+- `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
+- `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
 - Monorepo signals: `pnpm-workspace.yaml`, a `workspaces` field, populated `packages/*`
 
 ## 2. Present and ask
 
-Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the two sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo. Every other section collects a nod, re-runs included.
+Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the three sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker. Every other section collects a nod, re-runs included.
 
-**Section A — Issue tracker.** Where issues live for this repo. `to-tickets`, `to-spec`, and `triage` read from and write to it; they need to know whether to run `gh issue create`, write a file under `.scratch/`, or follow something you describe.
+**Section A — Issue tracker.** Where issues live for this repo. `to-tickets`, `to-spec`, and `triage` read from and write to it; they need to know whether to run `gh issue create`, write a file under `docs/issues/`, or follow something you describe.
 
-Ask, leading with the proposal from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remote → GitLab Issues (`glab` CLI). No remote → local markdown under `.scratch/<feature>/issues/`. Anything else → ask for one paragraph of description and record it as prose.
+Ask, leading with the proposal from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remote → GitLab Issues (`glab` CLI). No remote → local markdown, one file per issue: `docs/issues/ISSUE-NNN-<slug>.md`, `NNN` three digits, current highest + 1. Anything else → ask for one paragraph of description and record it as prose.
+
+A local markdown issue lives and dies on one branch: `/implement` deletes it when done, and Section F's CI check enforces that. Work that outlives the branch belongs in a real tracker.
 
 **Section B — Domain docs.** Default to **single-context**: one `CONTEXT.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `CONTEXT-MAP.md` pointing at per-package `CONTEXT.md` files — only when exploration found monorepo signals.
 
@@ -53,6 +57,12 @@ Record the reasoning in `domain.md` so future sessions apply it: a document only
 - **Copy byte-for-byte into `.claude/hooks/`**, never reference the repo by path: a copy that ages still runs the old guard, while a pointer to a moved repo guards nothing and says nothing. Their tests stay in luca-skills — the copy is verbatim, so a green source is a green copy.
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
 - **Register** each under `PreToolUse`, matcher `Bash`, in `.claude/settings.json` as `bash .claude/hooks/<name>.sh`. Merge into whatever hooks structure exists — existing entries stay untouched.
+
+**Section F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored). A GitHub Actions check that fails a PR whose net change adds files under `docs/issues/` — every issue the branch created must be gone by merge. Propose it, one nod for the pair.
+
+- **Source**: `issues-check.yml` and `check-issues.sh`, beside this `SKILL.md`.
+- **Copy byte-for-byte** to `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`. The tests stay in luca-skills; the copy is verbatim, so a green source is a green copy.
+- **Drift**: copies present but differing from source → show the diff, propose refreshing.
 
 ## 3. Confirm
 
@@ -84,8 +94,10 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 `docs/agents/domain.md` must record the collaboration mode and, in private mode, which paths are excluded — downstream skills read it to know whether their output is committed or personal.
 
-`docs/agents/issue-tracker.md` must record, concretely: the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess.
+`docs/agents/issue-tracker.md` must record, concretely: the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess. For local markdown add the file-name pattern, the next-number rule, and the lifecycle: delete the file when done.
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for switching trackers or refreshing the guard-hook copies.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for switching trackers or refreshing the guard-hook and issues-check copies.
+
+After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.

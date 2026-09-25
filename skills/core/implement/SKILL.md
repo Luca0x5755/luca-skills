@@ -42,6 +42,7 @@ Between slices: typecheck, and run **that** test file. Not the whole suite — t
 - Re-read the ticket's *Done when* list and check each condition literally.
 - Any ADR this ticket implements that is still `Status: Proposed` → flip it to `Accepted` in the same commit. An ADR for work that has landed is no longer a proposal.
 - The truth layer reflects what this ticket made true: behaviour rules land in the owning `docs/capabilities/<name>.md` (or the consolidated spec section it points at) on this branch, so the docs merge with the code. Update only what this ticket changed — contracts `/to-architecture` or `/frontend-spec` already wrote need no restating. A project with no truth layer skips this line, and says so in the report.
+- **Local markdown tracker: the ticket leaves with the work.** `git rm` this ticket's file in the same commit. When no other file in `docs/issues/` cites its spec (grep the spec's file name), or the spec itself was the work, delete the spec too. Before deleting a spec, every promise it issued — frozen ID, `retired` lines included — must already sit in the truth layer; a project with none yet starts its requirements document here. Any other tracker closes the ticket by its own means.
 
 ## 5. Commit
 
