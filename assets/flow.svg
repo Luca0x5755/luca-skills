@@ -310,5 +310,9 @@
     <text x="192" y="2111" text-anchor="middle" class="skill-sm">/study-repo</text>
     <text x="340" y="2100" class="note">讀懂別人的 repo：先跑起來，</text>
     <text x="340" y="2124" class="note">再追核心路徑；報告看完就刪</text>
+    <rect x="672" y="2082" width="240" height="44" rx="8" class="box user draft"/>
+    <text x="792" y="2111" text-anchor="middle" class="skill-sm">/run-queue</text>
+    <text x="940" y="2100" class="note">spec 核可後無人看管做完票佇列，</text>
+    <text x="940" y="2124" class="note">卡住的票擱置，開出 PR 為止</text>
   </g>
 </svg>
