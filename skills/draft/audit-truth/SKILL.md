@@ -32,7 +32,7 @@ packages/server/src/domain/commands.ts applyNext — `if (!feas.adjustedCap) ret
 
 There is no ledger file. A verdict lives in two places over its life:
 
-- **Open** — the ticket that carries it. The tracker's open drift tickets are the list of adjudicated-but-unfixed contradictions.
+- **Open** — the ticket that carries it. The tracker's open drift tickets are the list of adjudicated-but-unfixed contradictions. On a local markdown tracker a ticket cannot outlive its branch, so tickets exist only for verdicts this branch will fix; a verdict that must wait goes to the host ledger below.
 - **Settled** — the commit that closed it. Its body carries one **Adjudicated bullet** per verdict, in the `/git-commit` bullet shape:
 
   ```
@@ -41,15 +41,15 @@ There is no ledger file. A verdict lives in two places over its life:
 
   `git log --grep=Adjudicated` lists every verdict the project has ever made. A body bullet, never a trailer — `/git-commit` forbids trailers and `guard-git` blocks them.
 
-A host that already keeps a drift ledger (a spec-drift-ledger, a doc-debt register — anything recording doc↔code divergence and its adjudications) is the exception: write verdicts **in the host's format, into the host's file**, mapping onto the host's verdict classes; a verdict that fits no host class → ask the user, never invent a class. Never open a ledger where none exists, and never a second one beside a living one.
+A host that already keeps a drift ledger (a spec-drift-ledger, a doc-debt register — anything recording doc↔code divergence and its adjudications) is the exception: write verdicts **in the host's format, into the host's file**, mapping onto the host's verdict classes; a verdict that fits no host class → ask the user, never invent a class. Never open a ledger where none exists, and never a second one beside a living one. On a local markdown tracker the host ledger is also where a verdict waits when this branch will not fix it; with no host ledger, only the verdicts this branch will fix are adjudicated and filed, and the rest stay in the report for the next run to find again.
 
 ## Run
 
-1. **Scope.** The user names the truth documents and code areas to scan; unnamed → the whole truth layer. Locate the host ledger, if any. Read the tracker's open drift tickets (`docs/agents/issue-tracker.md` says where tickets live) — a contradiction already on a ticket is skipped and listed in the report as already filed.
+1. **Scope.** The user names the truth documents and code areas to scan; unnamed → the whole truth layer. Locate the host ledger, if any. Read the tracker's open drift tickets (`docs/agents/issue-tracker.md` says where tickets live) — a contradiction already on a ticket or recorded in the host ledger is skipped and listed in the report as already filed.
 2. **Card claims.** Fan out sub-agents: each truth document → verbatim claims in the evidence form, each claim checked against the code it describes and against sibling documents. Sub-agents must never invoke this skill.
 3. **Questionnaire the contradictions**, applying the `/to-questionnaire` rules — read its `SKILL.md` first if the rules are not in context (the Skill tool cannot load user-triggered skills). Write the file to the scratchpad, never into the repo. One question per contradiction: both sources in the evidence form, the divergence, options drawn from the host ledger's verdict classes when adapting, else 文件對／程式碼對／都錯／不確定. Each question carries a recommended verdict (`➡️`) with a one-line evidence basis — the `/grilling` split applies: evidence is this skill's to gather, the verdict is the user's. Before recommending, run `git log --grep=Adjudicated -- <file>` for both sources; a prior verdict on either goes into the evidence basis verbatim — newer is not truer, and the user decided this once already. No evidence basis → recommend 不確定.
-4. Stop; the user adjudicates.
-5. **File the tickets**, applying the `/to-tickets` rules — read its `SKILL.md` first if the rules are not in context. Ticket shape, sizing, and cite-truth-by-name apply; a drift ticket has no tracer bullet. When adapting to a host ledger, record the verdicts there first, then file.
+4. Stop; the user adjudicates. On a local markdown tracker the user also says which verdicts this branch will fix now; the rest go to the host ledger, or stay unadjudicated when there is none.
+5. **File the tickets**, applying the `/to-tickets` rules — read its `SKILL.md` first if the rules are not in context. Ticket shape, sizing, and cite-truth-by-name apply; a drift ticket has no tracer bullet. When adapting to a host ledger, record the verdicts there first, then file. On a local markdown tracker file tickets only for the verdicts this branch will fix, and fix them all before the PR opens — the CI issues check fails a branch that still holds any.
    - One ticket per verdict, 不確定 included; verdicts changing the same file merge into one. The title or Context carries the word **drift** so step 1 of the next run recognises it.
    - **Done when** follows from the verdict — 文件對: the code behaves as the document states, with a test covering it; 程式碼對: the document states what the code does; 都錯: both; 不確定: one side changed to match the other, with the basis named in the commit.
    - **Context** carries both sources in the evidence form and the divergence. The ticket is the record while it is open; nothing points elsewhere.
@@ -57,7 +57,7 @@ A host that already keeps a drift ledger (a spec-drift-ledger, a doc-debt regist
    - Publish directly — the human gate is step 4, and the ticket list goes in the step 7 report. `/to-tickets`' show-before-publishing gate is intentionally skipped here: the tickets carry verdicts the user already made.
    - Done when every verdict from step 4 maps to a ticket id. A verdict without a ticket is a finding buried at the scene.
 6. **Commit** when the tracker is local files (or a host ledger was written), following the `/git-commit` rules — **mandatory**; read its `SKILL.md` first if the rules are not in context. Stage only the tickets and the host ledger. The body says which tickets were filed; the Adjudicated bullets belong to the closing commits, not this one.
-7. **Report**: scope and the commit SHA scanned, mechanical-check status at scan time, contradictions found, tickets filed (ids), contradictions already filed, items noted-but-kept.
+7. **Report**: scope and the commit SHA scanned, mechanical-check status at scan time, contradictions found, tickets filed (ids), verdicts deferred to the host ledger, contradictions already filed, items noted-but-kept.
 
 ## Cadence
 
