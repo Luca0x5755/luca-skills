@@ -63,7 +63,9 @@ Specs written before IDs existed get numbered **on demand** — a promise takes 
 
 ## Finish
 
-Publish per `docs/agents/issue-tracker.md` and report the URL or path.
+Publish per `docs/agents/issue-tracker.md` and report the URL or path. On a local markdown tracker, publishing is writing the file **and** committing it; an uncommitted spec is still a draft.
+
+**Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
 
 Then answer two questions out loud, from the spec just written — the answers pick the next step:
 

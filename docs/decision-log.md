@@ -5,3 +5,5 @@
 2026-10-01 為降低人工介入而評估移除 hook，結論是一條都不拆 — hook 只擋不問，不產生等待；`check-on-stop` 與 `guard-*` 正是無人看管迴圈的驗收尺與護欄。
 2026-10-01 `/run-queue` 防自我核准用揭露而非關卡 — PR 按票列出被改或刪的既有測試與被駁回的審查發現；merge 本來就是人的關卡，再加驗收子代理只多一份判斷與誤擋。
 2026-10-01 `/run-queue` 不做開工前「票已完成」的 no-op 判斷 — 票檔刪除即完成，誤判會讓沒做的票消失；等真實執行出現票重疊的證據再議。
+2026-10-01 規劃技能（grill-with-docs、to-spec、to-tickets、to-architecture、frontend-spec）在使用者核可、寫入後自動 commit 但不 push — 原本產出全留未提交，`/run-queue` 的「工作樹乾淨」永遠過不了；不 push 讓 `git reset --soft HEAD~1` 仍能收回。
+2026-10-01 `/run-queue` 開 PR 前不 squash — 每票各自的 commit 是自我核准痕跡的證據來源；`main` 由 squash merge 收成一個 commit，結果與手動 squash 相同。

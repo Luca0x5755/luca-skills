@@ -104,7 +104,10 @@ else
 fi
 
 echo "[11] 安裝器拒絕已移除的目標，且不覆寫外來同名技能"
-bash scripts/test-install.sh >/dev/null 2>&1 || err "scripts/test-install.sh 未過 — 跑 bash scripts/test-install.sh 看細節"
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) echo "  - Git Bash / MSYS：install.sh 刻意拒絕此環境，略過其測試（Windows 由下方 test-install.ps1 驗）" ;;
+  *) bash scripts/test-install.sh >/dev/null 2>&1 || err "scripts/test-install.sh 未過 — 跑 bash scripts/test-install.sh 看細節" ;;
+esac
 if command -v pwsh >/dev/null 2>&1; then
   pwsh -NoProfile -File scripts/test-install.ps1 >/dev/null 2>&1 || err "scripts/test-install.ps1 未過 — 跑 pwsh -NoProfile -File scripts/test-install.ps1 看細節"
 else
