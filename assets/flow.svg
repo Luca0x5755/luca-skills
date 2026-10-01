@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2158" viewBox="0 0 1320 2158" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
-  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層（少數合訂規格本＋docs/capabilities/ 能力薄檔，章節標能力、能力反列章節）—to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、bootstrap-truth 為接管專案一次性正規化真相層（在宿主治理的形狀內瘦身文件、補能力層、安裝機械檢查）、audit-truth 持續稽核語意矛盾並把裁決寫進漂移總帳（一把立真相、一把守真相）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段先由 branch-cleanup 盤點分支雜質，再由 git-mr（GitLab 版 git-pr）或 git-pr 開單。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
+  <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層（少數合訂規格本＋docs/capabilities/ 能力薄檔，章節標能力、能力反列章節）—to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、bootstrap-truth 為接管專案一次性正規化真相層（在宿主治理的形狀內瘦身文件、補能力層、安裝機械檢查）、audit-truth 持續稽核語意矛盾並把裁決寫進漂移總帳（一把立真相、一把守真相）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段先由 branch-cleanup 收斂分支最後事實，使用者 squash 並更新遠端後，再由 git-mr（GitLab 版 git-pr）或 git-pr 開單。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -147,7 +147,7 @@
 
     <rect x="196" y="1200" width="420" height="64" rx="8" class="box user draft"/>
     <text x="406" y="1228" text-anchor="middle" class="skill">/branch-cleanup</text>
-    <text x="406" y="1254" text-anchor="middle" class="sub">開 PR 前：盤點、選定、整理分支雜質</text>
+    <text x="406" y="1254" text-anchor="middle" class="sub">收斂最後事實；你再 squash 並更新遠端</text>
 
     <rect x="196" y="1300" width="205" height="64" rx="8" class="box user"/>
     <text x="298" y="1328" text-anchor="middle" class="skill">/git-pr</text>
