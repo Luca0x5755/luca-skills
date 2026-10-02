@@ -14,7 +14,7 @@
 ## guard-secrets.sh
 
 - **事件**：PreToolUse（matcher: Bash）。
-- **擋**：`git commit` 時掃 staged diff 的新增行，抓憑證字面值（`TEST_PW = "…"`、`"password": "…"`）。讀環境變數、樣板佔位、散文提及都放行。exit 2。
+- **擋**：`git commit` 時掃 staged diff 的新增行，抓憑證字面值（`TEST_PW = "…"`、`"password": "…"`）。讀環境變數、樣板佔位、散文提及，以及整個值就是命令替換或參數展開的（`"$(get_env X)"`、`"$VAR"`）都放行。exit 2。
 - **為什麼**：這是 `/browser-evidence` 「憑證一律讀環境或庫外檔」那條散文的機器版 — 2026-08-11 實測散文擋不住，密碼進了公開分支，而 force-push 不等於刪除。
 - **關係**：與 guard-git.sh 同為 `setup-skills` 外發的護欄組。
 

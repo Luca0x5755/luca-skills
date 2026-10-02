@@ -51,9 +51,13 @@ Traps, decided-against alternatives, the seam to test at.
 ## Rules
 
 - **Do not triage these.** They are already agent-ready. `/triage` is for issues that arrived from outside.
-- **Show the full set before publishing** — the sizing and the edges are much easier to judge as a list than one at a time.
+- **Show the full set before publishing** — the sizing and the edges are much easier to judge as a list than one at a time. Let the user edit, then publish: the publishing commit is the approval `/run-queue` checks for.
 - **Cite truth by name.** When `/to-architecture` or `/frontend-spec` ran, a ticket names the `docs/03_architecture_design.md` section, the `docs/05_frontend_spec.md` page, or the `.pen` state frame it builds against. Those documents ride the feature branch and merge with the code — a ticket that restates them is a second copy that drifts.
 
 ## Finish
 
-Publish, report the URLs or paths and the blocking graph, and say: run `/implement` per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable.
+Publish. On a local markdown tracker, publishing is writing the files **and** committing them; an uncommitted ticket is still a draft.
+
+**Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
+
+Report the URLs or paths and the blocking graph, and say: run `/implement` per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable.

@@ -1,4 +1,18 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset --hard HEAD)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(bash scripts/check.sh)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

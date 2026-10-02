@@ -25,7 +25,7 @@ git log --oneline -10   # gauge subject granularity only — the language rules 
 The staging area is a boundary drawn by whoever invoked this skill. Commit exactly what is inside it; untracked files and unstaged changes stay outside.
 
 - **The user invoked `/git-commit` directly** → the user staged. Touch nothing in the staging area. **Empty → stop**: report the current change state and ask the user to stage what they want, then invoke again. Do not guess what the user meant to commit.
-- **Another skill's commit step is following these rules** → that skill stages the files it touched, by explicit path, and nothing else. Invoking that skill was the user's authorization for its commits. Empty after that → the step changed nothing; still stop.
+- **Another skill's commit step is following these rules** → that skill stages the files it touched, by explicit path, and nothing else. Invoking that skill was the user's authorization for its commits. Empty after that → the step changed nothing; still stop. Paths `docs/agents/domain.md` records as excluded (private collaboration mode) are personal: leave them out of the stage.
 
 Bulk staging (`git add -A`, `git add .`) is out in both cases; the guard hook blocks it.
 
@@ -36,6 +36,7 @@ On `main` / `master` → create a branch before committing. Naming:
 - kebab-case (lowercase + hyphens), `type/short-description`, English.
 - Examples: `feature/plugin-search`, `fix/tag-encoding`.
 - Pick the type from the change itself: `feature/`, `fix/`, `refactor/`, `docs/`, `chore/`.
+- A planning skill's commit (grilling notes, spec, architecture, tickets) names the branch for the work it plans, not for its own docs: `feature/<topic>` — the build lands on this same branch.
 
 ## 3. Write the commit (English)
 
@@ -63,6 +64,8 @@ git commit -F <path>   # write the message with the Write tool first
 Two shells live on this machine and their quoting rules differ; a message embedded in the command line gets mangled by whichever one you guessed wrong. That failure is silent — a PowerShell here-string (`@'…'@`) run under Bash lands a bare `@` as the subject line and demotes the real one to the body, which is only visible in `git log --oneline` after the push. The same rule covers every multi-line argument: `gh pr create --body-file`, `gh issue create -F`.
 
 ## 4. Push
+
+A calling skill whose commit step says **commit only** ends after §3; its commits ride the branch until `/git-pr` pushes it.
 
 ```bash
 git push -u origin <branch>
