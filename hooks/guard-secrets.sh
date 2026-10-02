@@ -35,8 +35,18 @@ added=$(git diff --cached -U0 -- . \
 # Two shapes, both requiring a quoted value with real content:
 #   assignment  TEST_PW = "UatTest#2026"      (name unquoted, '=' )
 #   json        "password": "UatTest#2026"    (name quoted, ':' — keeps prose out)
+#
+# A double-quoted value that is entirely a command substitution or a parameter
+# expansion — "$(get_env X)", "`cat f`", "$VAR" — is read at run time, the same
+# as the ${VAR} the filter below already passes. Only the whole-value shape
+# counts: "abc$(x)def" still carries a literal. The value is stripped, not the
+# line filtered out, so a literal sharing the line still has to pass the match.
+# LC_ALL=C: bracket negation fails on non-ASCII bytes under Git Bash's UTF-8 locale.
 NAME='(PASS(WORD|WD)?|SECRET|TOKEN|API_?KEY|CREDENTIAL|[A-Za-z0-9]_PW)'
 hits=$(printf '%s\n' "$added" \
+  | LC_ALL=C sed -E -e 's/"\$\(([^()]|\([^()]*\))*\)"/""/g' \
+                    -e 's/"`[^`]*`"/""/g' \
+                    -e 's/"\$[A-Za-z_][A-Za-z0-9_]*"/""/g' \
   | grep -iE "[A-Za-z0-9_]*${NAME}[A-Za-z0-9_]*[[:space:]]*=[[:space:]]*[\"'][^\"']{4,}[\"']|\"[A-Za-z0-9_]*${NAME}[A-Za-z0-9_]*\"[[:space:]]*:[[:space:]]*\"[^\"]{4,}\"" \
   | grep -vE '\$\{|\{\{|<[A-Za-z_-]+>|os\.environ|getenv|process\.env|ENV\[|REDACTED|\*\*\*|xxxx|your[-_]|example\.com' \
   | head -5)
