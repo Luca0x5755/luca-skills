@@ -14,8 +14,38 @@
 | pr | 最小視覺摘要、before/after 證據、合併可逆性與影響範圍 | git-pr／git-mr 已負責英文標題、繁中內容、建立與清理；可吸收內容規則，保留平台生命週期，避免增加另一個入口 |
 | retro | 回看 session 的第一手來源，按嚴重性提出代理環境改善 | 已新增 core 技能；機械違規優先 deterministic check，判斷規則留在審查；只提出候選，使用者選擇落實項目 |
 
-implement-spec 的取代方案與 PR/MR 格式整合方式等待第二輪裁決。
+Q5 已裁決：pr 元素併入 git-pr／git-mr，保留既有段落、新增合併風險，不另增技能。Q4 尚在研究：保留兩個流程，並讓 run-queue 支援平行調度。
 來源：[implement-spec](https://github.com/mattpocock/skills/blob/v1.3.1/skills/engineering/implement-spec/SKILL.md)、[pr](https://github.com/mattpocock/skills/blob/v1.3.1/skills/engineering/pr/SKILL.md)、[retro](https://github.com/mattpocock/skills/blob/v1.3.1/skills/engineering/retro/SKILL.md)。
+
+## Q4：兩流程並存與平行 run-queue 的可行性
+
+結論：可行，尚未核可實作。並存的分界是執行契約，不是串行與平行：
+
+- implement-spec：跨追蹤器、可由操作者介入、完整規格落在整合分支，PR 視需要建立。
+- run-queue：已提交的本機規格與票、有限重試、卡票擱置、揭露自我核准痕跡，收尾開 PR，merge 歸使用者。
+
+上游[文件](https://github.com/mattpocock/skills/blob/v1.3.1/docs/engineering/implement-spec.md)明示工作樹衝突、缺少 gitignored 測試資料、frontier 更新與審查收斂的限制。保留兩者不代表照抄未處理的限制。
+
+| 最低必要設計 | 本地原因 |
+| --- | --- |
+| coordinator 獨占整合分支；worker 各有工作樹 | 現行 reset 與刪除不能作用在其他 worker 的工作樹 |
+| running／claimed 僅作 session 暫態；重啟先檢查既有 worker 分支與工作樹 | 票尚未整合時仍存在，不能重複派工；不新增永久進度帳本 |
+| 完成以整合分支上刪票且驗證綠為準 | worker 刪票只表示候選完成，不能放行下游 |
+| worker 保留 spec；coordinator 最後檢查引用與 truth layer 後刪除 | implement 的最後一票判斷在平行快照中不可靠 |
+| 候選整合工作樹先合併與驗證，綠才推進整合分支；整合操作串行 | worker 各自綠不代表組合綠，避免壞合併污染已交付票 |
+| 整合修復計入該票重試預算，擱置不放行依賴 | 平行不能繞過既有五輪與無進展停止規則 |
+| 檢查共享檔案、DB、port、fixtures 與輸出目錄；不能隔離就串行 | 任務圖獨立不等於執行資源獨立 |
+| denied 停新派工與整合，worker 安全停下並保留已提交候選 | 系統性拒絕不能靠其他 worker 繼續繞過，也不能抹除別票成果 |
+| worker 開工先驗 hooks、依賴、測試資料與環境 | guard-secrets 未使用 payload.cwd；check-on-stop 固定從 hook 位置定位，必須確認實際 worker 路徑；現有 Bash matcher 不能泛稱跨 harness 都生效 |
+
+建議預設保持串行，平行模式先限制兩個 worker。這是研究提案，尚未改寫 run-queue 或加入 implement-spec。
+兩技能不能互相直接呼叫使用者觸發入口；若日後抽出共用契約，須遵循本專案的技能引用與觸發規則。
+
+## Q5：已核可的 PR／MR 內文章節
+
+摘要 → 問題 → 變更內容 → 設計決定 → 遷移／部署提醒（需要時） → 合併風險 → 測試。
+未驗證維持在測試內。摘要只在有幫助時用最小視覺；前後證據必須是實際觀察，缺失明說；合併風險寫可逆性、回復方式與具體影響範圍。
+git-pr 同時改以 --body-file 傳遞精確內文，與既有 git-commit 的多行參數規則一致。
 
 ## 優化與修正的處置
 

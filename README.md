@@ -83,7 +83,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[improve-codebase-architecture](./skills/core/improve-codebase-architecture/SKILL.md)** — 勘查程式庫的深化機會，排序後呈上，再對你挑中的那一個進行拷問。
 - **[wayfinder](./skills/core/wayfinder/SKILL.md)** — 把龐大而迷霧重重的工程畫成一張決策票地圖，一次解一張，直到通往終點的路清晰為止。
 - **[git-commit](./skills/core/git-commit/SKILL.md)** — 檢視已暫存的變更，撰寫英文 commit 並推上遠端。只提交 staged 的內容，絕不代替使用者 stage。
-- **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR（英文標題＋繁中六段式內文）與合併後清理分支，分支生命週期的頭與尾。
+- **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR（英文標題＋繁中內文、前後證據與合併風險）與合併後清理分支，分支生命週期的頭與尾。
 - **[git-release](./skills/core/git-release/SKILL.md)** — 更新版本檔中的版本號，彙整兩版本間的 commit 寫成繁體中文發布摘要，打 tag 推上遠端並發佈 release 頁面。
 - **[wait-what](./skills/core/wait-what/SKILL.md)** — 停 — 剛才那段沒讓人聽懂，要求代理重新講一次。
 - **[to-questionnaire](./skills/core/to-questionnaire/SKILL.md)** — 把一個你無法獨力回答的決策，做成一份問卷交給掌握答案的人填。

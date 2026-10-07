@@ -8,3 +8,4 @@
 2026-10-01 規劃技能（grill-with-docs、to-spec、to-tickets、to-architecture、frontend-spec）在使用者核可、寫入後自動 commit 但不 push — 原本產出全留未提交，`/run-queue` 的「工作樹乾淨」永遠過不了；不 push 讓 `git reset --soft HEAD~1` 仍能收回。
 2026-10-01 `/run-queue` 開 PR 前不 squash — 每票各自的 commit 是自我核准痕跡的證據來源；`main` 由 squash merge 收成一個 commit，結果與手動 squash 相同。
 2026-10-07 上游移植目標固定為 mattpocock/skills v1.3.1（24fe0ef7737efae15c87225755e9f6f5965e4888），以 v1.2.3 為基準；遷移詞彙表為 GLOSSARY 命名、採用行為修正並新增 retro，保留本地治理與 0.2.3 版本，不搬移全庫 em-dash 文風改寫。
+2026-10-07 git-pr／git-mr 吸收上游 pr 的最小視覺摘要、實際前後證據與合併風險，保留既有繁中段落與平台生命週期，不新增 pr 技能 — 改善審查資訊而不增加入口。

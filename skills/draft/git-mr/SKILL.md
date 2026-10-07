@@ -34,7 +34,7 @@ Report which you did and why.
 
 ```markdown
 ## 摘要
-一段話：這個 MR 做了什麼、動到哪些面。
+說清楚問題與修改後的行為。有助理解時附最小的 diff、流程圖、呼叫樹或檔案樹；小改動用文字即可。
 
 ## 問題
 為什麼需要這個改動：症狀 → 根因。有量測就上表格，沒有就寫清楚觀察到什麼。
@@ -47,7 +47,14 @@ Report which you did and why.
 ## 設計決定
 - 每條一行：決定 + 為什麼。只寫真的做過取捨的，不寫理所當然的。
 
+## 合併風險
+- 可逆性：能否回復、如何回復；資料已刪除或外部副作用不能只靠 revert 還原。
+- 影響範圍：哪些使用者、資料、介面或部署環境會受影響。
+
 ## 測試
+修改前：實際觀察到的行為、輸出或畫面。
+修改後：相同情境下的輸出、畫面或驗證結果。
+
 | 項目 | 結果 |
 | --- | --- |
 | 具體可執行的驗證步驟 | ✅ 附證據（數字、輸出），不是「功能正常」 |
@@ -55,7 +62,12 @@ Report which you did and why.
 **未驗證**：明列沒測到的範圍。沒說出口的缺口，比缺口本身更貴。
 ```
 
-- Situational sections (遷移、部署提醒…) go between 設計決定 and 測試 when the change genuinely needs them.
+- Situational sections (遷移、部署提醒…) go between 設計決定 and 合併風險 when the change genuinely needs them.
+- Read `GLOSSARY.md` for domain language; when `GLOSSARY-MAP.md` exists, follow it to the relevant glossary.
+- Pick the smallest useful summary view: pseudocode for an algorithm, a call tree for runtime flow, a component tree for UI ownership, a shallow file tree for responsibilities, Mermaid for interactions, or a diff for a focused change. Put it next to the short explanation it supports; avoid repeating it in 變更內容.
+- Evidence comes from actual runs or captured artifacts. Use before/after screenshots for visual changes and exact commands with their observed outputs for behavior changes. A previous failure is not required for a new feature; describe its observed baseline. If before evidence is unavailable, say so under 未驗證 rather than inventing it. Keep existing test-change and rejected-review disclosures from a calling workflow in the 測試 section.
+- 合併風險 always states reversibility and affected scope, even if both are small; use concrete descriptions rather than an unexplained one-word label.
+- These body elements are adapted from upstream [`pr`](https://github.com/mattpocock/skills/blob/v1.3.1/skills/engineering/pr/SKILL.md); its summary-view guidance credits Dex Horthy's [`show-me`](https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md).
 
 ### 3. Open — two tracks, checked at runtime
 
