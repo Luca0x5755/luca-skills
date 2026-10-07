@@ -5,7 +5,7 @@
 # 用 Junction 而非 SymbolicLink：Windows 上不需管理員權限或開發者模式。
 # 連結後改這個 repo 的檔案會立刻生效，不需重裝。
 #
-#   .\scripts\install.ps1            # 互動選擇要安裝的代理
+#   .\scripts\install.ps1            # 互動選擇，可用空白多選
 #   .\scripts\install.ps1 copilot    # GitHub Copilot
 #   .\scripts\install.ps1 codex      # Codex
 
@@ -36,23 +36,25 @@ $skills = foreach ($bucket in @('core', 'draft')) {
 }
 
 function Select-Targets {
-  Write-Host '選擇要安裝的代理（可用逗號多選）：'
+  Write-Host '選擇要安裝的代理（可用空白多選）：'
   $dests.Keys | ForEach-Object -Begin { $index = 1 } -Process {
     Write-Host "  $index. $_"
     $index++
   }
-  Write-Host -NoNewline '輸入編號（例如 1,3）：'
-  $selected = [Console]::In.ReadLine()
-  $indexes = @($selected -split ',' | ForEach-Object { $_.Trim() })
-  $invalidIndexes = @($indexes | Where-Object { $_ -notmatch '^\d+$' -or [int]$_ -lt 1 -or [int]$_ -gt $dests.Count })
-  if ($indexes.Count -eq 0 -or $invalidIndexes.Count -gt 0) {
-    throw '請輸入一個或多個有效編號，例如 1,3。'
+  while ($true) {
+    Write-Host -NoNewline '輸入編號（例如 1 3）：'
+    $selected = [Console]::In.ReadLine()
+    if ($null -eq $selected) { throw '已取消安裝。' }
+    $indexes = @($selected.Trim() -split '\s+')
+    $invalidIndexes = @($indexes | Where-Object { $_ -notmatch '^[1-3]$' })
+    if ($invalidIndexes.Count -gt 0) {
+      Write-Host '請輸入一個或多個有效編號，以空白分隔，例如 1 3。'
+      continue
+    }
+    $targets = @($indexes | ForEach-Object { @($dests.Keys)[[int]$_ - 1] } | Select-Object -Unique)
+    Write-Host "即將安裝：$($targets -join ', ')"
+    return $targets
   }
-  $targets = @($indexes | ForEach-Object { @($dests.Keys)[[int]$_ - 1] } | Select-Object -Unique)
-  Write-Host "即將安裝：$($targets -join ', ')"
-  Write-Host -NoNewline '確認繼續？[y/N]：'
-  if ([Console]::In.ReadLine() -notmatch '^[Yy]$') { throw '已取消安裝。' }
-  $targets
 }
 
 function Test-ManagedSkillLink {

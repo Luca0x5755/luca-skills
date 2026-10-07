@@ -7,7 +7,7 @@
 Windows：
 
 ```powershell
-.\scripts\install.ps1            # 互動選擇，可多選
+.\scripts\install.ps1            # 互動選擇，可用空白多選
 .\scripts\install.ps1 claude     # Claude Code
 .\scripts\install.ps1 copilot    # GitHub Copilot
 .\scripts\install.ps1 codex      # Codex
@@ -16,10 +16,15 @@ Windows：
 Linux / macOS：
 
 ```bash
+bash scripts/install.sh          # 互動選擇，可用空白多選
 bash scripts/install.sh claude   # Claude Code
 bash scripts/install.sh copilot  # GitHub Copilot
 bash scripts/install.sh codex    # Codex
 ```
+
+兩個平台的互動選單一致：`1` 是 Claude Code、`2` 是 Copilot、`3` 是 Codex。
+輸入 `1 3` 可多選，重複編號只安裝一次。選定後直接安裝；空白輸入、逗號輸入或無效編號會提示並重問，按 Ctrl+C 取消。
+也可保留上述代理名稱參數直接安裝，供自動化使用。
 
 連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`，Codex 是 `~/.agents/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。改這個 repo 的檔案立刻生效。`skills/core/` 與 `skills/draft/` 都會連入 —— draft 是還在試用、尚未畢業的技能，清單見下方[試用中](#試用中draft)。同名技能若不是本 repo 建立的連結，安裝器會停止該代理的安裝，不會覆寫它。
 
