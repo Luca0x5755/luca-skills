@@ -40,7 +40,7 @@ The three rot modes ([PATHOLOGY.md](PATHOLOGY.md)) share one root cause: nothing
 
 - Every `hooks/<name>.sh` has a `hooks/test-<name>.sh`, run by `scripts/check.sh` on every PR.
 - The test feeds **real payloads** through the hook and asserts its **decisions** (allow/block), never just that it ran — running is the default, deciding is the function.
-- The hook locates its repo relative to `$0`, so the test can copy it into a throwaway fixture repo and control every condition (dirty/clean, red/green) with no injection points in production code. `hooks/test-check-on-stop.sh` is the model.
+- The hook locates the inspected worktree from payload `cwd`, while its script may be addressed from the original project root. Test a real linked worktree, including a subdirectory and a launcher outside it. When payload `cwd` is absent, a documented `$0` fallback may preserve compatibility. `hooks/test-check-on-stop.sh` is the model.
 
 A rule you cannot write a check for is a rule you should not encode as a hook — an unverified hook is worse than none, because it creates the illusion that someone is watching the door.
 

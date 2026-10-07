@@ -20,11 +20,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash hooks/guard-git.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/guard-git.sh\""
           },
           {
             "type": "command",
-            "command": "bash hooks/guard-secrets.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/guard-secrets.sh\""
           }
         ]
       }
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash hooks/check-on-stop.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/check-on-stop.sh\""
           }
         ]
       }

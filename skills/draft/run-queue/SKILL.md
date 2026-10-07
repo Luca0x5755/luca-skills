@@ -1,84 +1,96 @@
 ---
 name: run-queue
-description: spec 草稿核可後，無人看管地逐張做完 docs/issues/ 裡的票並開出 PR；卡住的票擱置、其餘照做，merge 仍歸使用者。
+description: 已核可的本機票佇列無人看管執行並開 PR；預設串行，可選最多兩個工作樹平行建置，卡票擱置，merge 歸使用者。
 disable-model-invocation: true
+argument-hint: 預設串行；parallel 或 parallel=2 啟用兩個 worker
 ---
 
 # Run Queue
 
-Drain the ticket queue to an opened PR. **The one human gate is the published spec** — on a local tracker, published means committed, and `/to-spec` and `/to-tickets` commit only after the user approves the draft. Everything after it runs unattended and ends at the PR. Merging is the user's button.
+Drain the local ticket queue to an opened PR. The human gate is the **published spec**: spec and tickets are committed only after the user approves them. The run is unattended after that; merging the PR remains the user's action.
 
-Sibling skills are followed by reading their `SKILL.md` from the parent of this skill's base directory (`implement/`, `git-commit/`, `git-pr/`): the Skill tool cannot load a user-triggered skill.
+This is the bounded local-queue flow. `/implement-spec` is the separate, steerable whole-spec flow across configured trackers. Suggest that entry when this flow's local-tracker precondition fails; never invoke it automatically. Workers must never invoke either orchestrator.
 
-The queue is the directory `docs/issues/` on the current branch. A ticket is a file with `## Done when` and `## Blocked by` sections; the spec is the file without them. **Done = the file is gone** (`/implement` removes it in its own commit). No progress file exists, so there is no second state to drift.
+## 0. Preconditions and mode
 
-## 0. Preconditions
+- Current branch is a feature branch; working tree clean; every spec and ticket in `docs/issues/` committed. Any miss: report and stop.
+- Tracker is local markdown. Tickets have `## Done when` and `## Blocked by`; specs do not.
+- **Serial is the default**, retaining one fresh implementer context per ticket. An explicit `parallel` or `parallel=2` argument enables at most two implementer workers. Another limit: report that only 1 or 2 is supported.
+- Parallel mode requires background agents, independent branches/worktrees and isolated test resources. If unavailable, report the limitation and use serial execution; do not claim concurrency.
+- Read [PARALLEL.md](PARALLEL.md) before creating any worktree or dispatching a parallel worker. It defines preparation, resource admission, integration, denial and cleanup.
 
-All must hold; any miss → stop and say which:
+The current branch is the **integration branch**, owned by the coordinator. In serial mode it may delegate exclusive checkout ownership to the one worker until that worker stops; no other writer is active. In parallel only the coordinator writes integration. **Done** means the ticket is absent from this branch after its work is integrated and required verification is green. A deletion on a worker branch is only candidate completion.
 
-- Current branch is a feature branch, working tree clean. Dirty → list the files and stop; whichever skill wrote them skipped its commit step.
-- The spec and every ticket in `docs/issues/` are committed — that commit is the approval.
-- The tracker is local markdown. Any other tracker → stop; this skill does not drive it.
+## 1. Select the frontier
 
-## 1. Pick a ticket
+Ready means every `Blocked by` ticket is done on the integration branch and the ticket has no `STALLED` marker. Validate references and cycles against the committed initial graph; a missing dependency with no proof of prior completion is an error, not permission to start.
 
-**Ready** = every ticket named in its `Blocked by` is gone, and it carries no `STALLED` marker. Take the first ready ticket in numeric order. No ready ticket → go to §4.
+Choose ready tickets in numeric order. Keep claimed/running ticket IDs, assigned worktrees, retry counts and resource reservations in session memory only; never dispatch an already claimed ticket. No separate persistent progress ledger. After a restart, inspect surviving branches, worktrees and commits before dispatching; an ambiguous active worker is a reason to stop and report.
 
-## 2. Run one ticket
+- Serial: select one ready ticket.
+- Parallel: admit up to two ready, unclaimed tickets whose resources can be isolated per [PARALLEL.md](PARALLEL.md).
+- No ready ticket but workers exist: wait for their outcomes; do not open the PR yet.
+- No ready ticket and no workers: classify remaining tickets, then §4. An unexplained remainder or graph error stops as an incomplete draft, never as all done.
 
-Dispatch a **fresh subagent** per ticket — one ticket per context is `/implement`'s own contract. Subagents never invoke this skill. The Skill tool cannot load a user-triggered skill, so the subagent reads `implement/SKILL.md` (located as above) and follows it, with one substitution:
+## 2. Build a ticket
 
-**§2 "Wait for confirmation on the seams" becomes a reviewer gate.** The implementer writes the seams into the ticket's `## Notes`. A separate reviewer subagent checks each *Done when* condition against them: observable through a seam, or not. Verdict PASS or FAIL. FAIL sends the implementer back to revise the seams, and that pass is a round (below). No testable seam exists → `STALLED (no-seam)` at once: that is `/implement`'s existing "the finding", routed to the user at the end instead of mid-run.
+Dispatch a fresh implementer subagent. It reads `implement/SKILL.md` from the parent of this skill's base directory and follows it with these explicit substitutions:
 
-**Pushback goes on the record.** Each `/code-review` finding the implementer rejects becomes a `Rejected review finding: <finding> — <why>` bullet in its commit message. Unattended, a rejection is self-approval; the record is what lets the user audit it at merge.
+1. Seam confirmation becomes a **reviewer gate**. The worker writes proposed seams in the ticket's `## Notes`; a separate reviewer checks every Done when condition is observable through them. PASS permits tests; FAIL revises the proposal and uses a retry round. No testable seam: `STALLED (no-seam)`.
+2. The worker deletes only its own ticket in the candidate commit. **It preserves every spec**, even if its checkout has no remaining reference. The coordinator owns final spec cleanup.
+3. The worker commits locally by the `/git-commit` rules, read from the sibling `git-commit/SKILL.md`; no push or PR. In parallel it operates only in its assigned worktree and never changes the integration branch.
 
-### The retry loop
+Every rejected `/code-review` finding is a `Rejected review finding: <finding> — <why>` bullet in that ticket's commit message. This is disclosed self-approval, not a hidden exception.
 
-One **round** = one fix attempt plus one verify; verify is `/implement` §4 (full suite, typecheck, lint, `/code-review`, every *Done when* condition). The counter resets per ticket; tickets are not rounds. A *failure signature* is the failing check's name plus its first error line; equal signatures on consecutive rounds mean no progress.
+### Bounded retries
 
-1. **Rounds 1–3**: the same implementer continues, given the failing output.
-2. **Handover to a fresh subagent** at round 4, or earlier the moment a signature repeats on consecutive rounds. It gets the ticket and the last failing output only.
-3. **STALLED** when round 5 is red (`round-limit`), or when a signature repeats on consecutive rounds after the handover (`repeat-failure`).
+One round is one attempt plus verification: `/implement` §4's checks and every Done when condition. Seam revisions and candidate-integration repairs count against the **same per-ticket budget**; the counter does not reset when changing agents or moving to integration. Tickets are not rounds.
 
-Each round states what changed and what is still red, as one line.
+Failure signature = failing check name plus first error line.
 
-## 3. Close a ticket
+- Rounds 1–3: same implementer, with observed failing output.
+- At round 4, or immediately when consecutive signatures repeat: a fresh implementer takes over with the ticket, assigned checkout and failing output. The previous worker has stopped before handover.
+- Round 5 red, or a repeated signature after handover: STALLED (`round-limit` or `repeat-failure`). No testable seam: `no-seam`.
+- A new integration failure after the fifth worker-green round cannot gain a sixth attempt: preserve evidence and mark `round-limit`.
 
-- **Green** → `/implement` has committed and removed the ticket. Back to §1.
-- **STALLED** → return the tree to the last commit (`git reset --hard HEAD` is the one reset the guard allows; delete this ticket's untracked files by explicit path). Append the marker below to the ticket file.
+Each round reports what changed and what remains red. An unavailable test environment is reported explicitly; a skipped required test does not count as green.
+
+## 3. Integrate or park
+
+**Serial green:** the worker has committed and removed its ticket on the integration branch after required checks. Release its claim and return to §1.
+
+**Parallel worker green:** follow [PARALLEL.md](PARALLEL.md)'s candidate integration gate. Only coordinator-confirmed integration green releases downstream dependencies and counts as done.
+
+**STALLED:** preserve failing output and any committed candidate work. `git reset --hard HEAD` is limited to the failed ticket's assigned checkout, with no other active writer there; it clears uncommitted changes only. Delete only this ticket's known untracked paths after verifying their absolute paths lie inside that checkout. Never reset the integration branch to erase a committed bad merge.
+
+The coordinator writes the marker on the still-present ticket in the integration branch:
 
 ```markdown
 STALLED (<rule>): <what was built · which check is red · why the loop stopped>
 ```
 
-`<rule>` names the stop rule that fired — `round-limit`, `repeat-failure`, `no-seam`, or `denied` — a fact, never a diagnosis. Why it stalled is for the user to judge from the evidence.
+Rules: `round-limit`, `repeat-failure`, `no-seam`, `denied`. Record the observed stop rule, not a speculative diagnosis. Commit only this change under the `/git-commit` rules. Direct and transitive dependents remain **parked**; other ready tickets may continue unless the stop is systemic.
 
-**Commit — mandatory, commit only.** Follow the `/git-commit` rules for the ticket file.
+## 4. Close the queue and open the PR
 
-Every ticket that names a STALLED ticket in `Blocked by`, directly or through another parked ticket, is **parked**. It stays untouched and is never picked.
+All workers have stopped, and either no ready ticket remains or a systemic denial stopped dispatch. After denial, still-ready tickets are unrun, not completed. Classify every remaining ticket as STALLED, parked, unrun, or unresolved graph error; preserve its spec while it has any remaining reference.
 
-## 4. Open the PR
+Only now may the coordinator remove an unreferenced spec: verify on the integration branch that every frozen promise ID and retired line is in the truth layer. Missing truth-layer evidence: retain the spec and report incomplete. Commit final cleanup, then run required final integration checks. New failures get focused validation within the affected ticket's remaining budget; unresolved failures remain disclosed, not green.
 
-The loop is over when no ready ticket remains, or a `denied` stop ended it early. List `docs/issues/` and classify every remaining file: STALLED, parked, unrun (left by a `denied` stop), or spec. A spec stays while any ticket cites it; `/implement` removes it with the last one.
+Follow sibling `git-pr/SKILL.md` §A by reading it. Skip manual squash and `/branch-cleanup`: per-ticket commits are the audit source. Remaining tickets/specs or unresolved validation: draft PR; none: normal PR. A branch with no deliverable diff cannot open a PR; report that exception and the stalled queue instead of inventing a URL.
 
-Follow `git-pr/SKILL.md` §A. `/branch-cleanup` and the manual squash are skipped: cleanup needs the user to select scope, and the per-ticket commits are the evidence below — the squash merge collapses them on `main` anyway. Two differences from a plain PR:
+Under 測試, disclose **自我核准痕跡**, per completed ticket, from all of its integrated commits:
 
-- STALLED, parked, or unrun tickets exist → `gh pr create --draft`, with each one listed under 未驗證, a STALLED one together with its marker line.
-- Nothing remains → a normal PR.
+- Modified/deleted existing tests: `git show --name-status --diff-filter=MD <commit>`, restricted to test files.
+- `Rejected review finding:` bullets from its commit messages.
+- Neither: explicitly `none`.
 
-Either way, the 測試 section gets a **自我核准痕跡** list, per green ticket, built mechanically from its commit:
+Under 未驗證, include all unfinished tickets and their markers, integration failures, skipped required checks and retained candidate branch pointers.
 
-- Existing test files it modified or deleted: `git show --name-status --diff-filter=MD <commit>`, kept to test files.
-- Its `Rejected review finding:` bullets: `git log --grep='Rejected review finding' <base>..HEAD`.
+Done when every queue file has been accounted for, no worker remains active, and the PR URL (or the no-diff exception) is reported. An incomplete draft is an incomplete result, not an implemented spec.
 
-A ticket with neither is listed as "none" — an empty list must read as checked, not skipped.
+## Rails and report
 
-**Done when**: `docs/issues/` holds no ready ticket, and the PR URL is reported.
+Hooks stay enabled. A permission denial is immediately systemic; a hook block becomes systemic if it persists after one correction: stop new dispatch and integration, tell workers to stop at a safe point, preserve committed candidates, mark the current ticket `STALLED (denied)`, then prepare the incomplete report. Creating/pushing a draft still requires working permissions; if denied, report the local branch instead.
 
-## Report
-
-Per ticket: green, STALLED with its rule, parked, or unrun, with rounds used. Then the PR URL. Then every command that raised a permission prompt during the run, with a pointer to `/fewer-permission-prompts` — each run that reports them leaves the next one with fewer human waits. **Anything skipped is said out loud** — a parked ticket that goes unmentioned reads as shipped.
-
-## Rails
-
-Hooks stay on. `guard-git` and `guard-secrets` are what make unattended commits safe: a block is feedback to follow, never an obstacle to route around. A permission denial, or a hook block that persists after one correction, is systemic — the next ticket would hit the same wall. Mark the current ticket `STALLED (denied)`, stop the queue, and go to §4.
+Report per ticket: integrated green, STALLED with rule, parked, or unrun; rounds used; worker and integration evidence; then PR/local-branch pointer. Report permission prompts with their commands and reasons. Say every omission out loud.

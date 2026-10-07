@@ -23,7 +23,7 @@ Write a document that lets a fresh agent continue this work without re-deriving 
 
 ## What stays out
 
-**Anything already captured elsewhere.** Specs, ADRs, issues, commits, diffs, `CONTEXT.md` — reference them by path or URL. Duplicating them into the handoff creates a second copy that goes stale immediately and gets believed over the real one.
+**Anything already captured elsewhere.** Specs, ADRs, issues, commits, diffs, `GLOSSARY.md` — reference them by path or URL. Duplicating them into the handoff creates a second copy that goes stale immediately and gets believed over the real one.
 
 **Secrets.** Redact API keys, tokens, passwords, and personal data before writing.
 

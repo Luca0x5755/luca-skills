@@ -1,15 +1,15 @@
 ---
 name: domain-modeling
-description: 建立並磨利一個專案的領域語言 — 挑戰模糊術語、拆開超載的詞、把難以回頭的決策寫成 ADR。當問題出在命名、當同一個詞在不同地方意思不同、或當一個決策需要白紙黑字的紀錄時使用。
+description: 建立並磨利一個專案的領域語言 — 挑戰模糊術語、拆開超載的詞、把難以回頭的決策寫成 ADR。當討論程式庫術語、直接撰寫或編輯 GLOSSARY.md 或 ADR、命名含糊、或同一個詞在不同地方意思不同時使用。
 ---
 
 # Domain Modeling
 
-The active discipline of keeping the project's words precise. Merely *reading* `CONTEXT.md` for vocabulary is not this skill — that is a one-line lookup. This skill is for when the words themselves need work.
+The active discipline of keeping the project's words precise. Merely *reading* `GLOSSARY.md` for vocabulary is not this skill — that is a one-line lookup. This skill is for when the words themselves need work.
 
 ## The three artifacts
 
-**`CONTEXT.md`** — the glossary, **and nothing else**. No implementation details, decisions, or todos — anything else here gets read as current reality by every downstream agent. One entry per domain term:
+**`GLOSSARY.md`** — the glossary, **and nothing else**. No implementation details, decisions, or todos — anything else here gets read as current reality by every downstream agent. One entry per domain term:
 
 ```markdown
 **Session**:
@@ -30,7 +30,7 @@ Any of the three missing → no ADR file. An ADR per preference is noise that bu
 
 Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, never `0007-session-handling`. Body covers what was decided, what was rejected, and why. One status line at the top: `Status: Proposed` until the change implementing it flips it to `Accepted` — unbuilt work must not read as settled. No template ceremony beyond that.
 
-**`docs/decision-log.md`** — one line per decision that fails the gate but deserves a trace: date, decision, one clause of why. Single file, append-only, no template. Deliberately not in `CONTEXT.md`: the glossary is in-force truth; the log is history.
+**`docs/decision-log.md`** — one line per decision that fails the gate but deserves a trace: date, decision, one clause of why. Single file, append-only, no template. Deliberately not in `GLOSSARY.md`: the glossary is in-force truth; the log is history.
 
 ## Sharpening a term
 
@@ -44,8 +44,8 @@ Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, 
 
 ## Rules
 
-- Update `CONTEXT.md` **inline, during the work** — not in a cleanup pass afterwards. A glossary written at the end is a glossary written from memory.
+- Update `GLOSSARY.md` **inline, during the work** — not in a cleanup pass afterwards. A glossary written at the end is a glossary written from memory.
 - One ADR per decision. Never batch.
 - Create files lazily. A session that settles nothing durable writes nothing.
 - Renaming a term means renaming it in the code too, in the same change. A glossary the code disagrees with is worse than no glossary.
-- Record flagged ambiguities you could not resolve at the bottom of `CONTEXT.md`, with what would settle them. An open question written down beats a false definition.
+- Record flagged ambiguities you could not resolve at the bottom of `GLOSSARY.md`, with what would settle them. An open question written down beats a false definition.

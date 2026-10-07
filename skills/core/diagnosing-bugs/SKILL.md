@@ -63,8 +63,6 @@ If the real cause is out of scope to fix, say that explicitly and mitigate delib
 
 A test that fails before the fix and passes after. Confirm both directions — revert the fix and watch it go red. A regression test that was never seen red is not known to test anything.
 
-## Post-mortem
+## Cleanup
 
-Two sentences: what the cause was, and why it was not caught.
-
-When the answer is "there was no seam where this could have been caught", the finding is architectural — hand off to `/improve-codebase-architecture` rather than filing it as fixed and moving on.
+Remove temporary probes and restore temporary environment changes. Report the cause, the regression-test evidence, and any remaining mitigation or uncertainty. The fix is complete when the regression check is green and temporary instrumentation is gone.

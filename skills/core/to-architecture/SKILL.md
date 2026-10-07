@@ -52,7 +52,7 @@ they bound; no measured target → no constraints prose.
 - **One ADR per decision — the documents link, never restate.** Every Stack row that involved a real trade-off gets its own ADR via `/domain-modeling` (its three-part gate decides; a choice with no alternative considered gets no ADR and no apology).
 - **Write the post-merge truth.** Contract prose states what is true once this PR merges — no "we will", no changelog voice, no history of what it used to be (git holds that).
 - **Do not invent.** The material is the spec and the conversation. An open tech choice goes back to `/grill-with-docs` or gets a `/prototype` detour — it does not get a plausible default.
-- **Use the project's vocabulary.** Read `CONTEXT.md` first; the data model must use its terms.
+- **Use the project's vocabulary.** Read `GLOSSARY.md` first; the data model must use its terms.
 - **Show the draft before writing.** Let the user edit, then write the files and the ADRs.
 
 ## Finish

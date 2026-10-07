@@ -16,11 +16,13 @@ A **flow** is a path through the skills. Most work runs along one **main flow**;
 
 ## Main flow: idea → ship
 
-1. **`/grill-with-docs`** — sharpen the idea by interview, leaving a paper trail in `CONTEXT.md` and ADRs. No codebase to write into? Run `/grilling` on its own.
+1. **`/grill-with-docs`** — sharpen the idea by interview, leaving a paper trail in `GLOSSARY.md` and ADRs. No codebase to write into? Run `/grilling` on its own.
 2. **Branch — does a question need a runnable answer?** State model, business logic, a UI you have to see. Detour: **`/handoff`** out → fresh session → **`/prototype`** → **`/handoff`** back.
 3. **Branch — does a document need writing before the build?** Either of: more than one session of build; a UI surface changes.
    - **Yes** → **`/to-spec`**. Before cutting tickets, write the truth the tickets will build against: **`/to-architecture`** when the change touches tech stack, data model, or API contracts; **`/frontend-spec`** when a UI surface changes. Then **`/to-tickets`**. Each ticket declares its blocking edges. Run **`/implement`** once per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable. A one-session build that only needed its documents skips `/to-tickets` and goes straight to `/implement`.
    - **No** → **`/implement`** right here.
+
+For a whole approved spec with a task graph, **`/implement-spec`** coordinates isolated workers and verified integration; the operator can steer and confirm missing seams, and PR creation follows the tracker. For unattended committed local tickets, **`/run-queue`** (draft) keeps bounded retries, parking and PR disclosure; serial by default, optional two-worker parallel building with serial integration. Neither flow invokes the other.
 
 `/implement` drives `/tdd` internally and closes with `/code-review` before committing. Reach for `/tdd` alone to build one concrete behaviour test-first; `/code-review` alone to review any branch against a fixed point.
 
@@ -33,12 +35,14 @@ At every **phase boundary** — the gap between two chunks of work — there are
 ## On-ramps
 
 - **Incoming bugs and requests piling up** → **`/triage`**. Only for issues you did *not* create. Tickets from `/to-tickets` are already agent-ready — do not triage them. Output merges at `/implement`.
-- **Something is broken** → **`/diagnosing-bugs`**. For the ones that resist a first glance: intermittent flakes, regressions between two known-good states. When the finding is "there was no seam to lock this down", it merges at `/improve-codebase-architecture`.
+- **Something is broken** → **`/diagnosing-bugs`**. For the ones that resist a first glance: intermittent flakes, regressions between two known-good states. Once the fix is in, suggest `/retro` to ask what would have prevented the bug. A missing seam is a reason for the user to run `/improve-codebase-architecture`, not an automatic hand-off.
 - **A fog too big for one session** → **`/wayfinder`**. Charts a map of decision tickets and resolves them one at a time, producing **decisions, not deliverables**. When the fog clears it merges at **`/to-spec`** — never straight into `/implement`, which throws the map's linked detail away.
 
 ## Codebase health
 
 - **`/improve-codebase-architecture`** — survey for deepening opportunities. Picking one *generates an idea*, which re-enters the main flow at `/grill-with-docs`.
+
+- **`/retro`** — after a coding session, inspect its primary sources and propose improvements to the agent environment. Mechanical violations get checks; judgement calls stay in review standards. The user selects what to implement.
 
 ## Acceptance
 

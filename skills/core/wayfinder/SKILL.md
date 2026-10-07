@@ -12,7 +12,7 @@ It produces **decisions, not deliverables**. Nothing gets built here.
 
 The most expensive flow in this repo. `/grill-with-docs` handles the idea you can hold in one session — reach for wayfinder only for the one you cannot. On a well-scoped feature it is pure overhead.
 
-Read `docs/agents/issue-tracker.md` for the create and link commands. If it is missing, run `/setup-skills` first.
+Read `docs/agents/issue-tracker.md` for the create and link commands. If it is missing, tell the user to run `/setup-skills` first; resume after the tracker is configured.
 
 ## 1. Name the destination
 
@@ -36,11 +36,11 @@ The map is not complete at the start and does not need to be. Resolving one tick
 
 ## 3. Resolve one at a time
 
-Pick the ticket that unblocks the most. Load the `/grilling` skill via the Skill tool — mandatory, every ticket, even if it was loaded for a previous one — and run it on that question alone, in the session's language.
+Pick the ticket that unblocks the most. Call the Skill tool with `grilling` — mandatory, every ticket, even if it was loaded for a previous one — and run it on that question alone, in the session's language.
 
 Where the answer needs to be runnable, `/handoff` out to a `/prototype` session and bring the answer back.
 
-Write the resolution **into the ticket** — the decision, the rejected options, and why — and close it. Then load the `/domain-modeling` skill via the Skill tool and apply its three-part ADR gate; a resolution that passes gets an ADR at `Status: Proposed`, since nothing is built yet. A resolution that lives only in a conversation is a resolution that will be re-litigated.
+Write the resolution **into the ticket** — the decision, the rejected options, and why — and close it. Then call the Skill tool with `domain-modeling` and apply its three-part ADR gate; a resolution that passes gets an ADR at `Status: Proposed`, since nothing is built yet. A resolution that lives only in a conversation is a resolution that will be re-litigated.
 
 **Clear context between tickets.** The map is the memory; that is what it is for.
 

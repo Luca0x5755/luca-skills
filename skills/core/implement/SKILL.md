@@ -12,7 +12,7 @@ Build one ticket, or one small spec, to a committed state.
 
 ## 1. Orient
 
-Read the ticket and whatever it links. Read `CONTEXT.md` for vocabulary — names in the code should match the glossary. Read any ADR covering the area; a decision recorded there is settled, not up for reconsideration.
+Read the ticket and whatever it links. Read `GLOSSARY.md` for vocabulary — names in the code should match the glossary. Read any ADR covering the area; a decision recorded there is settled, not up for reconsideration.
 
 Find the existing pattern before inventing one. Code that reads like the code around it is worth more than code that is locally better and locally unique.
 
@@ -26,7 +26,7 @@ Wait for confirmation on the seams. Everything downstream depends on this being 
 
 ## 3. Build
 
-Load the `/tdd` skill via the Skill tool — mandatory, before the first test is written, not "if needed". Skipping it silently is the most common way this step fails.
+Call the Skill tool with `tdd` — mandatory, before the first test is written, not "if needed". Skipping it silently is the most common way this step fails.
 
 Drive `/tdd` at those seams: one failing test, just enough code, next. Vertical slices, never all the tests up front.
 
@@ -38,7 +38,7 @@ Between slices: typecheck, and run **that** test file. Not the whole suite — t
 
 - Full test suite, once. Green.
 - Typecheck and lint, clean.
-- Load the `/code-review` skill via the Skill tool — mandatory, not optional — and review against the ticket. Fix what it finds; push back in writing on what you disagree with.
+- Call the Skill tool with `code-review` — mandatory, not optional — and review against the ticket. Fix what it finds; push back in writing on what you disagree with.
 - Re-read the ticket's *Done when* list and check each condition literally.
 - Any ADR this ticket implements that is still `Status: Proposed` → flip it to `Accepted` in the same commit. An ADR for work that has landed is no longer a proposal.
 - The truth layer reflects what this ticket made true: behaviour rules land in the owning `docs/capabilities/<name>.md` (or the consolidated spec section it points at) on this branch, so the docs merge with the code. Update only what this ticket changed — contracts `/to-architecture` or `/frontend-spec` already wrote need no restating. A project with no truth layer skips this line, and says so in the report.

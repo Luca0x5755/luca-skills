@@ -8,14 +8,21 @@
 # One violation is an incident, so the rule cannot stay probabilistic.
 
 command -v jq >/dev/null 2>&1 || exit 0
-cmd=$(jq -r '.tool_input.command // empty' 2>/dev/null)
+input=$(cat 2>/dev/null)
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null)
 [ -z "$cmd" ] && exit 0
 
 # Only 'git commit' at command position — the moment content becomes permanent.
 P='(^|&&|\|\||[;|]|\$\()[[:space:]]*'
 printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+commit([[:space:]]|;|\)|$)" || exit 0
 
-git rev-parse --git-dir >/dev/null 2>&1 || exit 0
+hcwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null)
+if [ -n "$hcwd" ] && ! cd "$hcwd" 2>/dev/null; then
+  echo "Blocked: cannot inspect staged changes in payload cwd. Restore the working directory before committing." >&2
+  exit 2
+fi
+task_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$task_root" || exit 0
 
 # Added lines only. A literal already in history is someone else's finding;
 # this gate owns what this commit introduces.

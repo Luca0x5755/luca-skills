@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="980" height="818" viewBox="0 0 980 818" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="946" viewBox="0 0 980 946" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 工具箱：元技能</title>
-  <desc>不在主流程線上的元技能：動工對象是代理與文件本身，不是你的 codebase。writing-for-agents 與 wizard 為模型觸發，wait-what 與 to-questionnaire 為使用者觸發，management-frameworks、writing-hooks、diagram、svg-palette、briefing 與 caveman 仍在 draft 試用。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為 draft。</desc>
+  <desc>不在主流程線上的元技能：動工對象是代理與文件本身，不是你的 codebase。writing-for-agents 與 wizard 為模型觸發，wait-what、to-questionnaire 與 retro 為使用者觸發，management-frameworks、writing-hooks、diagram、svg-palette、briefing 與 caveman 仍在 draft 試用。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為 draft。</desc>
 
   <defs>
     <style>
@@ -14,7 +14,7 @@
     </style>
   </defs>
 
-  <rect width="980" height="818" fill="#FFFFFF"/>
+  <rect width="980" height="946" fill="#FFFFFF"/>
 
   <!-- header -->
   <g id="header">
@@ -81,5 +81,11 @@
     <text x="726" y="698" text-anchor="middle" class="skill">/caveman</text>
     <text x="726" y="728" text-anchor="middle" class="sub">聊天回覆切繁中電報體，砍廢話省 token —</text>
     <text x="726" y="752" text-anchor="middle" class="sub">程式碼與文件照常散文，「正常模式」關閉</text>
+    <g id="retro">
+      <rect x="48" y="790" width="436" height="104" rx="8" class="box user"/>
+      <text x="266" y="826" text-anchor="middle" class="skill">/retro</text>
+      <text x="266" y="856" text-anchor="middle" class="sub">回看編碼 session，找代理環境的改善</text>
+      <text x="266" y="880" text-anchor="middle" class="sub">依證據排序，由使用者選擇落實項目</text>
+    </g>
   </g>
 </svg>

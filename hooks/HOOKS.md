@@ -16,6 +16,7 @@
 - **事件**：PreToolUse（matcher: Bash）。
 - **擋**：`git commit` 時掃 staged diff 的新增行，抓憑證字面值（`TEST_PW = "…"`、`"password": "…"`）。讀環境變數、樣板佔位、散文提及，以及整個值就是命令替換或參數展開的（`"$(get_env X)"`、`"$VAR"`）都放行。exit 2。
 - **為什麼**：這是 `/browser-evidence` 「憑證一律讀環境或庫外檔」那條散文的機器版 — 2026-08-11 實測散文擋不住，密碼進了公開分支，而 force-push 不等於刪除。
+- **定位**：優先使用 payload.cwd 所屬 Git root 的整份 index；路徑無法進入時擋下提交，避免掃錯樹。
 - **關係**：與 guard-git.sh 同為 `setup-skills` 外發的護欄組。
 
 ## check-on-stop.sh
@@ -23,6 +24,7 @@
 - **事件**：Stop。
 - **擋**：不變量表面（`skills/`、`.claude-plugin/`、`README.md`、`package.json`）有未提交變更且 `check.sh` 紅著，不准收工。查 `stop_hook_active` 防無限迴圈。
 - **為什麼**：紅著收工的 session 把爛攤子留給下一個 session。
+- **定位**：有 payload.cwd 時定位到該工作樹 root（含子目錄）；沒有時保留 hook 位置的相容定位。
 - **關係**：只在本 repo 掛載，不外發。
 
 ## 原則
