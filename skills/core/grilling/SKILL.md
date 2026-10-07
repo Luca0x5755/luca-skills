@@ -19,7 +19,15 @@ Each question should be formatted like so:
 ❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
 
 ➡️ <your recommended answer>
+
+---
+
+❓ **Q2** - **<next question title>**: <next question body>
+
+➡️ <your recommended answer>
 ```
+
+Separate consecutive questions with a horizontal rule (`---`).
 
 Each round the user answers reshapes the tree — settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a *later* round, not this one.
 

@@ -14,8 +14,8 @@ The difference from bare `/grilling`: this one is **stateful**. What the intervi
 
 Two Skill tool calls, both mandatory, before the first question:
 
-1. Load `/grilling` — it defines the interview loop this skill runs.
-2. Load `/domain-modeling` — it defines the artifacts this skill writes.
+1. Call the Skill tool with `grilling` — mandatory; it defines the interview loop.
+2. Call the Skill tool with `domain-modeling` — mandatory, as a separate call; it defines the artifacts.
 
 Running the interview from memory of what those skills say is how their rules silently drop.
 
@@ -23,7 +23,7 @@ Running the interview from memory of what those skills say is how their rules si
 
 Respond in the session's language throughout, whatever language this file is written in.
 
-Read `CONTEXT.md` before the first question so the vocabulary you use is the project's, not invented. Read any ADRs covering the area being discussed — a question already settled by an ADR is a fact to look up, not a decision to ask.
+Read `GLOSSARY.md` before the first question so the vocabulary you use is the project's, not invented. Read any ADRs covering the area being discussed — a question already settled by an ADR is a fact to look up, not a decision to ask.
 
 When a question turns on **what a word means**, stop and run `/domain-modeling` on that term before continuing. An interview built on an overloaded word produces decisions that dissolve on contact with code.
 
@@ -31,7 +31,7 @@ When a question turns on **what a word means**, stop and run `/domain-modeling` 
 
 Write, before doing anything else:
 
-- **New or sharpened terms** → `CONTEXT.md`, inline
+- **New or sharpened terms** → `GLOSSARY.md`, inline
 - **Decisions** → `/domain-modeling`'s three-part ADR gate decides (loaded in Step 0). Pass → an ADR under `docs/adr/`, `Status: Proposed`; `/implement` flips it to `Accepted` on landing. Fail but worth a trace → one line in `docs/decision-log.md`. This skill defines no threshold of its own.
 
 **A question-sized interview may legitimately end with zero files written.** Write only what the interview settled — never generate a paper trail to prove the session happened.

@@ -11,7 +11,7 @@ Write the per-repo configuration the other skills assume. Prompt-driven, not a s
 Produces:
 
 - `docs/agents/issue-tracker.md` — where issues live
-- `docs/agents/domain.md` — where `CONTEXT.md` and ADRs live, and the collaboration mode
+- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, and the collaboration mode
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
@@ -23,7 +23,7 @@ Read what exists. Assume nothing.
 
 - `git remote -v` — GitHub? GitLab? No remote?
 - `CLAUDE.md` / `AGENTS.md` at root — does either exist? Does either already have an `## Agent skills` section?
-- `CONTEXT.md`, `docs/adr/` — is a domain layer already here?
+- `GLOSSARY.md`, `docs/adr/` — is a domain layer already here?
 - `docs/agents/` — has this skill already run?
 - `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
@@ -40,12 +40,14 @@ Ask, leading with the proposal from the remote: GitHub remote → GitHub Issues 
 
 A local markdown issue lives and dies on one branch: `/implement` deletes it when done, and Section F's CI check enforces that. Work that outlives the branch belongs in a real tracker.
 
-**Section B — Domain docs.** Default to **single-context**: one `CONTEXT.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `CONTEXT-MAP.md` pointing at per-package `CONTEXT.md` files — only when exploration found monorepo signals.
+**Section B — Domain docs.** Default to **single-context**: one `GLOSSARY.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `GLOSSARY-MAP.md` pointing at per-package `GLOSSARY.md` files — only when exploration found monorepo signals.
+
+**Existing glossary migration.** When `CONTEXT.md` or `CONTEXT-MAP.md` exists, include its rename to `GLOSSARY.md` or `GLOSSARY-MAP.md` in the draft for step 3. Preserve contents, update map entries, domain configuration, navigation pointers and private exclusion paths. Tracked files use `git mv`; private files use a filesystem rename. If both old and new names exist, compare them and ask how to reconcile instead of overwriting either.
 
 **Section C — Collaboration mode.** Ask: **does everyone committing to this repo use these skills?** Solo repos answer themselves — skip the question and record `shared`.
 
 - **shared** (solo repo, or the whole team runs the skills): everything the skills write is committed. Current behaviour; nothing extra to set up.
-- **private** (mixed-tooling team — teammates never opted into these skills): add `CONTEXT.md`, `docs/agents/`, `docs/decision-log.md`, `docs/capabilities/`, `docs/03_architecture_design.md`, `docs/05_frontend_spec.md`, and `docs/mockup/` to **`.git/info/exclude`** — per-clone, never committed, invisible to teammates. Two things stay shared regardless: `docs/adr/` (decisions belong next to the code they constrain) and tracker issues (they live where the team already looks).
+- **private** (mixed-tooling team — teammates never opted into these skills): add `GLOSSARY.md`, `docs/agents/`, `docs/decision-log.md`, `docs/capabilities/`, `docs/03_architecture_design.md`, `docs/05_frontend_spec.md`, and `docs/mockup/` to **`.git/info/exclude`** — per-clone, never committed, invisible to teammates. Two things stay shared regardless: `docs/adr/` (decisions belong next to the code they constrain) and tracker issues (they live where the team already looks).
 
 **Section D — Comment language.** What language code comments are written in. Skills that write or restyle comments (`refactor` among them) follow the project's *documented* conventions — this section does the documenting. Propose from what the existing comments already do; when the repo is silent, propose Traditional Chinese. The answer is **team truth**: comments ship with the code, so like `docs/adr/` it stays in the committed file in every mode — step 4 has the private-mode placement.
 

@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Split the work into tickets an agent can pick up cold, one per session.
 
-The issue tracker was configured by `/setup-skills` — read `docs/agents/issue-tracker.md` for the exact create command and how blocking edges are expressed. If it is missing, run `/setup-skills` first.
+The issue tracker was configured by `/setup-skills` — read `docs/agents/issue-tracker.md` for the exact create command and how blocking edges are expressed. If it is missing, tell the user to run `/setup-skills` first; resume after the tracker is configured.
 
 ## Tracer bullets, not layers
 

@@ -14,7 +14,7 @@ The issue tracker was configured by `/setup-skills` — read `docs/agents/issue-
 
 ## Input
 
-The published spec issue plus the current conversation. Fetch the spec from the tracker — never ask the user to paste it, and never re-derive it from memory. Read `CONTEXT.md` first; the assessment must use the project's vocabulary.
+The published spec issue plus the current conversation. Fetch the spec from the tracker — never ask the user to paste it, and never re-derive it from memory. Read `GLOSSARY.md` first; the assessment must use the project's vocabulary.
 
 ## The four questions
 

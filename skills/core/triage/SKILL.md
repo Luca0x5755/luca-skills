@@ -10,7 +10,7 @@ Take issues that arrived from outside and push each to a terminal state.
 
 **Only for issues you did not create.** Bug reports, feature requests, anything raw. Tickets from `/to-tickets` are already agent-ready — triaging them is wasted motion and invites re-litigating settled decisions.
 
-Read `docs/agents/issue-tracker.md` for the label and list commands. If it is missing, run `/setup-skills` first.
+Read `docs/agents/issue-tracker.md` for the label and list commands. If it is missing, tell the user to run `/setup-skills` first; resume after the tracker is configured.
 
 ## The roles
 

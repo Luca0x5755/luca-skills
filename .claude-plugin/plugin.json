@@ -28,6 +28,7 @@
     "./skills/core/implement",
     "./skills/core/improve-codebase-architecture",
     "./skills/core/prototype",
+    "./skills/core/retro",
     "./skills/core/setup-skills",
     "./skills/core/tdd",
     "./skills/core/test-blueprint",

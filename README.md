@@ -69,6 +69,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[ask-luca](./skills/core/ask-luca/SKILL.md)** — 問這個情況該用哪個技能、走哪條流程。這個 repo 的技能路由器。
 - **[setup-skills](./skills/core/setup-skills/SKILL.md)** — 為這個 repo 設定工程技能所需的組態 — 議題追蹤器與領域文件位置。每個 repo 跑一次。
 - **[grill-with-docs](./skills/core/grill-with-docs/SKILL.md)** — 窮追不捨的訪談，磨利一個計畫，並沿路留下紙本軌跡 — 術語表與 ADR。
+- **[retro](./skills/core/retro/SKILL.md)** — 檢討編碼 session，提出代理環境與護欄的改善候選，由使用者選擇落實項目。
 - **[handoff](./skills/core/handoff/SKILL.md)** — 把當前對話壓縮成一份交接文件，讓全新的 session 能接手這份工作。
 - **[to-spec](./skills/core/to-spec/SKILL.md)** — 把當前對話收斂成一份規格，並發佈到議題追蹤器。
 - **[to-tickets](./skills/core/to-tickets/SKILL.md)** — 把計畫、規格或對話切成一張張曳光彈票，每張都標明自己的阻塞邊。
