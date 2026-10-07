@@ -75,6 +75,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[to-tickets](./skills/core/to-tickets/SKILL.md)** — 把計畫、規格或對話切成一張張曳光彈票，每張都標明自己的阻塞邊。
 - **[to-architecture](./skills/core/to-architecture/SKILL.md)** — 在規格與拆票之間定架構：技術棧、資料模型、API 合約，直接寫進真相層。
 - **[frontend-spec](./skills/core/frontend-spec/SKILL.md)** — 為有 UI 的規格定前端真相：路由表、四態頁面、style tokens 與 `.pen` mockup。
+- **[implement-spec](./skills/core/implement-spec/SKILL.md)** — 整份規格依阻塞圖在隔離工作樹平行建置，支援已設定的追蹤器，可介入，PR 視需要建立。
 - **[implement](./skills/core/implement/SKILL.md)** — 依規格或一組票建置，在議定的接縫上驅動 TDD，收尾跑一次程式碼審查。
 - **[test-blueprint](./skills/core/test-blueprint/SKILL.md)** — 分析專案並提案測試藍圖：層佈局、縫清單、CI 時段，核准後寫入 `docs/test-blueprint.md`。
 - **[uat-cases](./skills/core/uat-cases/SKILL.md)** — 從規格推導 UAT 案例清單，發出凍結的 TC 編號 —— `/browser-evidence` 的上游。
@@ -114,7 +115,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 git-pr：開 MR（有 glab 直建，沒有就給連結、標題、內文自己貼）與合併後清理分支。
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** — 管理框架知識庫與診斷：OKR、精實、六標準差、Scrum 等的選用判準。
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改變可觀察行為的結構重整：特徵測試護網、一次一個 transform、綠燈即提交。
-- **[run-queue](./skills/draft/run-queue/SKILL.md)** — spec 核可後無人看管地逐張做完本機票佇列並開出 PR：每票全新子代理、單票最多 5 輪重試、卡住的票擱置而不擋其餘，merge 仍歸使用者。
+- **[run-queue](./skills/draft/run-queue/SKILL.md)** — 本機票核可後無人看管執行並開 PR：預設串行，`parallel` 可用最多兩個隔離 worker；整合與驗證串行，保留五輪重試、擱置與人工 merge。
 - **[study-repo](./skills/draft/study-repo/SKILL.md)** — 讀懂一個第三方 repo：先跑起來、追一條核心路徑，產出拋棄式的學習報告。
 - **[svg-palette](./skills/draft/svg-palette/SKILL.md)** — SVG 繪圖的色盤與用色規則 —— 預設靛青深淺＋橘強調，可套品牌色。
 - **[writing-hooks](./skills/draft/writing-hooks/SKILL.md)** — 撰寫與審查 Claude Code hook 的判準：什麼規則該降到 hook、怎麼防靜默腐爛。
@@ -131,7 +132,7 @@ $ask-luca        # 不確定該用哪個技能時
 | 1・想清楚 | 一問一答把想法磨到可以動手 | `/grill-with-docs`（還沒有 codebase 時用 `/grilling`） |
 | 1・繞道 | 有問題要跑起來才能回答 | ① `/handoff` 拿文件路徑 → ② 開新 session 貼路徑，跑 `/prototype` → ③ 答完再 `/handoff` 拿新路徑 → ④ 開新 session 貼路徑，回主流程 |
 | 2・切開 | 一個 session 做不完，先切小 | `/to-spec` →（動到架構或 UI 才跑 `/to-architecture`、`/frontend-spec`）→ `/to-tickets` |
-| 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear`；本機追蹤器也可改用 `/run-queue`（試用中）無人看管跑完全部票並直接開 PR，不經階段 4 的手動 squash |
+| 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear`；整份規格可用 `/implement-spec` 平行建置；本機追蹤器也可改用 `/run-queue`（試用中，預設串行，可選 `parallel`）無人看管跑完全部票並直接開 PR，不經階段 4 的手動 squash |
 | 3.5・驗收 | 證據要交給別人簽核時才走 | 專案第一次先 `/test-blueprint` 定測試藍圖 → `/uat-cases` 產凍結編號的案例 → `/browser-evidence` 跑成截圖與網路紀錄 |
 | 4・收尾 | 審查、提交、分支收尾整理、開 PR 到合併出貨 | `/code-review`（`/implement` 收尾自動跑）→ `/git-commit` → `/branch-cleanup` → 由你 squash 並更新遠端 → `/git-pr`（GitLab 用 `/git-mr`，試用中）→ 要發版才跑 `/git-release` |
 

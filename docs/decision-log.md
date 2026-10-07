@@ -9,3 +9,4 @@
 2026-10-01 `/run-queue` 開 PR 前不 squash — 每票各自的 commit 是自我核准痕跡的證據來源；`main` 由 squash merge 收成一個 commit，結果與手動 squash 相同。
 2026-10-07 上游移植目標固定為 mattpocock/skills v1.3.1（24fe0ef7737efae15c87225755e9f6f5965e4888），以 v1.2.3 為基準；遷移詞彙表為 GLOSSARY 命名、採用行為修正並新增 retro，保留本地治理與 0.2.3 版本，不搬移全庫 em-dash 文風改寫。
 2026-10-07 git-pr／git-mr 吸收上游 pr 的最小視覺摘要、實際前後證據與合併風險，保留既有繁中段落與平台生命週期，不新增 pr 技能 — 改善審查資訊而不增加入口。
+2026-10-07 保留 implement-spec 與 run-queue：前者可介入且跨追蹤器，後者本機票無人看管、有限重試、擱置與必開 PR；run-queue 預設串行，可選兩個隔離 worker 平行建置、串行候選整合，完成以整合驗證為準，spec 由 coordinator 清理 — 平行能力不取代兩者不同的核准與收尾契約。

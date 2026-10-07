@@ -58,7 +58,7 @@ Record the reasoning in `domain.md` so future sessions apply it: a document only
 - **Source**: resolve the luca-skills repo from this skill folder's link target (`(Get-Item <skill-dir> -Force).Target` — the repo root is two levels up); the files are `<repo>/hooks/guard-git.sh` and `<repo>/hooks/guard-secrets.sh`. Unresolvable → ask where the repo lives.
 - **Copy byte-for-byte into `.claude/hooks/`**, never reference the repo by path: a copy that ages still runs the old guard, while a pointer to a moved repo guards nothing and says nothing. Their tests stay in luca-skills — the copy is verbatim, so a green source is a green copy.
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
-- **Register** each under `PreToolUse`, matcher `Bash`, in `.claude/settings.json` as `bash .claude/hooks/<name>.sh`. Merge into whatever hooks structure exists — existing entries stay untouched.
+- **Register** each under `PreToolUse`, matcher `Bash`, in `.claude/settings.json` as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
 **Section F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored). A GitHub Actions check that fails a PR whose net change adds files under `docs/issues/` — every issue the branch created must be gone by merge. Propose it, one nod for the pair.
 

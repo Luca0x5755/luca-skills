@@ -14,12 +14,12 @@
 | pr | 最小視覺摘要、before/after 證據、合併可逆性與影響範圍 | git-pr／git-mr 已負責英文標題、繁中內容、建立與清理；可吸收內容規則，保留平台生命週期，避免增加另一個入口 |
 | retro | 回看 session 的第一手來源，按嚴重性提出代理環境改善 | 已新增 core 技能；機械違規優先 deterministic check，判斷規則留在審查；只提出候選，使用者選擇落實項目 |
 
-Q5 已裁決：pr 元素併入 git-pr／git-mr，保留既有段落、新增合併風險，不另增技能。Q4 尚在研究：保留兩個流程，並讓 run-queue 支援平行調度。
+Q5 已裁決：pr 元素併入 git-pr／git-mr，保留既有段落、新增合併風險，不另增技能。Q4 已核可並套用：保留兩個流程，run-queue 預設串行，可選最多兩個 worker 平行建置，整合與驗證串行。
 來源：[implement-spec](https://github.com/mattpocock/skills/blob/v1.3.1/skills/engineering/implement-spec/SKILL.md)、[pr](https://github.com/mattpocock/skills/blob/v1.3.1/skills/engineering/pr/SKILL.md)、[retro](https://github.com/mattpocock/skills/blob/v1.3.1/skills/engineering/retro/SKILL.md)。
 
 ## Q4：兩流程並存與平行 run-queue 的可行性
 
-結論：可行，尚未核可實作。並存的分界是執行契約，不是串行與平行：
+結論：可行，使用者已核可並完成技能契約實作。並存的分界是執行契約，不是串行與平行：
 
 - implement-spec：跨追蹤器、可由操作者介入、完整規格落在整合分支，PR 視需要建立。
 - run-queue：已提交的本機規格與票、有限重試、卡票擱置、揭露自我核准痕跡，收尾開 PR，merge 歸使用者。
@@ -38,8 +38,10 @@ Q5 已裁決：pr 元素併入 git-pr／git-mr，保留既有段落、新增合�
 | denied 停新派工與整合，worker 安全停下並保留已提交候選 | 系統性拒絕不能靠其他 worker 繼續繞過，也不能抹除別票成果 |
 | worker 開工先驗 hooks、依賴、測試資料與環境 | guard-secrets 未使用 payload.cwd；check-on-stop 固定從 hook 位置定位，必須確認實際 worker 路徑；現有 Bash matcher 不能泛稱跨 harness 都生效 |
 
-建議預設保持串行，平行模式先限制兩個 worker。這是研究提案，尚未改寫 run-queue 或加入 implement-spec。
+run-queue 已保留預設串行與兩個 worker 的可選平行模式；新增 implement-spec 至 core，仍以操作者可介入與跨追蹤器流程為契約。run-queue 的候選整合規則收於同目錄 PARALLEL.md。hook 工作樹定位已有 linked-worktree 回歸測試；完整平行代理執行尚未在真實票佇列演練，run-queue 維持 draft。
 兩技能不能互相直接呼叫使用者觸發入口；若日後抽出共用契約，須遵循本專案的技能引用與觸發規則。
+
+本輪驗證：新增 linked-worktree 的 hook 回歸案例，Stop hook 原版已重現漏擋；修正後從 worker root／子目錄與實際 settings 掛載命令測試。憑證檢查從 worker 子目錄掃該工作樹整份 index。三軸審查修正了子目錄漏掃、串行獨占委派與 denied 收尾規則；重用軸沒有必修。尚未以真實規格執行整輪平行代理，因此這是技能契約與機械護欄驗證，不是平行交付效能證據。
 
 ## Q5：已核可的 PR／MR 內文章節
 

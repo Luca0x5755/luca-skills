@@ -26,6 +26,7 @@
     "./skills/core/grilling",
     "./skills/core/handoff",
     "./skills/core/implement",
+    "./skills/core/implement-spec",
     "./skills/core/improve-codebase-architecture",
     "./skills/core/prototype",
     "./skills/core/retro",

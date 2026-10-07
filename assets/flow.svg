@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2158" viewBox="0 0 1320 2158" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2214" viewBox="0 0 1320 2214" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
   <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層（少數合訂規格本＋docs/capabilities/ 能力薄檔，章節標能力、能力反列章節）—to-architecture 與 frontend-spec 在切開階段繞道寫入、implement 建置時落地行為、bootstrap-truth 為接管專案一次性正規化真相層（在宿主治理的形狀內瘦身文件、補能力層、安裝機械檢查）、audit-truth 持續稽核語意矛盾並把裁決寫進漂移總帳（一把立真相、一把守真相）；真相文件只在 feature branch 上改，隨 PR 與程式碼合併。feasibility 在切開階段可選，test-blueprint 提案測試藍圖，uat-cases 產凍結編號的驗收案例，browser-evidence 收尾留證據，refactor、git-merge 與 study-repo 隨時可用；收尾階段先由 branch-cleanup 收斂分支最後事實，使用者 squash 並更新遠端後，再由 git-mr（GitLab 版 git-pr）或 git-pr 開單。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
@@ -28,7 +28,7 @@
     </style>
   </defs>
 
-  <rect width="1320" height="2158" fill="#FFFFFF"/>
+  <rect width="1320" height="2214" fill="#FFFFFF"/>
 
   <!-- header -->
   <g id="header">
@@ -312,7 +312,13 @@
     <text x="340" y="2124" class="note">再追核心路徑；報告看完就刪</text>
     <rect x="672" y="2082" width="240" height="44" rx="8" class="box user draft"/>
     <text x="792" y="2111" text-anchor="middle" class="skill-sm">/run-queue</text>
-    <text x="940" y="2100" class="note">spec 核可後無人看管做完票佇列，</text>
+    <text x="940" y="2100" class="note">本機票核可後執行，可選平行建置，</text>
     <text x="940" y="2124" class="note">卡住的票擱置，開出 PR 為止</text>
+    <g id="implement-spec">
+      <rect x="72" y="2138" width="240" height="44" rx="8" class="box user"/>
+      <text x="192" y="2167" text-anchor="middle" class="skill-sm">/implement-spec</text>
+      <text x="340" y="2156" class="note">整份規格平行建置，可由操作者介入；</text>
+      <text x="340" y="2180" class="note">串行驗證整合，PR 視追蹤器需要</text>
+    </g>
   </g>
 </svg>

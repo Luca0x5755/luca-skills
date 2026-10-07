@@ -80,4 +80,20 @@ run_case "閘自己的測試不自擋"            "$C" 'TEST_PW = "UatTest#2026"
 # setup-skills 會把副本抄進目標專案的 .claude/hooks/ — 副本提交自己時同樣不得自擋
 run_case "副本在 .claude/hooks/ 不自擋"  "$C" 'TEST_PW = "UatTest#2026"' ALLOW .claude/hooks/guard-secrets.sh
 
+# 不同 launcher cwd：必須掃 payload 指定的 linked worktree。
+task_tmp=$(mktemp -d)
+(
+  git init -q "$task_tmp/main"
+  git -C "$task_tmp/main" -c user.email=t@t -c user.name=t commit --allow-empty -qm seed
+  git -C "$task_tmp/main" worktree add -qb worker "$task_tmp/worker"
+  printf '%s\n' 'password = "worktree-literal-1234"' > "$task_tmp/worker/probe.py"
+  git -C "$task_tmp/worker" add probe.py
+  cd "$task_tmp/main" || exit 9
+  mkdir -p "$task_tmp/worker/subdir"
+  jq -n --arg d "$task_tmp/worker/subdir" '{cwd:$d,tool_input:{command:"git commit -F message.txt"}}' | bash "$HOOK" >/dev/null 2>&1
+)
+code=$?
+if [ "$code" = 2 ]; then echo '  ✓ BLOCK payload cwd 的工作樹憑證'; else echo '  ✗ 工作樹憑證未擋'; fail=1; fi
+rm -rf "$task_tmp"
+
 exit $fail
