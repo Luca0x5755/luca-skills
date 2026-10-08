@@ -1,31 +1,23 @@
 ---
 name: git-release
-description: 更新版本檔中的版本號，彙整兩版本間的 commit 寫成繁體中文發布摘要，打 tag 推上遠端並發佈 release 頁面。
+description: 先在終端機預覽繁體中文發布摘要，使用者確認後才更新版本、commit、打 tag、推送並發佈 release 頁面。
 disable-model-invocation: true
 argument-hint: 目標版本號，如 v0.8.1
-allowed-tools: Bash(git log:*), Bash(git tag:*), Bash(git push:*), Bash(git describe:*), Bash(git commit:*), Bash(git add:*), Bash(gh pr:*), Bash(gh release:*)
+allowed-tools: Bash(git log:*), Bash(git show:*), Bash(git tag:*), Bash(git push:*), Bash(git describe:*), Bash(git commit:*), Bash(git add:*), Bash(gh pr:*), Bash(gh release:*)
 ---
 
 # Git Release
 
-Release at the given version: update the version file → summarize changes → tag → push → publish the release page.
+Release at the given version: collect changes → write and print the release preview → wait for explicit approval → update and commit the version → tag → push → publish the release page.
 
 ## 1. Detect the version file — never assume
 
 Find the project's version source by type: `pyproject.toml`, `package.json`, `.claude-plugin/plugin.json`, `Cargo.toml`, `*.csproj`…
 
-- **Multiple found** → update all of them to the same version. Two files with different version numbers are two files lying to each other.
+- **Multiple found** → identify all files to update to the same version after approval. Two files with different version numbers are two files lying to each other.
 - **None found** → stop and ask the user where the version lives.
 
-## 2. Bump and commit
-
-Update the version file(s) to the target version, as its own commit (English, following the `/git-commit` format rules):
-
-```
-Bump version to 0.8.1
-```
-
-## 3. Collect changes between versions
+## 2. Collect changes between versions
 
 ```bash
 git describe --tags --abbrev=0        # find the previous tag
@@ -34,7 +26,7 @@ git log <previous-tag>..HEAD --oneline --no-merges
 
 - `--no-merges` drops meaningless automatic merge records.
 
-## 4. Write the release notes (Traditional Chinese)
+## 3. Write the release notes (Traditional Chinese)
 
 Write for users and operators. Distill the commits and PRs into changes they can observe; include internal work when it changes usage, deployment, or operations. Combine related PRs into one entry. Use `gh pr list --state merged --json number,mergeCommit` to match changes to PRs.
 
@@ -64,18 +56,34 @@ Start each entry with a relevant emoji and short bold title, explain the outcome
 
 This step is complete when every user- or operator-facing change in the release range is represented by a reader-facing entry, with its relevant source links at the end.
 
-## 5. Tag and push
+## 4. Print the preview and wait for approval
+
+Write the exact release notes to a file, then print the full file in the terminal. Alongside it, print the target version, previous tag, release commit list and current HEAD SHA, and version files to be updated. The preview identifies the current release content; the version-bump commit is created only after approval.
+
+Inspect the target tag and release page before asking for approval. If either exists, print the tag's current commit and annotation, and the release's current title and body, identifying what will be replaced. Use read-only queries such as `git tag -l`, `git show`, and `gh release view` (or the forge equivalent).
+
+**Stop after printing and ask the user to confirm this preview.** Before explicit confirmation, perform only read-only queries and preparation of the notes file: version edits, commits, tag creation or replacement, pushes, and release creation or updates all belong after approval. Invoking this skill is not approval of the preview.
+
+If the notes change, print the revised preview and obtain confirmation again. Recheck HEAD and existing tag/release content before starting step 5; changes require a refreshed preview and confirmation. After that, the approved version-bump commit is the expected HEAD change; any additional changes require renewed confirmation. The approved notes file supplies both the tag annotation and release body verbatim.
+
+## 5. Bump and commit
+
+After approval, update the version file(s) to the target version, as its own commit (English, following the `/git-commit` format rules):
+
+```
+Bump version to 0.8.1
+```
+
+## 6. Tag and push
 
 ```bash
 git tag -l v0.8.1                     # check whether the tag already exists
-git tag -a v0.8.1 -m "<release notes>"  # exists → add -f to replace (this skill's stated exception)
+git tag -a v0.8.1 -F <notes>           # exists → add -f to replace (this skill's stated exception)
 git push origin v0.8.1                # replacing an existing tag → git push -f origin v0.8.1
 git push                              # the version-bump commit goes up too
 ```
 
-Before replacing an existing tag, report which commit it currently points to — let the user see what is being overwritten before it is overwritten.
-
-## 6. Publish the release page
+## 7. Publish the release page
 
 A bare tag buries the notes in `git show`; clicking the tag on GitHub must land on a release page.
 
