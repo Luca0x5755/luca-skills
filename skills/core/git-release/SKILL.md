@@ -58,7 +58,7 @@ This step is complete when every user- or operator-facing change in the release 
 
 ## 4. Print the preview and wait for approval
 
-Write the exact release notes to a file, then print the full file in the terminal. Alongside it, print the target version, previous tag, release commit list and current HEAD SHA, and version files to be updated. The preview identifies the current release content; the version-bump commit is created only after approval.
+Write the exact release notes to a file, then print the full file in the terminal. Alongside it, print the target version, previous tag, release branch, release commit list and current HEAD SHA, and version files to be updated. The preview identifies the current release content; the version-bump commit is created only after approval.
 
 Inspect the target tag and release page before asking for approval. If either exists, print the tag's current commit and annotation, and the release's current title and body, identifying what will be replaced. Use read-only queries such as `git tag -l`, `git show`, and `gh release view` (or the forge equivalent).
 
@@ -68,7 +68,9 @@ If the notes change, print the revised preview and obtain confirmation again. Re
 
 ## 5. Bump and commit
 
-After approval, update the version file(s) to the target version, as its own commit (English, following the `/git-commit` format rules):
+After approval, update the version file(s) to the target version, as its own commit. Read `git-commit/SKILL.md` in the parent of this skill's base directory and follow its staging and message rules.
+
+**Release exception to the branch rule:** on `main` / `master`, commit the approved version-only bump directly on that branch. Keep a supplied release branch when the user chose one. Include the branch in the preview; this skill does not create a new branch for the bump. Stage only the detected version files and verify that their diff contains only version changes before committing. A guard denial requires fixing the guard or reporting the block, never disabling hooks.
 
 ```
 Bump version to 0.8.1
@@ -78,10 +80,12 @@ Bump version to 0.8.1
 
 ```bash
 git tag -l v0.8.1                     # check whether the tag already exists
-git tag -a v0.8.1 -F <notes>           # exists → add -f to replace (this skill's stated exception)
+git tag -a v0.8.1 --cleanup=verbatim -F <notes> # exists → add -f to replace (this skill's stated exception)
+git push                              # publish the version-bump commit first
 git push origin v0.8.1                # replacing an existing tag → git push -f origin v0.8.1
-git push                              # the version-bump commit goes up too
 ```
+
+Stop on a failed branch push before publishing the tag or release. Verify that the remote branch and peeled tag both point to the bump commit, and that the tag annotation matches the approved notes.
 
 ## 7. Publish the release page
 
