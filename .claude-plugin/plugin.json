@@ -1,6 +1,6 @@
 {
   "name": "luca-skills",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Luca's agent skills — grilling, spec/ticket flows, TDD, code review, domain modelling.",
   "author": {
     "name": "Luca"
