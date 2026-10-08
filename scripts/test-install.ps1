@@ -90,7 +90,7 @@ try {
       throw "multi-selection did not install both selected agents: $($result.Output -join [Environment]::NewLine)"
     }
     if (Test-Path (Join-Path $testHome '.copilot\skills')) { throw 'multi-selection installed an unselected agent' }
-    if (@($result.Output -match '^→ codex :').Count -ne 1) { throw 'duplicate selection installed Codex more than once' }
+    if (@($result.Output -match '^→ codex :').Count -ne 1) { throw "Expected one Codex heading; captured output: $($result.Output -join ' | ')" }
     if (-not ($result.Output -match '即將安裝：codex, claude$')) { throw 'selection summary does not match the selected agents' }
     foreach ($menuLine in @('  1. claude', '  2. copilot', '  3. codex')) {
       if ($result.Output -notcontains $menuLine) { throw "menu is missing: $menuLine" }
