@@ -5,6 +5,8 @@ $installer = Join-Path $PSScriptRoot 'install.ps1'
 $pwsh = (Get-Process -Id $PID).Path
 $testHome = Join-Path ([System.IO.Path]::GetTempPath()) "luca-skills-install-test-$PID"
 $previousHome = $env:HOME
+$previousOutputEncoding = [Console]::OutputEncoding
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 function Remove-TestDirectory {
   param([string]$Path)
@@ -29,7 +31,11 @@ function Invoke-Installer {
     $outputFile = Join-Path $testHome 'output.txt'
     Set-Content -LiteralPath $inputFile -Value $StandardInput
     $windowOptions = if ($IsWindows) { @{ WindowStyle = 'Hidden' } } else { @{} }
-    $process = Start-Process -FilePath $pwsh -ArgumentList @('-NoProfile', '-File', $installer) -RedirectStandardInput $inputFile -RedirectStandardOutput $outputFile -PassThru @windowOptions
+    # Redirected child output must preserve Chinese and Unicode on Windows CI.
+    $escapedInstaller = $installer.Replace("'", "''")
+    $childCommand = "[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new(`$false); & '$escapedInstaller'"
+    $encodedCommand = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($childCommand))
+    $process = Start-Process -FilePath $pwsh -ArgumentList @('-NoProfile', '-EncodedCommand', $encodedCommand) -RedirectStandardInput $inputFile -RedirectStandardOutput $outputFile -PassThru @windowOptions
     if (-not $process.WaitForExit(15000)) {
       $process.Kill()
       $process.WaitForExit()
@@ -126,6 +132,7 @@ try {
   }
 }
 finally {
+  [Console]::OutputEncoding = $previousOutputEncoding
   $env:HOME = $previousHome
   Remove-TestDirectory $testHome
 }
