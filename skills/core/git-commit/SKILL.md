@@ -31,7 +31,7 @@ Bulk staging (`git add -A`, `git add .`) is out in both cases; the guard hook bl
 
 ## 2. Branch check
 
-On `main` / `master` → create a branch before committing. Naming:
+On `main` / `master` → create a branch before committing. **Exception:** a user-approved `/git-release` version-only bump stays on the release branch, including `main` / `master`; follow that skill's release steps. Other changes, even with a version-bump subject, still need a branch. Naming:
 
 - kebab-case (lowercase + hyphens), `type/short-description`, English.
 - Examples: `feature/plugin-search`, `fix/tag-encoding`.

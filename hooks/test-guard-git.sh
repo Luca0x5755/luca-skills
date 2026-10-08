@@ -102,6 +102,38 @@ ALLOW	echo "never git commit -m, always -F"
 CASES
 
 git switch -q main
+printf '{\n  "version": "0.2.3",\n  "name": "fixture"\n}\n' > package.json
+printf 'version = "0.2.3"\n' > Cargo.toml
+printf 'version = "0.2.3"\n' > pyproject.toml
+mkdir .claude-plugin
+printf '{\n  "version": "0.2.3"\n}\n' > .claude-plugin/plugin.json
+printf '<Version>0.2.3</Version>\n' > fixture.csproj
+git add package.json Cargo.toml pyproject.toml .claude-plugin/plugin.json fixture.csproj
+git -c user.email=t@t -c user.name=t commit -q -m versions
+printf 'Bump version to 0.3.0\n' > msg-release.txt
+printf 'Bump version to 0.3.01\n' > msg-wrong-version.txt
+printf 'Bump version to 0.3.0\n\nCo-Authored-By: X <x@y>\n' > msg-release-trailer.txt
+run BLOCK 'git commit -F msg-release.txt'
+sed -i 's/0.2.3/0.3.0/' package.json Cargo.toml pyproject.toml .claude-plugin/plugin.json fixture.csproj
+git add package.json Cargo.toml pyproject.toml .claude-plugin/plugin.json fixture.csproj
+run ALLOW 'git commit -F msg-release.txt'
+run ALLOW 'git commit --file=msg-release.txt'
+run BLOCK 'git commit -F msg-wrong-version.txt'
+run BLOCK 'git commit -F msg-release-trailer.txt'
+run BLOCK 'git commit -a -F msg-release.txt'
+run BLOCK 'git commit --amend -F msg-release.txt'
+run BLOCK 'git commit -F msg-release.txt package.json'
+git update-index --chmod=+x Cargo.toml
+run BLOCK 'git commit -F msg-release.txt'
+git update-index --chmod=-x Cargo.toml
+printf 'unrelated\n' > extra.txt
+git add extra.txt
+run BLOCK 'git commit -F msg-release.txt'
+git reset -q HEAD -- extra.txt
+sed -i 's/fixture/renamed/' package.json
+git add package.json
+run BLOCK 'git commit -F msg-release.txt'
+git reset -q HEAD -- package.json Cargo.toml pyproject.toml .claude-plugin/plugin.json fixture.csproj
 table <<'CASES'
 BLOCK	git commit -F msg-ok.txt
 BLOCK	git commit --amend --no-edit
@@ -126,6 +158,9 @@ unborn=$(mktemp -d)
 rm -rf "$unborn"
 
 git switch -q -c master
+git add Cargo.toml fixture.csproj
+run ALLOW 'git commit -F msg-release.txt'
+git reset -q HEAD -- Cargo.toml fixture.csproj
 table <<'CASES'
 BLOCK	git commit -F msg-ok.txt
 CASES

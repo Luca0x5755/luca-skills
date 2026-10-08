@@ -7,7 +7,8 @@
 ## guard-git.sh
 
 - **事件**：PreToolUse（matcher: Bash）。
-- **擋**：`git add -A`／`git add .`、force push、`git reset --hard`（唯一放行 `git reset --hard HEAD`：只丟未提交變更、不動分支指標，/refactor 撤退用）、`--no-verify`、`gh pr merge`（連同 `gh api …/merge` 這條後門）；以及 `git commit` 的三條形狀規則 — 在 main／master 上 commit（同一指令裡先 `git switch -c`／`checkout -b` 的放行）、`-m` 內嵌訊息（要 `-F` 檔案）、`-F` 檔案含 `Co-Authored-By`／`Claude-Session`／`Generated with` trailer。
+- **擋**：`git add -A`／`git add .`、force push、`git reset --hard`（唯一放行 `git reset --hard HEAD`：只丟未提交變更、不動分支指標，/refactor 撤退用）、`--no-verify`、`gh pr merge`（連同 `gh api …/merge` 這條後門）；以及 `git commit` 的三條形狀規則 — 在 main／master 上一般 commit（同一指令裡先 `git switch -c`／`checkout -b` 的放行）、`-m` 內嵌訊息（要 `-F` 檔案）、`-F` 檔案含 `Co-Authored-By`／`Claude-Session`／`Generated with` trailer。
+- **發布例外**：main／master 可用單獨的 `git commit -F <file>` 或 `--file=<file>` 提交版本更新。標題須為 `Bump version to <version>`，index 非空且只含既有 package.json、.claude-plugin/plugin.json、pyproject.toml、Cargo.toml 或 *.csproj 的版本行替換，所有新版本須與標題一致；混入其他變更、amend、`-a`、路徑參數與 trailer 仍擋。使用者預覽核准由 git-release 流程負責，hook 驗證提交形狀；其他版本格式須先擴充護欄與測試。
 - **為什麼**：staging 邊界是誰觸發的誰畫；合併是使用者的按鈕；歷史改寫與跳過檢查不是代理的權限。三條 commit 形狀規則本來是 `/git-commit` 的散文，2026-09-04 實測目標專案裡的技能會跳過讀取直接 commit — 散文被跳過，再加散文沒用，升格為機器強制。exit 2，stderr 告訴模型正確做法。
 - **關係**：`setup-skills` 會把本腳本逐位元組複製進目標 repo 的 `.claude/hooks/`。
 

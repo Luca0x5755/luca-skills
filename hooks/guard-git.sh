@@ -11,6 +11,41 @@ hcwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null)
 
 deny() { printf '%s\n' "$1" >&2; exit 2; }
 
+# 發布例外只看實際 index；標題本身不能放行一般 main 提交。
+release_bump() {
+  [ -r "$msgfile" ] || return 1
+  local subject target stats added removed path oldline newline pattern count=0
+  subject=$(head -1 "$msgfile" | tr -d '\r')
+  printf '%s\n' "$subject" | grep -qE '^Bump version to [0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$' || return 1
+  target=${subject#Bump version to }
+  # 路徑參數、amend、-a 等會改變被提交的集合，不能走 index-only 例外。
+  printf '%s\n' "$cmd" | grep -qE "^git[[:space:]]+commit[[:space:]]+(-F[[:space:]]+|--file=)[\"']?[^\"' ;|&]+[\"']?[[:space:]]*$" || return 1
+  stats=$(git diff --cached --numstat 2>/dev/null) || return 1
+  [ -n "$stats" ] || return 1
+  # 新增、刪除、改名與權限變更不是版本更新。
+  [ -z "$(git diff --cached --summary 2>/dev/null)" ] || return 1
+  while IFS=$'\t' read -r added removed path; do
+    [ "$added" = 1 ] && [ "$removed" = 1 ] || return 1
+    case "$path" in
+      package.json|*/package.json|.claude-plugin/plugin.json)
+        pattern='^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"VERSION"[[:space:]]*,?[[:space:]]*$' ;;
+      pyproject.toml|*/pyproject.toml|Cargo.toml|*/Cargo.toml)
+        pattern="^[[:space:]]*version[[:space:]]*=[[:space:]]*[\"']VERSION[\"'][[:space:]]*$" ;;
+      *.csproj)
+        pattern='^[[:space:]]*<Version>VERSION</Version>[[:space:]]*$' ;;
+      *) return 1 ;;
+    esac
+    oldline=$(git diff --cached --no-ext-diff --no-textconv --unified=0 -- "$path" | sed -n '/^---/d; s/^-//p' | tr -d '\r')
+    newline=$(git diff --cached --no-ext-diff --no-textconv --unified=0 -- "$path" | sed -n '/^+++/d; s/^+//p' | tr -d '\r')
+    printf '%s\n' "$oldline" | grep -qE "${pattern/VERSION/[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?}" || return 1
+    printf '%s\n' "$newline" | grep -qE "${pattern/VERSION/[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?}" || return 1
+    # 完整版本必須等於標題，避免 0.3.0 誤放行 0.3.01。
+    [ "$(printf '%s\n' "$newline" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?')" = "$target" ] || return 1
+    count=$((count + 1))
+  done <<< "$stats"
+  [ "$count" -gt 0 ]
+}
+
 # Rules match only at command position (line start or after && || ; | $( ),
 # so prose *mentioning* a forbidden command — PR bodies, commit messages,
 # markdown backticks — does not trip them.
@@ -50,18 +85,18 @@ if printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+commit([[:space:]]|;|\)|$
   if printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+commit[^;|&]*[[:space:]](-[^-[:space:]FCct]*m|--message|--trailer)"; then
     deny "Blocked: inline commit message ('-m' / '--message' / '--trailer'). /git-commit passes the message as a file: write it with the Write tool, then 'git commit -F <path>'. An inline message gets mangled by whichever shell you guessed wrong, silently."
   fi
+  # 先讀取訊息檔，供發布版本例外與 trailer 檢查共用。
+  msgfile=$(printf '%s\n' "$cmd" | tr ';&|' '\n' | sed -E 's/^[[:space:]]*(\$\()?[[:space:]]*//' \
+    | grep -E "^git[[:space:]]+commit([[:space:]]|$)" | head -1 \
+    | grep -oE "(-F|--file)[[:space:]=]*[\"']?[^\"' ;|&]+" | head -1 | sed -E "s/^(-F|--file)[[:space:]=]*[\"']?//")
   # A command that creates its branch before committing ('git switch -c … && git commit')
   # is the skill's own pattern; only a commit landing on main/master as-is is blocked.
   if ! printf '%s\n' "$cmd" | grep -qE "${P}git[[:space:]]+(switch[^;|&]*[[:space:]](-c|--create)|checkout[^;|&]*[[:space:]]-[bB])([[:space:]]|$)"; then
     branch=$(git symbolic-ref --short -q HEAD 2>/dev/null)
     case "$branch" in
-      main|master) deny "Blocked: commit on '$branch'. /git-commit commits on a branch: 'git switch -c <type>/<short-description>' first (feature/, fix/, refactor/, docs/, chore/), then commit." ;;
+      main|master) release_bump || deny "Blocked: commit on '$branch'. Create a work branch first. The /git-release exception requires 'Bump version to <version>', a plain 'git commit -F <file>', and an index changing only version lines in package.json, .claude-plugin/plugin.json, pyproject.toml, Cargo.toml or *.csproj. Other version formats require extending the guard, not bypassing it." ;;
     esac
   fi
-  # The -F file of the commit segment itself, not of an earlier 'gh pr edit -F'.
-  msgfile=$(printf '%s\n' "$cmd" | tr ';&|' '\n' | sed -E 's/^[[:space:]]*(\$\()?[[:space:]]*//' \
-    | grep -E "^git[[:space:]]+commit([[:space:]]|$)" | head -1 \
-    | grep -oE "(-F|--file)[[:space:]=]*[\"']?[^\"' ;|&]+" | head -1 | sed -E "s/^(-F|--file)[[:space:]=]*[\"']?//")
   # Trailers sit at line start (optionally behind a marker like the harness's 🤖);
   # a body bullet that merely mentions them starts with '- ' and passes.
   # LC_ALL=C: under a UTF-8 locale Git Bash's grep fails to match [^-] against the emoji.
