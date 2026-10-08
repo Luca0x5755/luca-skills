@@ -1,0 +1,15 @@
+# Installed by /setup-skills (local markdown tracker). The job name `issues-check` is the
+# status check to mark as required in branch protection.
+name: Issues check
+
+on:
+  pull_request:
+
+jobs:
+  issues-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: bash .github/scripts/check-issues.sh "${{ github.event.pull_request.base.sha }}"

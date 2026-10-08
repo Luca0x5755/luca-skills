@@ -90,3 +90,17 @@ draft 的畢業流程：
 2. 用兩週。從來沒被觸發 → `description` 的觸發語句寫壞了。觸發了但做錯事 → 該鎖成使用者觸發。內容在真實情境下改過至少一輪。
 3. `git mv` 進 `core/`，同時把 `README.md` 條目從〈試用中〉搬進正式清單、補 `plugin.json` 條目、`ask-luca` 的路由。
 4. `bash scripts/check.sh` 綠了才 commit。
+
+## Agent skills
+
+### Issue tracker
+
+議題採本機 Markdown；建立、拆票、分診與完成議題前，讀取 `docs/agents/issue-tracker.md`。
+
+### Domain docs
+
+採 single-context、shared；修改領域文件前，讀取 `docs/agents/domain.md`。
+
+### Comment language
+
+程式註解使用繁體中文；外部範本原樣複製時保留來源註解。

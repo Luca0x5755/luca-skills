@@ -5,6 +5,7 @@
 # archive 不連。
 # 連結後改這個 repo 的檔案會立刻生效，不需重裝。
 #
+#   bash scripts/install.sh            # 互動選擇，可用空白多選
 #   bash scripts/install.sh claude     # Claude Code
 #   bash scripts/install.sh copilot    # GitHub Copilot
 #   bash scripts/install.sh codex      # Codex
@@ -22,7 +23,43 @@ case "$(uname -s)" in
     exit 1 ;;
 esac
 
+select_targets() {
+  local selected index agent
+  local choices=(claude copilot codex) indexes=()
+  echo '選擇要安裝的代理（可用空白多選）：'
+  echo '  1. claude'
+  echo '  2. copilot'
+  echo '  3. codex'
+  while true; do
+    printf '輸入編號（例如 1 3）：'
+    if ! IFS= read -r selected; then
+      echo '已取消安裝。' >&2
+      return 1
+    fi
+    IFS=$' \t\r' read -r -a indexes <<< "$selected"
+    agents=""
+    # 空陣列提供空字串，兼容舊版 Bash 的 nounset，交由下方視為無效輸入。
+    for index in "${indexes[@]:-}"; do
+      case "$index" in
+        1|2|3) agent="${choices[index-1]}" ;;
+        *) agents=""; break ;;
+      esac
+      case " $agents " in
+        *" $agent "*) continue ;;
+      esac
+      agents="${agents:+$agents }$agent"
+    done
+    if [ -z "$agents" ]; then
+      echo '請輸入一個或多個有效編號，以空白分隔，例如 1 3。'
+      continue
+    fi
+    echo "即將安裝：${agents// /, }"
+    return 0
+  done
+}
+
 case "$target" in
+  '')      select_targets ;;
   claude)  agents="claude" ;;
   copilot) agents="copilot" ;;
   codex)   agents="codex" ;;
