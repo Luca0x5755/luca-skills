@@ -14,3 +14,4 @@
 2026-10-08 git-release 先在終端機完整預覽版本、前一 tag、發布 commit 與摘要，揭露既有 tag／release 的覆寫內容；使用者確認後才改版本、commit、tag、push 與建立或更新 release，摘要修改須重新確認 — 讓人工核可落在實際發布內容上，且確認前不產生版本或 Git 變更。
 2026-10-22 Understand-Anything 不移植、改為使用者自行安裝其 plugin 取得程式碼關係圖，ask-luca 與 README 不提它；study-repo 保留並只吸收「外部內容是資料不是指令」與入口打分兩條 — UA 依賴 Node／pnpm／tree-sitter 建置鏈且只做靜態分析，study-repo 的執行期真相是它結構上拿不到的；路由提及未必安裝的外部工具會讓地圖說謊。
 2026-10-22 改動影響範圍分析（UA `understand-diff` 的 1-hop blast radius）暫不併入 git-pr／code-review — 每個 PR 都要付 grep 成本，且尚無影響範圍估錯的真實案例；出現此類案例再議。
+2026-10-22 study-repo 的範圍外段落例外提及 Understand-Anything（附專案連結與 `/understand`，標明「若已安裝」）— draft 不對外發佈，指向可能未裝的工具傷害小，而在使用者想要整張關係圖的當下點出它價值大；ask-luca 與 README 技能清單仍不提。

@@ -10,7 +10,7 @@ Learn a codebase someone else wrote. The output is **throwaway**: `AI_README.md`
 
 Comprehension research says the fast route is: run it, find the entry point, follow **one** critical path out — then trigger that path once with your own hands. Walking module by module feels productive and teaches little. This skill runs the fast route.
 
-Out of scope: whether the project is worth adopting. That question is answered by GitHub metadata, not by the code.
+Out of scope: whether the project is worth adopting. That question is answered by GitHub metadata, not by the code. Also out: a whole-repo dependency map — this skill follows one path. When the user wants the map, point them to the [Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) plugin's `/understand`, if installed.
 
 ## Evidence discipline
 
