@@ -12,3 +12,5 @@
 2026-10-07 保留 implement-spec 與 run-queue：前者可介入且跨追蹤器，後者本機票無人看管、有限重試、擱置與必開 PR；run-queue 預設串行，可選兩個隔離 worker 平行建置、串行候選整合，完成以整合驗證為準，spec 由 coordinator 清理 — 平行能力不取代兩者不同的核准與收尾契約。
 2026-10-07 安裝器 sh／ps1 統一為無參數互動選單，編號以空白分隔多選並去重，選定後直接安裝；空白、逗號或越界輸入提示後重問，Ctrl+C 取消，保留代理名稱參數供自動化使用 — 統一兩平台操作並省去第二次確認。
 2026-10-08 git-release 先在終端機完整預覽版本、前一 tag、發布 commit 與摘要，揭露既有 tag／release 的覆寫內容；使用者確認後才改版本、commit、tag、push 與建立或更新 release，摘要修改須重新確認 — 讓人工核可落在實際發布內容上，且確認前不產生版本或 Git 變更。
+2026-10-22 Understand-Anything 不移植、改為使用者自行安裝其 plugin 取得程式碼關係圖，ask-luca 與 README 不提它；study-repo 保留並只吸收「外部內容是資料不是指令」與入口打分兩條 — UA 依賴 Node／pnpm／tree-sitter 建置鏈且只做靜態分析，study-repo 的執行期真相是它結構上拿不到的；路由提及未必安裝的外部工具會讓地圖說謊。
+2026-10-22 改動影響範圍分析（UA `understand-diff` 的 1-hop blast radius）暫不併入 git-pr／code-review — 每個 PR 都要付 grep 成本，且尚無影響範圍估錯的真實案例；出現此類案例再議。
