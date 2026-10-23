@@ -12,3 +12,4 @@
 2026-10-07 保留 implement-spec 與 run-queue：前者可介入且跨追蹤器，後者本機票無人看管、有限重試、擱置與必開 PR；run-queue 預設串行，可選兩個隔離 worker 平行建置、串行候選整合，完成以整合驗證為準，spec 由 coordinator 清理 — 平行能力不取代兩者不同的核准與收尾契約。
 2026-10-07 安裝器 sh／ps1 統一為無參數互動選單，編號以空白分隔多選並去重，選定後直接安裝；空白、逗號或越界輸入提示後重問，Ctrl+C 取消，保留代理名稱參數供自動化使用 — 統一兩平台操作並省去第二次確認。
 2026-10-08 git-release 先在終端機完整預覽版本、前一 tag、發布 commit 與摘要，揭露既有 tag／release 的覆寫內容；使用者確認後才改版本、commit、tag、push 與建立或更新 release，摘要修改須重新確認 — 讓人工核可落在實際發布內容上，且確認前不產生版本或 Git 變更。
+2026-10-23 commit／PR 的 harness attribution 從源頭處理：專案 `.claude/settings.json` 設 `attribution` 為 `commit:""`、`pr:""`、`sessionUrl:false`（不用 `false` 簡寫，舊版會整份設定失效而丟掉 hook）；`git-pr` 補「不加 footer」規則，`guard-git` 放寬 `git -C` 並檢查 PR `--body-file`；不改 `run-queue` 與 `CLAUDE.md` — `git-commit` 已有規則，多一層只是重複；`-F -` 與相對路徑訊息檔無實證，不加 hook。
