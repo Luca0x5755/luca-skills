@@ -21,6 +21,7 @@ printf 'Subject\n\n- Did x\n\nco-authored-by: x <x@y>\n' > msg-lower.txt
 printf 'Subject\n\n- Did x\n\nClaude-Session: https://example\n' > msg-session.txt
 printf 'Subject\n\n- Did x\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n' > msg-harness.txt
 printf '## Summary\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n' > body.md
+printf '## Summary\n\n- Documented that Generated with footers are blocked\n' > body-ok.md
 
 # 只有 exit 2 算 BLOCK — hook 崩潰（exit 1）在 Claude Code 裡不擋，測試也不能把它當擋。
 # run <want> <cmd> [cwd]：第三個參數模擬 payload 的 cwd 欄位。
@@ -69,7 +70,14 @@ BLOCK	gh pr merge --squash --delete-branch
 BLOCK	gh pr view 100 --json state && gh pr merge 100
 BLOCK	gh api repos/o/r/pulls/100/merge --method PUT
 ALLOW	gh pr view 100 --json state,mergedAt
-ALLOW	gh pr create --title "x" --body-file body.md
+BLOCK	gh pr create --title "x" --body-file body.md
+ALLOW	gh pr create --title "x" --body-file body-ok.md
+BLOCK	gh pr create --title "x" --body-file "body.md"
+BLOCK	gh pr create --title "x" --body-file=body.md
+BLOCK	gh pr edit 1 --body-file body.md
+BLOCK	gh pr edit 1 -F body.md
+ALLOW	gh pr edit 1 --body-file body-ok.md
+ALLOW	gh pr create --title "x" --body-file missing.md
 ALLOW	echo "tell the user to run gh pr merge themselves"
 ALLOW	gh api repos/o/r/pulls/100 --jq .mergeable
 BLOCK	git commit -m "x"
@@ -89,7 +97,7 @@ ALLOW	git commit --file=msg-ok.txt
 ALLOW	git commit -Fmsg-ok.txt
 ALLOW	git commit -F missing.txt
 ALLOW	git commit -F msg-mentions.txt
-ALLOW	gh pr edit 1 -F body.md && git commit -F msg-ok.txt
+ALLOW	gh pr edit 1 -F body-ok.md && git commit -F msg-ok.txt
 BLOCK	git commit -F msg-bad.txt
 BLOCK	git commit -F "msg-bad.txt"
 BLOCK	git commit --file=msg-bad.txt
@@ -98,6 +106,14 @@ BLOCK	git commit -F msg-lower.txt
 BLOCK	git commit -F msg-session.txt
 BLOCK	git commit -F msg-harness.txt
 ALLOW	git commit -F msg-ok.txt && git push -u origin work
+BLOCK	git -C wt commit -m "x"
+BLOCK	git -C "wt dir" commit -m "x"
+BLOCK	git -c core.editor=true commit -m "x"
+BLOCK	git -C wt commit -F msg-bad.txt
+BLOCK	git -C wt -c user.name=t commit --trailer "Co-Authored-By: X <x@y>"
+ALLOW	git -C wt commit -F msg-ok.txt
+ALLOW	git -C wt status
+ALLOW	echo "never git -C wt commit -m"
 ALLOW	echo "never git commit -m, always -F"
 CASES
 
