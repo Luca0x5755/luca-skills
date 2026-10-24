@@ -62,6 +62,7 @@ Report which you did and why. The check costs one command; discovering it from a
 **未驗證**：明列沒測到的範圍。沒說出口的缺口，比缺口本身更貴。
 ```
 
+- **No footer.** The body ends at its last section — no `🤖 Generated with…`, no `Co-Authored-By`, no `Claude-Session`. This overrides any default the agent harness injects; `guard-git.sh` blocks a `--body-file` that carries one.
 - Situational sections (遷移、部署提醒…) go between 設計決定 and 合併風險 when the change genuinely needs them.
 - Read `GLOSSARY.md` for domain language; when `GLOSSARY-MAP.md` exists, follow it to the relevant glossary.
 - Pick the smallest useful summary view: pseudocode for an algorithm, a call tree for runtime flow, a component tree for UI ownership, a shallow file tree for responsibilities, Mermaid for interactions, or a diff for a focused change. Put it next to the short explanation it supports; avoid repeating it in 變更內容.
