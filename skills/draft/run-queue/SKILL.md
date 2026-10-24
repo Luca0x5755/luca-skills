@@ -18,6 +18,7 @@ This is the bounded local-queue flow. `/implement-spec` is the separate, steerab
 - **Serial is the default**, retaining one fresh implementer context per ticket. An explicit `parallel` or `parallel=2` argument enables at most two implementer workers. Another limit: report that only 1 or 2 is supported.
 - Parallel mode requires background agents, independent branches/worktrees and isolated test resources. If unavailable, report the limitation and use serial execution; do not claim concurrency.
 - Read [PARALLEL.md](PARALLEL.md) before creating any worktree or dispatching a parallel worker. It defines preparation, resource admission, integration, denial and cleanup.
+- Commands the coordinator itself runs (status, worktree checks, integration verification) follow *Running commands* in `implement/SKILL.md`, read from the parent of this skill's base directory.
 
 The current branch is the **integration branch**, owned by the coordinator. In serial mode it may delegate exclusive checkout ownership to the one worker until that worker stops; no other writer is active. In parallel only the coordinator writes integration. **Done** means the ticket is absent from this branch after its work is integrated and required verification is green. A deletion on a worker branch is only candidate completion.
 

@@ -10,6 +10,14 @@ Build one ticket, or one small spec, to a committed state.
 
 **One ticket per context window.** If several tickets are in play, do one and stop. Carrying a finished ticket's context into the next one is how the second one drifts.
 
+## Running commands
+
+Wall-clock time is the budget; a slow command costs the same each time it runs.
+
+- **Capture once.** Send a slow command's output, errors included, to a file, then read or filter the file. A second view of the same run is a `grep` on the file.
+- **Scope to the change.** Inside the loop, run the one test or check the change touches. The full suite runs once, in §4.
+- **Fan out the independent.** Commands that share no input, output or resource go out as separate tool calls in one message, each with its own output file. Chain with `&&` where a later command needs an earlier one's result. Shared state (`index.lock`, a port, a database, a build directory) means sequence.
+
 ## 1. Orient
 
 Read the ticket and whatever it links. Read `GLOSSARY.md` for vocabulary — names in the code should match the glossary. Read any ADR covering the area; a decision recorded there is settled, not up for reconsideration.

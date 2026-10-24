@@ -28,6 +28,8 @@ Optional: dispatch an exploration agent to save shared notes outside the reposit
 
 Before concurrent admission, inspect shared files, registries, migrations, truth documents and external resources. Overlap or uncertain isolation: serialize those tickets. Bootstrap ignored fixtures, environment and dependencies by the project's procedure; skipped required checks are not green. Verify active guards inspect the worker's real checkout. Worktrees isolate tracked files, not ports, databases or credentials.
 
+Commands the coordinator itself runs (status, worktree checks, integration verification) follow *Running commands* in `implement/SKILL.md`, read from the parent of this skill's base directory.
+
 ## 2. Dispatch and build
 
 Create each worker branch/worktree from the current integration tip; confirm its absolute root and branch before writing. Only the coordinator controls integration.
