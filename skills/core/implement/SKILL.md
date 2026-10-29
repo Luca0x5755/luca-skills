@@ -58,4 +58,4 @@ Commit to the current branch. Message says what changed and why, and references 
 
 Report: what was built, what the review found, what was left undone and why. **Anything skipped gets said out loud.** A silent omission reads as complete and is the most expensive kind of error to find later.
 
-Then report the next step as **one hop tagged with its trigger**: `/implement` (more tickets — `/clear` first) when another file in `docs/issues/` still cites this ticket's spec (the §4 grep); `/git-pr` (all tickets done) otherwise.
+Then report the next step as **one hop tagged with its trigger**: `/implement` (more tickets — `/clear` first) when the tracker still holds open tickets from this ticket's spec — on a local markdown tracker, the §4 grep; `/git-pr` (all tickets done) otherwise.
