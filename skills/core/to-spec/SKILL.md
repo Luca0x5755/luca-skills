@@ -67,9 +67,8 @@ Publish per `docs/agents/issue-tracker.md` and report the URL or path. On a loca
 
 **Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
 
-Then answer two questions out loud, from the spec just written — the answers pick the next step:
+Then decide the route from the spec just written and report it as **one chain** — each hop tagged with the trigger that fired, hops that did not fire left out: `/frontend-spec` (UI surface) → `/to-tickets` (multi-session).
 
-1. **Multi-session build whose stack, data model or API contracts are not yet in the truth layer?** Yes → `/to-architecture` first.
-2. **Does the spec have a UI surface?** Yes → `/frontend-spec` next (after `/to-architecture` when both fired).
-
-Then `/to-tickets` to split it, or `/implement` if it is one session of work — the detours above do not change which.
+1. `/to-architecture` — a multi-session build whose stack, data model or API contracts are not yet in the truth layer.
+2. `/frontend-spec` — the spec has a UI surface.
+3. Last hop: `/to-tickets` for a multi-session build, `/implement` for one session of work.
