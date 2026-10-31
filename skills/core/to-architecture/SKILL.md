@@ -59,7 +59,7 @@ they bound; no measured target → no constraints prose.
 
 **Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
 
-Report the files edited and the ADRs created. Say the next step: `/to-tickets` — tickets cite the contracts and entities by name — or `/implement` when the build is one session of work; the truth-layer edits ride the feature branch and merge with the code.
+Report the files edited and the ADRs created, then the rest of the route as **one chain**, each hop tagged with its trigger: `/frontend-spec` (UI surface) when the spec has one, then `/to-tickets` (multi-session) or `/implement` (one session). Tickets cite the contracts and entities by name; the truth-layer edits ride the feature branch and merge with the code.
 
 ## Rationalization table
 

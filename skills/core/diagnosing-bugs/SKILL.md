@@ -66,3 +66,5 @@ A test that fails before the fix and passes after. Confirm both directions — r
 ## Cleanup
 
 Remove temporary probes and restore temporary environment changes. Report the cause, the regression-test evidence, and any remaining mitigation or uncertainty. The fix is complete when the regression check is green and temporary instrumentation is gone.
+
+Then report the route as **one chain** of suggestions, each hop tagged with its trigger — the user invokes them: `/retro` (fixed) → `/improve-codebase-architecture` (root cause in architecture), the second hop only when the cause is architectural or was only mitigated.
