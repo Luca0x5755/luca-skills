@@ -50,6 +50,6 @@ Not when every ticket is closed. When you can see the route from here to the des
 
 ## 5. Hand off — do not build
 
-Merge onto the main flow at **`/to-spec`**, which collapses the map's linked decisions into one buildable plan, then `/to-tickets`, then `/implement`.
+Merge onto the main flow at **`/to-spec`**, which collapses the map's linked decisions into one buildable plan and decides the rest of the route.
 
 Going straight from the map to `/implement` skips that collapse and throws the linked detail away. Do it only if the effort turned out genuinely small — which means wayfinder was the wrong tool and that is worth noting.

@@ -40,6 +40,7 @@ Dispatch a fresh implementer subagent. It reads `implement/SKILL.md` from the pa
 1. Seam confirmation becomes a **reviewer gate**. The worker writes proposed seams in the ticket's `## Notes`; a separate reviewer checks every Done when condition is observable through them. PASS permits tests; FAIL revises the proposal and uses a retry round. No testable seam: `STALLED (no-seam)`.
 2. The worker deletes only its own ticket in the candidate commit. **It preserves every spec**, even if its checkout has no remaining reference. The coordinator owns final spec cleanup.
 3. The worker commits locally by the `/git-commit` rules, read from the sibling `git-commit/SKILL.md`; no push or PR. In parallel it operates only in its assigned worktree and never changes the integration branch.
+4. The worker omits `/implement` §5's next-step hop; the coordinator owns what runs next.
 
 Every rejected `/code-review` finding is a `Rejected review finding: <finding> — <why>` bullet in that ticket's commit message. This is disclosed self-approval, not a hidden exception.
 

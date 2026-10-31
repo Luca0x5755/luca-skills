@@ -43,7 +43,7 @@ The report must end on exactly one of:
 
 ## Finish
 
-Post the report as a comment on the spec issue per `docs/agents/issue-tracker.md` and report the URL. Say the next step by verdict: ✅ → `/to-tickets`; ⚠️ → clear the conditions (a `/prototype` detour often clears a technical one); ❌ → back to `/grill-with-docs` to rework the spec.
+Post the report as a comment on the spec issue per `docs/agents/issue-tracker.md` and report the URL. Report the next step as **one hop tagged with its verdict**: ✅ → `/to-tickets`; ⚠️ → clear the conditions (a `/prototype` detour often clears a technical one); ❌ → back to `/grill-with-docs` to rework the spec.
 
 ## Rationalization table
 

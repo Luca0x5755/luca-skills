@@ -38,4 +38,4 @@ Write, before doing anything else:
 
 **Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
 
-Then answer one question out loud — **does a document need writing before the build?** Yes if either holds: more than one session of build; a UI surface changes. Yes → `/to-spec`. No → `/implement`.
+Then report the next step as **one hop tagged with its trigger**: `/to-spec` (multi-session / UI surface) when a document must precede the build — more than one session of build, or a UI surface changes; `/implement` otherwise.
