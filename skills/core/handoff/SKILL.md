@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Handoff
 
-Write a document that lets a fresh agent continue this work without re-deriving it. Save it to the OS temporary directory — **not** the workspace. It is a bridge, not an artifact.
+Write a document that lets a fresh agent continue this work without re-deriving it. Save it to the OS temporary directory (`$TMPDIR`, else `/tmp`; `%TEMP%` on Windows) — **not** the workspace. It is a bridge, not an artifact.
 
 `/handoff` **forks**: you do not continue in place. Open a new session and reference the file. `/compact` is the one that continues in place.
 

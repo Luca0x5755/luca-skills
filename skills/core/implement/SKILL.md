@@ -20,13 +20,13 @@ Wall-clock time is the budget; a slow command costs the same each time it runs.
 
 ## 1. Orient
 
-Read the ticket and whatever it links. Read `GLOSSARY.md` for vocabulary — names in the code should match the glossary. Read any ADR covering the area; a decision recorded there is settled, not up for reconsideration.
+Given a ticket reference, fetch it through `docs/agents/issue-tracker.md` and state its title before starting; ambiguous reference → ask. Read the ticket and whatever it links. Read `GLOSSARY.md` for vocabulary — names in the code should match the glossary. Read any ADR covering the area; a decision recorded there is settled, not up for reconsideration.
 
 Find the existing pattern before inventing one. Code that reads like the code around it is worth more than code that is locally better and locally unique.
 
 ## 2. Agree the seams
 
-Say, before writing anything: what the public boundary is, what will be tested through it, and what will not be tested at all. A **seam** is where behaviour is observable without reaching inside.
+Say, before writing anything: what the public boundary is, what will be tested through it, and what will not be tested at all. Give each proposed seam a one-line note on what it catches and what it misses. A **seam** is where behaviour is observable without reaching inside.
 
 If nothing here has a testable seam, that is the finding — say so and propose one, rather than testing internals to hit a number.
 
