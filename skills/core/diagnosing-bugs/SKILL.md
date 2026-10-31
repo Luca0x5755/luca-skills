@@ -61,7 +61,7 @@ If the real cause is out of scope to fix, say that explicitly and mitigate delib
 
 ## 7. Regression test
 
-A test that fails before the fix and passes after. Confirm both directions — revert the fix and watch it go red. A regression test that was never seen red is not known to test anything.
+A test that fails before the fix and passes after. Confirm both directions — revert the fix and watch it go red. If you forced the red by mutating code or a fixture, `diff` against a pristine copy to prove the mutation landed before you trust it. A regression test that was never seen red is not known to test anything.
 
 ## Cleanup
 

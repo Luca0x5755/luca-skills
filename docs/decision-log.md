@@ -19,3 +19,7 @@
 2026-10-24 指令紀律（捕捉一次、範圍對得上改動、獨立檢查並聯）只寫進 `implement` 一處，`implement-spec` 與 `run-queue` 指向它 — 實測 `check.sh` 與 `test-guard-git.sh` 並聯 104 秒對串聯約 158 秒，約兩成 shell 等待來自無改動的整套重跑；規則不為單一專案的範例特製，也不加 hook（是否必要重跑是語意判斷）。
 2026-10-29 技能結尾的下一步一律報成「一步附觸發原因」的路線，沒觸發的步驟不提；`implement` 依追蹤器裡同規格的未完成票分流（本機用 §4 的 grep），票全部做完只接 `/git-pr`，`/branch-cleanup` 等畢業時再插進路線 — 核心指向可能被封存的 draft 會讓路線說謊，而畢業流程不檢查呼叫者；`run-queue` worker 在替換清單裡省略這一步，例外留在協調者端；不進 GLOSSARY、不加 check.sh — 是寫作慣例不是領域詞，也沒有確定性判準。
 2026-10-31 新增 draft 使用者觸發技能 `research`：以具名決策為錨，把 Felix Rieseberg 的 Altitude／Depth／Range 落成開工關卡、原始材料分析、跨域方法與外部裁判分級；獨立完整、不依賴 `anthropic-skills:deep-research` — 該技能只負責覆蓋率式的敘事報告且未必安裝（Copilot／Codex 沒有），路由指向它會讓地圖說謊；畢業與否由使用者判斷後提出，不加比較門檻。
+2026-10-31 上游移植目標改固定為 mattpocock/skills v1.3.2（d1478fcb140db0b93c0c8df17bcfd311844749d0），以 v1.3.1 為基準；只搬 wizard 範本修正與 code-review、ask-luca、implement、grilling、handoff、diagnosing-bugs 的行為修正，接縫取捨說明放 `implement` §2 而非上游的 `tdd`，固定在 v1.3.1 的上游連結不動 — 這些修正有已重現的缺陷或上游失敗回報，且規則要放在實際發問的地方；未吸收的內容不該因連結改版而看似已吸收。
+2026-10-31 wizard 的 `write_env` 一律寫單引號，不做「含特殊字元才加引號」的分支，移植後在 Git Bash 重跑重現腳本一次、結果寫進 PR，不加常駐測試 — `source` 損毀已重現，`docker run --env-file` 的相容風險未驗證；範本極少變動，等出現回歸再補測試。
+2026-10-31 不搬上游 v1.3.2 的 fresh context（#1341）與「防遞迴歸 harness」立場，保留「子代理不得再召喚本技能」 — 前者只有上游 PR 自述，Codex 端未查證，實測子代理繼承父對話再議；後者上游 #573 穩定重現卻以 not planned 關閉，問題未被證明已解決，本地防護只要一句話。
+2026-10-31 wizard 的 `write_env` 偏離上游 v1.3.2：不用暫存檔、以 `: >>` 取代存在檢查，`_existing` 的單引號還原也改走變數 — 上游寫法在寫入失敗時會把含 secret 的暫存檔留在磁碟上，存在檢查與截斷之間有競態，`\'` 替換在 bash 4.2 語意下會多留反斜線（以 `compat42` 模擬）；下次移植此段要保留這些差異。

@@ -11,7 +11,7 @@ Three-axis review of the diff between `HEAD` and a fixed point.
 - **Spec** — does it faithfully implement the originating ticket or spec?
 - **Reuse** — does the repo already have what the diff wrote from scratch?
 
-Run all three as **parallel sub-agents** so none pollutes another's context, then report side by side. Sub-agents must not invoke `/code-review` themselves — one level of review, no recursion.
+Run all three as **parallel sub-agents** so none pollutes another's context: issue the calls together, in the foreground, and report their returned results side by side. Sub-agents must not invoke `/code-review` themselves — one level of review, no recursion.
 
 ## 1. Pin the fixed point
 
@@ -21,7 +21,7 @@ Whatever the user gave: a SHA, a branch, a tag, `main`, `HEAD~5`. If they gave n
 
 ## 2. Standards axis
 
-The repo's own documented standards win over everything below. Read `CLAUDE.md` / `AGENTS.md`, any `docs/` conventions, and — more reliable than either — the surrounding code.
+The repo's own documented standards win over everything below. Search the repo for every file that documents how code should be written, and read them; `CLAUDE.md`, `AGENTS.md`, `CODING_STANDARDS.md`, `CONTRIBUTING.md` and `docs/` conventions must be on the list when they exist. Then read the surrounding code — more reliable than any of them.
 
 The smells below are always checked and always reported as **judgement calls, never violations**:
 
