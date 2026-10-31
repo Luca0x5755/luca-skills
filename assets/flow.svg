@@ -287,7 +287,7 @@
 
   <!-- anytime layer -->
   <g id="anytime">
-    <rect x="48" y="1914" width="1224" height="240" rx="12" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
+    <rect x="48" y="1914" width="1224" height="284" rx="12" fill="#FFFFFF" stroke="#D9E0E6" stroke-width="2"/>
     <text x="72" y="1948" class="panel-title">隨時可用：不在流程線上，需要就叫</text>
 
     <rect x="72" y="1970" width="240" height="44" rx="8" class="box model"/>
@@ -320,5 +320,9 @@
       <text x="340" y="2156" class="note">整份規格平行建置，可由操作者介入；</text>
       <text x="340" y="2180" class="note">串行驗證整合，PR 視追蹤器需要</text>
     </g>
+    <rect x="672" y="2138" width="240" height="44" rx="8" class="box user draft"/>
+    <text x="792" y="2167" text-anchor="middle" class="skill-sm">/research</text>
+    <text x="940" y="2156" class="note">為一個決策向外取證，交外部裁判檢驗；</text>
+    <text x="940" y="2180" class="note">判決可翻盤，報告看完就刪</text>
   </g>
 </svg>

@@ -120,6 +120,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 git-pr：開 MR（有 glab 直建，沒有就給連結、標題、內文自己貼）與合併後清理分支。
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** — 管理框架知識庫與診斷：OKR、精實、六標準差、Scrum 等的選用判準。
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改變可觀察行為的結構重整：特徵測試護網、一次一個 transform、綠燈即提交。
+- **[research](./skills/draft/research/SKILL.md)** — 為一個具名決策向外取證：回到原始材料、借其他領域的方法、交外部裁判檢驗，產出可翻盤的判決與主張帳本，讀完自己刪。
 - **[run-queue](./skills/draft/run-queue/SKILL.md)** — 本機票核可後無人看管執行並開 PR：預設串行，`parallel` 可用最多兩個隔離 worker；整合與驗證串行，保留五輪重試、擱置與人工 merge。
 - **[study-repo](./skills/draft/study-repo/SKILL.md)** — 讀懂一個第三方 repo：先跑起來、追一條核心路徑，產出拋棄式的學習報告。
 - **[svg-palette](./skills/draft/svg-palette/SKILL.md)** — SVG 繪圖的色盤與用色規則 —— 預設靛青深淺＋橘強調，可套品牌色。
@@ -182,6 +183,13 @@ session 規則：
 - [obra/superpowers](https://github.com/obra/superpowers) — verification-before-completion 的證據語言紀律（沒有新鮮證據不准聲稱通過；should／probably 是紅旗）。
 - [ooiyeefei/ccc](https://github.com/ooiyeefei/ccc) — 生態圈最接近的 UAT skill 對照組；continue-on-failure 與 console 錯誤擷取的實務依據。
 - Barr et al.、[The Oracle Problem in Software Testing: A Survey](https://earlbarr.com/publications/testoracles.pdf)（IEEE TSE 2015）— 期望結果必須執行前寫死且具體到可判；弱 oracle 默默封頂測試能偵測的東西。
+
+研究技能（research）的設計依據：
+
+- Felix Rieseberg、[How to be more ambitious: A tutorial for humans with models](https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/) — Altitude、Depth、Range 三個面向，以及不讓模型評自己的外部裁判原則。
+- Anthropic、[How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 依複雜度調整投入、先廣後窄、子代理的委派四要素與多代理的 token 成本。
+- [robonuggets/be-ambitious](https://github.com/robonuggets/be-ambitious/blob/main/SKILL.md) — 「野心提高標準，不提高權限」的邊界。
+- [Analysis of competing hypotheses](https://en.wikipedia.org/wiki/Analysis_of_competing_hypotheses)（Heuer）— 競爭假說與診斷性證據。
 
 ## 維護
 
