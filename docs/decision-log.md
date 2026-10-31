@@ -17,3 +17,4 @@
 2026-10-22 study-repo 的範圍外段落例外提及 Understand-Anything（附專案連結與 `/understand`，標明「若已安裝」）— draft 不對外發佈，指向可能未裝的工具傷害小，而在使用者想要整張關係圖的當下點出它價值大；ask-luca 與 README 技能清單仍不提。
 2026-10-23 commit／PR 的 harness attribution 從源頭處理：專案 `.claude/settings.json` 設 `attribution` 為 `commit:""`、`pr:""`、`sessionUrl:false`（不用 `false` 簡寫，舊版會整份設定失效而丟掉 hook）；`git-pr` 補「不加 footer」規則，`guard-git` 放寬 `git -C` 並檢查 PR `--body-file`；不改 `run-queue` 與 `CLAUDE.md` — `git-commit` 已有規則，多一層只是重複；`-F -` 與相對路徑訊息檔無實證，不加 hook。
 2026-10-24 指令紀律（捕捉一次、範圍對得上改動、獨立檢查並聯）只寫進 `implement` 一處，`implement-spec` 與 `run-queue` 指向它 — 實測 `check.sh` 與 `test-guard-git.sh` 並聯 104 秒對串聯約 158 秒，約兩成 shell 等待來自無改動的整套重跑；規則不為單一專案的範例特製，也不加 hook（是否必要重跑是語意判斷）。
+2026-10-31 新增 draft 使用者觸發技能 `research`：以具名決策為錨，把 Felix Rieseberg 的 Altitude／Depth／Range 落成開工關卡、原始材料分析、跨域方法與外部裁判分級；獨立完整、不依賴 `anthropic-skills:deep-research` — 該技能只負責覆蓋率式的敘事報告且未必安裝（Copilot／Codex 沒有），路由指向它會讓地圖說謊；畢業與否由使用者判斷後提出，不加比較門檻。
