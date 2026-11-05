@@ -119,6 +119,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[git-merge](./skills/draft/git-merge/SKILL.md)** — 把指定分支合併進當前分支；衝突時停下來分析與建議，解法是使用者的決定。
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 git-pr：開 MR（有 glab 直建，沒有就給連結、標題、內文自己貼）與合併後清理分支。
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** — 管理框架知識庫與診斷：OKR、精實、六標準差、Scrum 等的選用判準。
+- **[penpot-versions](./skills/draft/penpot-versions/SKILL.md)** — 把 mockup 歷史存成 Penpot 版本：PR 開好存 `pr-*`，repo 快照由使用者決定何時更新，`--check` 只回報累積量。
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改變可觀察行為的結構重整：特徵測試護網、一次一個 transform、綠燈即提交。
 - **[research](./skills/draft/research/SKILL.md)** — 為一個具名決策向外取證：回到原始材料、借其他領域的方法、交外部裁判檢驗，產出可翻盤的判決與主張帳本，讀完自己刪。
 - **[run-queue](./skills/draft/run-queue/SKILL.md)** — 本機票核可後無人看管執行並開 PR：預設串行，`parallel` 可用最多兩個隔離 worker；整合與驗證串行，保留五輪重試、擱置與人工 merge。

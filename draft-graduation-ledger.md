@@ -35,3 +35,7 @@ draft 技能的試用紀錄，只增不改。畢業判準見 `CLAUDE.md`〈新�
 - **bootstrap-truth / audit-truth** — 留 draft：成對不拆；audit-truth 轉接模式首戰未回報（見 08-29 待驗證），回報後兩把一起升。
 - **implement-all** — 刪除（分支 `chore/remove-implement-all`）：批次派工的編排未經實戰，先拿掉。
 
+
+## 2026-11-05 — penpot-versions 新建（badminton ADR-052）
+
+- **penpot-versions** — 新建進 `draft/`：PR 存 `pr-*` 版本、依需求匯出快照、`--check` 回報累積量。`--check` 與 `--export` 已對真實 Penpot 實測；`--pr` 只測過假 Penpot＋假 `gh`，待第一個真實 PR 驗證。

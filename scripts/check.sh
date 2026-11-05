@@ -124,6 +124,11 @@ grep -q 'check-issues\.sh' "$d/issues-check.yml" 2>/dev/null && grep -q 'base\.s
   || err "$d/issues-check.yml 沒有以 base.sha 呼叫 check-issues.sh — 檢查會失明"
 bash scripts/test-issues-check.sh >/dev/null 2>&1 || err "scripts/test-issues-check.sh 未過 — 跑 bash scripts/test-issues-check.sh 看細節"
 
+echo "[13] 技能內附腳本的測試跑綠"
+for t in $(find skills/core skills/draft -name '*.test.mjs'); do
+  node --test "$t" >/dev/null 2>&1 || err "$t 未過 — 跑 node --test $t 看細節"
+done
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

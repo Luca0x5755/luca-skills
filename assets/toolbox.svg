@@ -81,6 +81,10 @@
     <text x="726" y="698" text-anchor="middle" class="skill">/caveman</text>
     <text x="726" y="728" text-anchor="middle" class="sub">聊天回覆切繁中電報體，砍廢話省 token —</text>
     <text x="726" y="752" text-anchor="middle" class="sub">程式碼與文件照常散文，「正常模式」關閉</text>
+    <rect x="508" y="790" width="436" height="104" rx="8" class="box model draft"/>
+    <text x="726" y="826" text-anchor="middle" class="skill">/penpot-versions</text>
+    <text x="726" y="856" text-anchor="middle" class="sub">PR 開好存 Penpot 版本 —</text>
+    <text x="726" y="880" text-anchor="middle" class="sub">repo 快照由使用者決定何時更新</text>
     <g id="retro">
       <rect x="48" y="790" width="436" height="104" rx="8" class="box user"/>
       <text x="266" y="826" text-anchor="middle" class="skill">/retro</text>

@@ -53,6 +53,7 @@
 4. `.claude-plugin/plugin.json` 的 `skills` 陣列，與 `skills/core/` 的內容完全相等。
 5. `.claude-plugin/plugin.json` 與 `package.json` 的 `version` 相等。
 6. `skills/core/ask-luca/SKILL.md` 提到每一個 core 技能。路由器漏掉一個，就是一張說謊的地圖。
+7. 技能內附的 `*.test.mjs` 都跑綠。
 
 ## Hooks（機器護欄）
 
