@@ -1,6 +1,6 @@
 ---
 name: feasibility
-description: 在規格與拆票之間補上可行性這一關：技術風險、競品對照、成功指標、量級成本，收在明確判決上（✅／⚠️／❌），以 comment 掛回 spec issue。規格帶真實不確定性才需要，可選。
+description: 在規格與拆票之間補上可行性這一關：技術風險、競品對照、成功指標、量級成本，收在明確判決上（✅／⚠️／❌），本機規格追加為規格檔末節 `## Feasibility`，遠端規格以 comment 掛回。規格帶真實不確定性才需要，可選。
 disable-model-invocation: true
 ---
 
@@ -10,15 +10,15 @@ Assess a published spec before work gets split into tickets: can it be built, is
 
 **Optional step.** A small internal change with no open technical risk does not need this. Reach for it when the spec carries real uncertainty — new tech, external dependencies, a market with alternatives.
 
-The issue tracker was configured by `/setup-skills` — read `docs/agents/issue-tracker.md`. If it is missing, run `/setup-skills` first.
+The issue tracker was configured by `/setup-skills` — read `docs/agents/issue-tracker.md`; it says which side the spec is on and how to reach it. If it is missing, run `/setup-skills` first.
 
 ## Input
 
-The published spec issue plus the current conversation. Fetch the spec from the tracker — never ask the user to paste it, and never re-derive it from memory. Read `GLOSSARY.md` first; the assessment must use the project's vocabulary.
+The published spec (a 本機議題 file or a 遠端議題) plus the current conversation. Fetch the spec from the tracker — never ask the user to paste it, and never re-derive it from memory. Read `GLOSSARY.md` first; the assessment must use the project's vocabulary.
 
 ## The four questions
 
-Answer all four. Reference the spec by section — never restate it; the report and the spec live on the same issue.
+Answer all four. Reference the spec by section — never restate it; the report travels with the spec.
 
 1. **Can it be built?** The technical risks: architecture-level unknowns, external dependencies and their limits (quotas, latency, licensing), the one or two things most likely to sink the build. Not a design — that is `/to-architecture`.
 2. **Is it worth building?** Search the web for existing alternatives — products, open-source projects, the manual process people use today. Compare honestly, including where the alternative is stronger. No direct competitor found → say "no direct competitor found" and list the closest substitutes. Never invent an opponent to win against.
@@ -43,7 +43,7 @@ The report must end on exactly one of:
 
 ## Finish
 
-Post the report as a comment on the spec issue per `docs/agents/issue-tracker.md` and report the URL. Report the next step as **one hop tagged with its verdict**: ✅ → `/to-tickets`; ⚠️ → clear the conditions (a `/prototype` detour often clears a technical one); ❌ → back to `/grill-with-docs` to rework the spec.
+Deliver the report on the spec's own side. Local spec: append it as a final `## Feasibility` section in the spec file — it rides the spec's commit and dies with it in the same PR. Remote spec: post it as a comment per `docs/agents/issue-tracker.md` and report the URL. Report the next step as **one hop tagged with its verdict**: ✅ → `/to-tickets`; ⚠️ → clear the conditions (a `/prototype` detour often clears a technical one); ❌ → back to `/grill-with-docs` to rework the spec.
 
 ## Rationalization table
 

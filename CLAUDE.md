@@ -95,7 +95,7 @@ draft 的畢業流程：
 
 ### Issue tracker
 
-議題採本機 Markdown；建立、拆票、分診與完成議題前，讀取 `docs/agents/issue-tracker.md`。
+議題採本機 Markdown（`docs/issues/`）與遠端 GitHub 議題兩套並存，依 `docs/agents/issue-tracker.md` 頂部的判準分流；建立、拆票、分診與完成議題前，讀取該檔，判準只在那裡。
 
 ### Domain docs
 

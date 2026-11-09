@@ -32,7 +32,7 @@ packages/server/src/domain/commands.ts applyNext — `if (!feas.adjustedCap) ret
 
 There is no ledger file. A verdict lives in two places over its life:
 
-- **Open** — the ticket that carries it. The tracker's open drift tickets are the list of adjudicated-but-unfixed contradictions. On a local markdown tracker a ticket cannot outlive its branch, so tickets exist only for verdicts this branch will fix; a verdict that must wait goes to the host ledger below.
+- **Open** — the ticket that carries it. Drift tickets are maintenance work, so the open ones on the 遠端議題 side are the list of adjudicated-but-unfixed contradictions. On a local markdown tracker a ticket cannot outlive its branch, so tickets exist only for verdicts this branch will fix; a verdict that must wait goes to the host ledger below.
 - **Settled** — the commit that closed it. Its body carries one **Adjudicated bullet** per verdict, in the `/git-commit` bullet shape:
 
   ```
@@ -45,7 +45,7 @@ A host that already keeps a drift ledger (a spec-drift-ledger, a doc-debt regist
 
 ## Run
 
-1. **Scope.** The user names the truth documents and code areas to scan; unnamed → the whole truth layer. Locate the host ledger, if any. Read the tracker's open drift tickets (`docs/agents/issue-tracker.md` says where tickets live) — a contradiction already on a ticket or recorded in the host ledger is skipped and listed in the report as already filed.
+1. **Scope.** The user names the truth documents and code areas to scan; unnamed → the whole truth layer. Locate the host ledger, if any. Read the open drift tickets from the 遠端議題 side only (the remote section of `docs/agents/issue-tracker.md` says how); with no remote recorded, look only at the host ledger. A contradiction already on a ticket or recorded in the host ledger is skipped and listed in the report as already filed.
 2. **Card claims.** Fan out sub-agents: each truth document → verbatim claims in the evidence form, each claim checked against the code it describes and against sibling documents. Sub-agents must never invoke this skill.
 3. **Questionnaire the contradictions**, applying the `/to-questionnaire` rules — read its `SKILL.md` first if the rules are not in context (the Skill tool cannot load user-triggered skills). Write the file to the scratchpad, never into the repo. One question per contradiction: both sources in the evidence form, the divergence, options drawn from the host ledger's verdict classes when adapting, else 文件對／程式碼對／都錯／不確定. Each question carries a recommended verdict (`➡️`) with a one-line evidence basis — the `/grilling` split applies: evidence is this skill's to gather, the verdict is the user's. Before recommending, run `git log --grep=Adjudicated -- <file>` for both sources; a prior verdict on either goes into the evidence basis verbatim — newer is not truer, and the user decided this once already. No evidence basis → recommend 不確定.
 4. Stop; the user adjudicates. On a local markdown tracker the user also says which verdicts this branch will fix now; the rest go to the host ledger, or stay unadjudicated when there is none.

@@ -12,7 +12,7 @@ For committed local tickets that must run unattended with bounded retries, STALL
 
 ## 0. Inputs and environment
 
-Read the spec, every ticket, blocking edges, `GLOSSARY.md` (or the relevant `GLOSSARY-MAP.md` entry), and covering ADRs. Read `docs/agents/issue-tracker.md`; missing configuration: tell the user to run `/setup-skills` and stop.
+Fetch the spec and every ticket through `docs/agents/issue-tracker.md`, whichever side they live on (they share one side). Read blocking edges, `GLOSSARY.md` (or the relevant `GLOSSARY-MAP.md` entry), and covering ADRs. Read `docs/agents/issue-tracker.md`; missing configuration: tell the user to run `/setup-skills` and stop.
 
 Confirm approval from the supplied conversation or tracker evidence. Local markdown must be committed, with a clean feature branch. An unapproved spec is a decision to settle before building.
 
@@ -53,7 +53,7 @@ A conflict needing a behavioral choice is reported to the user. Repair a failing
 
 Before promotion, verify integration still equals the candidate's recorded base. A moved tip requires resynchronization and revalidation. The coordinator fast-forwards integration to the validated candidate, releases claims and computes the next frontier. The candidate may contain merge commits; earlier worker synchronization alone does not guarantee fast-forward landing.
 
-PR required by tracker or requested by user: open a draft **after the first validated promotion**, following sibling `git-pr/SKILL.md` or `git-mr/SKILL.md` by reading it. Preserve platform language, body-file and human-merge rules. Otherwise no PR is required. Add closing references only for completed tickets; add the spec reference once all its tickets are complete.
+PR required by tracker or requested by user: open a draft **after the first validated promotion**, following sibling `git-pr/SKILL.md` or `git-mr/SKILL.md` by reading it. Preserve platform language, body-file and human-merge rules. Otherwise no PR is required. Add closing references only for completed tickets that close with the PR; an acceptance issue gets the non-closing reference recorded in `docs/agents/issue-tracker.md`. Add the spec reference once all its tickets are complete.
 
 ## 4. Review and close out
 

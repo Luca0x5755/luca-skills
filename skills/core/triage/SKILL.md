@@ -12,6 +12,10 @@ Take issues that arrived from outside and push each to a terminal state.
 
 Read `docs/agents/issue-tracker.md` for the label and list commands. If it is missing, tell the user to run `/setup-skills` first; resume after the tracker is configured.
 
+## Route
+
+Outside issues — those that arrived from outside — always live on the remote (遠端議題), with no proposal and no question. No remote recorded → local only.
+
 ## The roles
 
 | Role | Meaning | Next |
