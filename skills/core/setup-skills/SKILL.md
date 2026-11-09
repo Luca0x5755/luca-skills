@@ -1,6 +1,6 @@
 ---
 name: setup-skills
-description: 為這個 repo 設定工程技能所需的組態 — 議題追蹤器、領域文件位置、git 護欄 hook，以及本機議題用的 CI 檢查。初始化跑一次；重跑可換追蹤器或補裝、更新護欄。
+description: 為這個 repo 設定工程技能所需的組態 — 本機與遠端兩套議題追蹤器、領域文件位置、git 護欄 hook，以及本機議題用的 CI 檢查。初始化跑一次；重跑可調整追蹤器記錄或補裝、更新護欄。
 disable-model-invocation: true
 ---
 
@@ -10,7 +10,7 @@ Write the per-repo configuration the other skills assume. Prompt-driven, not a s
 
 Produces:
 
-- `docs/agents/issue-tracker.md` — where issues live
+- `docs/agents/issue-tracker.md` — the routing criteria on top, then where 本機議題 and 遠端議題 live
 - `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, and the collaboration mode
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` in `.claude/hooks/`, registered in `.claude/settings.json`
@@ -34,11 +34,16 @@ Read what exists. Assume nothing.
 
 Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the three sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker. Every other section collects a nod, re-runs included.
 
-**Section A — Issue tracker.** Where issues live for this repo. `to-tickets`, `to-spec`, and `triage` read from and write to it; they need to know whether to run `gh issue create`, write a file under `docs/issues/`, or follow something you describe.
+**Section A — Issue trackers.** Both trackers are recorded, never one instead of the other: a 本機議題 tracker, and a 遠端議題 tracker when the repo has a remote. `to-tickets`, `to-spec`, `wayfinder`, and `triage` choose between them by the routing criteria at the top of `docs/agents/issue-tracker.md` (「分流判準」) and read from and write to the one it points at; they need to know whether to run `gh issue create`, `glab issue create`, write a file under `docs/issues/`, or follow something you describe.
 
-Ask, leading with the proposal from the remote: GitHub remote → GitHub Issues (`gh` CLI). GitLab remote → GitLab Issues (`glab` CLI). No remote → local markdown, one file per issue: `docs/issues/ISSUE-NNN-<slug>.md`, `NNN` three digits, current highest + 1. Anything else → ask for one paragraph of description and record it as prose.
+Ask, leading with the proposal from what exploration found:
 
-A local markdown issue lives and dies on one branch: `/implement` deletes it when done, and Section F's CI check enforces that. Work that outlives the branch belongs in a real tracker.
+- **本機**: local markdown, one file per issue: `docs/issues/ISSUE-NNN-<slug>.md`, `NNN` three digits, current highest + 1. An existing `.scratch/` convention is recorded as found.
+- **遠端**: GitHub remote → GitHub Issues (`gh` CLI). GitLab remote → GitLab Issues (`glab` CLI). Anything else → ask for one paragraph of description and record it as prose. No remote → the 遠端 section says 「不存在」 and every skill falls back to 本機 only.
+
+The routing criteria are written once, in the top of the generated `issue-tracker.md`: on a first run take them from luca-skills' own `docs/agents/issue-tracker.md` (repo resolved as in Section E); on a re-run keep the text already there. This skill never restates them.
+
+A 本機議題 lives and dies on one branch: `/implement` deletes it when done, and Section F's CI check enforces that. Work that outlives the branch belongs in a 遠端議題, so the 遠端 section is where it goes; with no remote, say out loud that such work has no home yet.
 
 **Section B — Domain docs.** Default to **single-context**: one `GLOSSARY.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `GLOSSARY-MAP.md` pointing at per-package `GLOSSARY.md` files — only when exploration found monorepo signals.
 
@@ -96,10 +101,14 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 `docs/agents/domain.md` must record the collaboration mode and, in private mode, which paths are excluded — downstream skills read it to know whether their output is committed or personal.
 
-`docs/agents/issue-tracker.md` must record, concretely: the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess. For local markdown add the file-name pattern, the next-number rule, and the lifecycle: delete the file when done.
+`docs/agents/issue-tracker.md` must record, concretely, in the two-section format: first a `## 分流判準` section (the routing criteria, per Section A), then `## 本機` and `## 遠端`. Each of the two sections records the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess.
+
+- `## 本機` adds the file-name pattern, the next-number rule, and the lifecycle: delete the file when done.
+- `## 遠端` with a remote names the host and adds the **non-closing reference form** — how a PR points at an issue without closing it on merge — taken from the host's official docs, never from memory. GitLab: write `Related to #N` in the merge request description with no closing keyword; the official docs' example `Closes #4, #6, Related to #5` marks #5 "as a related issue, but it's not closed automatically" (https://docs.gitlab.com/user/project/issues/managing_issues/, "Closing issues automatically"). GitHub: `Refs #N`, inferred from the docs (no closing keyword, unrun). Unverifiable form → record it as unverified.
+- `## 遠端` with no remote reads 「不存在」, and nothing else.
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for switching trackers or refreshing the guard-hook and issues-check copies.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook and issues-check copies.
 
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
