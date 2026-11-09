@@ -71,11 +71,11 @@ Never interrogate against a blank page. Draw v1 from what is already known
 or a dashed "假設" node), then ask about the marks. Closed choices (audience,
 venue, orientation) go through AskUserQuestion; open facts are asked in prose.
 
-**Gantt/milestone data** is schedule data the codebase cannot yield: pull the
-issue tracker first (`gh issue list`, milestones, due dates — see
-`docs/agents/issue-tracker.md` when present), draft from that, mark gaps `?`,
-then ask. Only when there is no tracker at all does the schedule come entirely
-from the user.
+**Gantt/milestone data** is schedule data the codebase cannot yield: read the
+side `docs/agents/issue-tracker.md` points at first — 遠端議題: `gh issue list`,
+milestones, due dates; 本機議題: the files in `docs/issues/` — draft from that,
+mark gaps `?`, then ask. Only when there is no tracker at all does the schedule
+come entirely from the user.
 
 Iterate until no marks remain — an unresolved `?` on a delivered diagram is a
 guess shipped as a fact.
