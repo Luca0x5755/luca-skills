@@ -14,6 +14,10 @@ The most expensive flow in this repo. `/grill-with-docs` handles the idea you ca
 
 Read `docs/agents/issue-tracker.md` for the create and link commands. If it is missing, tell the user to run `/setup-skills` first; resume after the tracker is configured.
 
+## Route
+
+The map and decision tickets are always created on the remote tracker: map and decision tickets — always the remote tracker, no proposal, no question. Any other content this skill publishes gets a one-line reason for 本機議題 or 遠端議題, judged by the criteria at the top of `docs/agents/issue-tracker.md` — the criteria live there only. The user confirms once, no second prompt, and a spec and its tickets stay on the same side. No remote recorded → local only, fixed-remote items too.
+
 ## 1. Name the destination
 
 One paragraph: what is true when this is done. Not how — what.
@@ -22,7 +26,7 @@ If the destination cannot be written down, that is the first thing to resolve, a
 
 ## 2. Cut the fog into decision tickets
 
-Create a parent issue — the **map**. Under it, one child issue per **decision ticket**: a *question* whose resolution is a decision.
+Create a parent issue — the **map** — per Route. Under it, one child issue per **decision ticket**: a *question* whose resolution is a decision.
 
 A decision ticket, not an implementation ticket:
 

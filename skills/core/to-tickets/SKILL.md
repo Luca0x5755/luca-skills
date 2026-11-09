@@ -54,9 +54,13 @@ Traps, decided-against alternatives, the seam to test at.
 - **Show the full set before publishing** — the sizing and the edges are much easier to judge as a list than one at a time. Let the user edit, then publish: the publishing commit is the approval `/run-queue` checks for.
 - **Cite truth by name.** When `/to-architecture` or `/frontend-spec` ran, a ticket names the `docs/03_architecture_design.md` section, the `docs/05_frontend_spec.md` page, or the `.pen` state frame it builds against. Those documents ride the feature branch and merge with the code — a ticket that restates them is a second copy that drifts.
 
+## Route
+
+Before publishing, propose 本機議題 or 遠端議題 with a one-line reason, judged by the criteria at the top of `docs/agents/issue-tracker.md` — the criteria live there only. The user confirms once, and the whole set goes to that one side — no second prompt. A ticket stays on the same side as its spec: spec already on the remote → tickets go remote, skip the proposal. No remote recorded → local only, skip the proposal.
+
 ## Finish
 
-Publish. On a local markdown tracker, publishing is writing the files **and** committing them; an uncommitted ticket is still a draft.
+Publish on the side Route chose. On a local markdown tracker, publishing is writing the files **and** committing them; an uncommitted ticket is still a draft.
 
 **Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
 
