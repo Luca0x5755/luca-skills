@@ -14,7 +14,7 @@ Read `docs/agents/issue-tracker.md` for the label and list commands. If it is mi
 
 ## Route
 
-Outside issues — those that arrived from outside — live on the remote tracker: outside issues — always the remote tracker, no proposal, no question. No remote recorded → local only.
+Outside issues — those that arrived from outside — always live on the remote (遠端議題), with no proposal and no question. No remote recorded → local only.
 
 ## The roles
 

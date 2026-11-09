@@ -72,8 +72,8 @@ or a dashed "假設" node), then ask about the marks. Closed choices (audience,
 venue, orientation) go through AskUserQuestion; open facts are asked in prose.
 
 **Gantt/milestone data** is schedule data the codebase cannot yield: read the
-side `docs/agents/issue-tracker.md` points at first — 遠端議題: `gh issue list`,
-milestones, due dates; 本機議題: the files in `docs/issues/` — draft from that,
+side `docs/agents/issue-tracker.md` points at first — 遠端議題: the list
+command in that file, milestones, due dates; 本機議題: the files in `docs/issues/` — draft from that,
 mark gaps `?`, then ask. Only when there is no tracker at all does the schedule
 come entirely from the user.
 

@@ -16,7 +16,7 @@ Read `docs/agents/issue-tracker.md` for the create and link commands. If it is m
 
 ## Route
 
-The map and decision tickets are always created on the remote tracker: map and decision tickets — always the remote tracker, no proposal, no question. Any other content this skill publishes gets a one-line reason for 本機議題 or 遠端議題, judged by the criteria at the top of `docs/agents/issue-tracker.md` — the criteria live there only. The user confirms once, no second prompt, and a spec and its tickets stay on the same side. No remote recorded → local only, fixed-remote items too.
+The map and decision tickets always go on the remote (遠端議題), with no proposal and no question. Any other content this skill publishes gets a one-line reason for 本機議題 or 遠端議題, judged by the criteria at the top of `docs/agents/issue-tracker.md` — the criteria live there only. The user confirms once, no second prompt, and a spec and its tickets stay on the same side. No remote recorded → local only, fixed-remote items too.
 
 ## 1. Name the destination
 

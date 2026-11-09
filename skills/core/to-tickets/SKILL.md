@@ -26,7 +26,7 @@ The test for a good ticket: **could an agent that has never seen this conversati
 
 Each ticket names what must be done before it. Real dependencies only — "B needs the type A defines" is an edge; "B feels like it comes after A" is not. Invented edges serialise work that could have run in parallel.
 
-On a real tracker these become native blocking links, so any ticket with cleared blockers can be grabbed. On a local markdown tracker they are a `Blocked by:` line, worked blockers-first by hand.
+On 遠端議題 these become native blocking links, so any ticket with cleared blockers can be grabbed. On 本機議題 they are a `Blocked by:` line, worked blockers-first by hand.
 
 ## Ticket shape
 
