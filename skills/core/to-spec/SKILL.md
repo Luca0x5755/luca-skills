@@ -63,6 +63,8 @@ Specs written before IDs existed get numbered **on demand** — a promise takes 
 
 ## Finish
 
+**Route — confirm once.** Before publishing, propose the destination (本機議題 or 遠端議題) with a one-line reason, judged by the criteria at the top of `docs/agents/issue-tracker.md` — the criteria live there only. The user confirms once; that answer routes the spec and, later, its tickets (they share one side). In the same message ask one question: is there an acceptance issue? If yes, create it on the remote tracker alongside the spec; the PR references it with the non-closing form recorded in that file, so a person closes it after accepting. A spec already on the remote carries acceptance as one of its tickets. No remote recorded → local, skip the proposal.
+
 Publish per `docs/agents/issue-tracker.md` and report the URL or path. On a local markdown tracker, publishing is writing the file **and** committing it; an uncommitted spec is still a draft.
 
 **Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
