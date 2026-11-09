@@ -9,12 +9,12 @@ argument-hint: 預設串行；parallel 或 parallel=2 啟用兩個 worker
 
 Drain the local ticket queue to an opened PR. The human gate is the **published spec**: spec and tickets are committed only after the user approves them. The run is unattended after that; merging the PR remains the user's action.
 
-This is the bounded local-queue flow. `/implement-spec` is the separate, steerable whole-spec flow across configured trackers. Suggest that entry when this flow's local-tracker precondition fails; never invoke it automatically. Workers must never invoke either orchestrator.
+This is the bounded local-queue flow. `/implement-spec` is the separate, steerable whole-spec flow across configured trackers. Remote specs are not this flow's business. Suggest `/implement-spec` when there are no local tickets, or when the work sits on a remote spec; never invoke it automatically. Workers must never invoke either orchestrator.
 
 ## 0. Preconditions and mode
 
 - Current branch is a feature branch; working tree clean; every spec and ticket in `docs/issues/` committed. Any miss: report and stop.
-- Tracker is local markdown. Tickets have `## Done when` and `## Blocked by`; specs do not.
+- There are local tickets: 本機議題 files in `docs/issues/` with `## Done when` and `## Blocked by` (specs have neither). None → report and stop.
 - **Serial is the default**, retaining one fresh implementer context per ticket. An explicit `parallel` or `parallel=2` argument enables at most two implementer workers. Another limit: report that only 1 or 2 is supported.
 - Parallel mode requires background agents, independent branches/worktrees and isolated test resources. If unavailable, report the limitation and use serial execution; do not claim concurrency.
 - Read [PARALLEL.md](PARALLEL.md) before creating any worktree or dispatching a parallel worker. It defines preparation, resource admission, integration, denial and cleanup.
