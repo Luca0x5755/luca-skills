@@ -21,7 +21,7 @@ Turn a spec's UI surface into frontend truth plus Penpot mockups. Runs after `/t
 
 No truth layer yet? An inherited legacy project goes through `/bootstrap-truth` first; a young project just starts its `05` and first capability file here.
 
-**Precondition.** The project's `CLAUDE.md` declares its Penpot file and carries a section of Penpot operating rules. Either one missing → stop and ask the user to create the file, connect the plugin, and declare both. Opening a design file is theirs to do.
+**Precondition.** The project's `CLAUDE.md` declares its Penpot file and carries a section of Penpot operating rules. Either one missing → stop and ask the user to create the file, connect the plugin, and declare both. Opening a design file is theirs to do. The project also has `.claude/hooks/guard-penpot.sh` registered in `.claude/settings.json` — it blocks the Penpot calls that search the whole file and freeze the tab; missing or unregistered → stop and ask the user to run `/setup-skills`.
 
 ## Shape
 
