@@ -52,7 +52,7 @@ Traps, decided-against alternatives, the seam to test at.
 
 - **Do not triage these.** They are already agent-ready. `/triage` is for issues that arrived from outside.
 - **Show the full set before publishing** — the sizing and the edges are much easier to judge as a list than one at a time. Let the user edit, then publish: the publishing commit is the approval `/run-queue` checks for.
-- **Cite truth by name.** When `/to-architecture` or `/frontend-spec` ran, a ticket names the `docs/03_architecture_design.md` section, the `docs/05_frontend_spec.md` page, or the `.pen` state frame it builds against. Those documents ride the feature branch and merge with the code — a ticket that restates them is a second copy that drifts.
+- **Cite truth by name.** When `/to-architecture` or `/frontend-spec` ran, a ticket names the `docs/03_architecture_design.md` section, the `docs/05_frontend_spec.md` page, or the board (`<page> · <State> · <Desktop|Mobile>`) it builds against. The documents ride the feature branch and merge with the code — a ticket that restates them is a second copy that drifts.
 
 ## Route
 

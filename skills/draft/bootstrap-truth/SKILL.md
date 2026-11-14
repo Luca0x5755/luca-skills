@@ -19,7 +19,7 @@ docs/
 ├── 03_architecture_design.md    # consolidated spec: stack, data model, API, events
 ├── 04_adr.md + adr/ADR-NNN.md   # decision index + full decision texts
 ├── 05_frontend_spec.md          # consolidated frontend spec (only if the project has UI)
-└── mockup/<page>.pen            # screen mockups (only if the project has UI)
+└── mockup/<project>.penpot      # snapshot of the Penpot design master (only if the project has UI)
 ```
 
 - **Specs stay consolidated.** Spec content never splits into per-capability spec files — scattered specs are the disease, not the cure.
