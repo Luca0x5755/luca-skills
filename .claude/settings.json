@@ -32,6 +32,15 @@
             "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/guard-secrets.sh\""
           }
         ]
+      },
+      {
+        "matcher": "mcp__penpot__execute_code|mcp__penpot__export_shape",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/hooks/guard-penpot.sh\""
+          }
+        ]
       }
     ],
     "Stop": [

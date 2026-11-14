@@ -31,9 +31,22 @@ While drawing
 - Name each board exactly as listed above. Light and dark are a token theme:
   one board serves both.
 - Return ids and names from `execute_code`, leaving shape trees in Penpot.
-- Export each board when you believe it is finished, look at the image, and
-  fix overlap, clipping and broken hierarchy. Re-export only a board you
-  changed.
+- Find shapes on the current page only: `penpot.currentPage.getShapeById(id)`,
+  or `penpot.currentPage.findShapes({ name | nameLike | type })`, adding
+  `.filter(pred)` when a predicate is needed. Leave `penpotUtils.findShape*`
+  out entirely, with or without a root: it walks every page of the file and
+  freezes the tab on a large one.
+- Keep each `execute_code` call to a small batch: every created shape costs
+  30–40 ms on a full page. Change main components only where the page needs
+  it, since each change re-syncs the whole file. Undo blocks only merge
+  history and save no time.
+- Export each board when you believe it is finished: set
+  `penpot.selection = [penpot.currentPage.getShapeById(id)]` in
+  `execute_code`, then call `export_shape` with `shapeId: "selection"` — a
+  shape id there triggers the same whole-file search. Look at the image and
+  fix overlap, clipping and broken hierarchy. An image of some other shape
+  means the selection changed in between: select again and re-export.
+  Re-export only a board you changed.
 - On "tab suspended", or when the plugin cannot be reached, stop at once and
   report. The first occurrence ends your run: only the user can bring the
   tab back, and a retry spends context for nothing.

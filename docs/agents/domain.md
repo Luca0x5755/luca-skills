@@ -13,5 +13,5 @@
 本檔只供工具導航，團隊規範應維護於共同閱讀的文件。
 
 Guard hooks 保留 `.claude/settings.json` 已有的
-`hooks/guard-git.sh` 與 `hooks/guard-secrets.sh` 掛載。
+`hooks/guard-git.sh`、`hooks/guard-secrets.sh` 與 `hooks/guard-penpot.sh` 掛載。
 本 repo 維護護欄原始碼，既有檢查會驗證掛載與 hook 地圖一致。

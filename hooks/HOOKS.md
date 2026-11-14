@@ -21,6 +21,14 @@
 - **定位**：優先使用 payload.cwd 所屬 Git root 的整份 index；路徑無法進入時擋下提交，避免掃錯樹。
 - **關係**：與 guard-git.sh 同為 `setup-skills` 外發的護欄組。
 
+## guard-penpot.sh
+
+- **事件**：PreToolUse（matcher: `mcp__penpot__execute_code|mcp__penpot__export_shape`）。
+- **擋**：`execute_code` 的程式碼出現 `penpotUtils.findShape(`／`findShapes(`／`findShapeById(` — 不論帶不帶 root，含 `?.` 與斷行的鏈式寫法；`export_shape` 的 `shapeId` 不是 `selection`／`page`。stderr 給替代寫法：`currentPage.getShapeById`、`currentPage.findShapes({…})`（必要時 `.filter(pred)`）、先設 `penpot.selection` 再 `export_shape({shapeId: "selection"})`。缺 `jq` 時放行。
+- **為什麼**：這是效能規則，照 `/writing-hooks` 的分層本該留在 prose — 破例。Penpot MCP 官方 instructions 教的正是不帶 root 的 `penpotUtils` 搜尋，它走遍每一頁、為每個物件建 proxy：16 頁 32,173 物件實測 23 秒，`getShapeById` 1 ms；`export_shape` 帶 UUID 時工具內部寫死同一個搜尋。我們的 prose 對上更權威的 prose 守不住，判斷又是確定性的。不數參數：用 regex 數括號裡的逗號必然誤判，而替代寫法實測反而較快。上游修好 `findShapeById` 時，此 hook 可拆。
+- **已知限制**：別名（`const u = penpotUtils; u.findShapes(…)`）擋不到 — 防的是被誤導的模型，不是對手。
+- **關係**：`setup-skills` 在專案使用 Penpot 時，把本腳本逐位元組複製進目標 repo 的 `.claude/hooks/`；`frontend-spec` 的前置條件要求它存在。
+
 ## check-on-stop.sh
 
 - **事件**：Stop。
