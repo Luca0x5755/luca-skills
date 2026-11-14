@@ -1,6 +1,6 @@
 # 0001：設計稿正本可以領先 `main`，`05` 是算數 board 的唯一名單
 
-Status: Proposed
+Status: Accepted
 
 日期：2026-11-14
 
