@@ -5,7 +5,8 @@
 # 執行：bash scripts/test-truth-map-check.sh（scripts/check.sh 會跑）
 set -u
 cd "$(dirname "$0")/.."
-CHECK="$PWD/skills/core/setup-skills/check-truth-map.sh"
+REPO=$PWD
+CHECK="$REPO/skills/core/setup-skills/check-truth-map.sh"
 A=docs/03_architecture_design.md
 F=docs/05_frontend_spec.md
 
@@ -168,6 +169,41 @@ suite() {  # suite <locale>
     "rm -f docs/capabilities/*.md"
   case_ "$L" 0 "沒有標題標到的 capability 檔可以沒有 ## 規格章節 → 過" \
     "printf '## 訂單明細（能力：訂單）\n' > $A && sec 訂單 $A 訂單明細 && printf '# 排場\n\n現況\n' > $C"
+
+  # PR-TRUTH-09／10：03／05 引用的承諾 ID 要在某個 capability 檔的 ## Promises 有定義且未退役。
+  P='## 部署（能力：共用）\n'
+  case_ "$L" 1 "引用沒有定義的 ID → 擋，點名位置、ID 與「找不到」" \
+    "printf '$P說明見 PR-SCH-02。\n' > $A && printf '## Promises\n\nPR-SCH-01 — 排場可預約\n' > $C" \
+    "$A:2:" "PR-SCH-02" "找不到"
+  case_ "$L" 0 "引用有定義的 ID → 過" \
+    "printf '$P說明見 PR-SCH-01。\n' > $A && printf '## Promises\n\nPR-SCH-01 — 排場可預約\n' > $C"
+  case_ "$L" 1 "05 引用退役的 ID → 擋，點名位置、ID 與「已退役」" \
+    "printf '$P依 PR-SCH-01 顯示\n' > $F && printf '## Promises\n\nPR-SCH-01 — retired：由 PR-SCH-02 取代\nPR-SCH-02 — 排場可預約與候補\n' > $C" \
+    "$F:2:" "PR-SCH-01" "已退役"
+  # 同前綴另有一行不帶 - 的定義：沒認出帶 - 的那行時，前綴仍在，引用就會「找不到」而不是靜默通過。
+  case_ "$L" 0 "行首帶 - 的承諾行也是定義 → 過" \
+    "printf '$P見 PR-SCH-01\n' > $A && printf '## Promises\n\n- PR-SCH-01 — 排場可預約\nPR-SCH-02 — 排場可取消\n' > $C"
+  case_ "$L" 1 "前綴從定義推導，不需設定檔：自創前綴的未定義編號照樣抓到 → 擋" \
+    "printf '$P見 ZZ-QQ-08\n' > $A && printf '## Promises\n\nZZ-QQ-07 — 自創前綴的承諾\n' > $C" \
+    "ZZ-QQ-08 找不到"
+  case_ "$L" 1 "## Promises 以外的 <ID> — 行不算定義 → 擋，「找不到」" \
+    "printf '$P見 PR-SCH-03\n' > $A && printf '## Promises\n\nPR-SCH-01 — 排場可預約\n\n## 驗證\n\nPR-SCH-03 — 不是承諾\n' > $C" \
+    "PR-SCH-03" "找不到"
+  case_ "$L" 1 "ID 只比對整串數字：PR-SCH-011 不等於 PR-SCH-01 → 擋" \
+    "printf '$P見 PR-SCH-011\n' > $A && printf '## Promises\n\nPR-SCH-01 — 排場可預約\n' > $C" \
+    "PR-SCH-011" "找不到"
+  case_ "$L" 1 "引用在行首也照樣判定 → 擋" \
+    "printf '${P}PR-SCH-02 未定義\n' > $A && printf '## Promises\n\nPR-SCH-01 — 排場可預約\n' > $C" \
+    "$A:2:" "PR-SCH-02 找不到"
+  case_ "$L" 0 "前綴只是更長 ID 的尾巴時不算引用 → 過" \
+    "printf '$P見 XPR-SCH-09\n' > $A && printf '## Promises\n\nPR-SCH-01 — 排場可預約\n' > $C"
+  # 本 repo 現有的 capability 檔原封不動複製進來，證明現有寫法不需改動即可通過（PR-TRUTH-09）。
+  case_ "$L" 0 "本 repo 的 installer.md 與 issue-tracker.md 原樣當定義 → 過" \
+    "cp '$REPO/docs/capabilities/installer.md' '$REPO/docs/capabilities/issue-tracker.md' docs/capabilities/ && printf '$P見 PR-INSTALL-01 與 PR-TRACKER-14\n' > $A"
+  # 上一案若解析器什麼都沒讀到也會綠；這一案證明兩檔的前綴確實被認出來。
+  case_ "$L" 1 "同兩檔，引用它們沒定義的編號 → 擋，兩個都「找不到」" \
+    "cp '$REPO/docs/capabilities/installer.md' '$REPO/docs/capabilities/issue-tracker.md' docs/capabilities/ && printf '$P見 PR-INSTALL-99 與 PR-TRACKER-99\n' > $A" \
+    "PR-INSTALL-99 找不到" "PR-TRACKER-99 找不到"
 
   # PR-TRUTH-03：05 不得有核取方塊行。
   case_ "$L" 1 "05 有 - [ ] 行 → 擋，點名行號" \
