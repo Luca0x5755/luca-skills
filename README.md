@@ -187,7 +187,7 @@ session 規則：
 研究技能（research）的設計依據：
 
 - Felix Rieseberg、[How to be more ambitious: A tutorial for humans with models](https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/) — Altitude（本 repo 解為研究結果的用途）、Depth、Range 三個面向，以及不讓模型評自己的外部裁判原則。
-- Anthropic、[How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 依複雜度調整投入、先廣後窄、子代理的委派四要素與多代理的 token 成本；[research_lead_agent.md](https://github.com/anthropics/claude-cookbooks/blob/main/patterns/agents/prompts/research_lead_agent.md) 的單純／廣度／深度分類只調投入、不擋請求，清單任務也照收。
+- Anthropic、[How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 依複雜度調整投入、先廣後窄、子代理的委派四要素與多代理的 token 成本；[research_lead_agent.md](https://github.com/anthropics/claude-cookbooks/blob/main/patterns/agents/prompts/research_lead_agent.md) 的單純／廣度／深度分類決定拆法與投入、不擋請求，清單任務也照收。
 - OpenAI、[Deep Research API with the Agents SDK](https://github.com/openai/openai-cookbook/blob/main/examples/deep_research_api/introduction_to_deep_research_api_agents.ipynb) — 釐清問題設上限、改寫成研究指示時「沒講的細節不准發明」。
 - [langchain-ai/open_deep_research](https://github.com/langchain-ai/open_deep_research/blob/1b7d2e80db9faa586165c60e09096dbbfd483a64/src/open_deep_research/prompts.py) 與 [bytedance/deer-flow](https://github.com/bytedance/deer-flow/blob/main-1.x/src/prompts/coordinator.md) — 事實題也交給研究、比較題每個選項各派子代理；DeerFlow 以研究計畫審核取代確認改寫後的問題。
 - [mattpocock/skills](https://github.com/mattpocock/skills/blob/main/docs/engineering/research.md) — 「產出的是決策而不是事實，就是 grilling」：研究不下建議，決策交給拷問。
