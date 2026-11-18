@@ -192,6 +192,16 @@ grep -qF 'guard-penpot.sh' "$f" || err "$f 丟了 guard-penpot.sh 前置條件"
 grep -qF '## Penpot' "$b" || err "$b 沒有把子代理指向 CLAUDE.md 的「## Penpot」"
 grep -qF 'docs/agents/domain.md' "$f" || err "$f 沒有指向 docs/agents/domain.md 讀 capability 檔形狀"
 
+echo "[18] bootstrap-truth：第 4 步照 /setup-skills Section G 安裝檢查、不深連結模板、形狀從 domain.md 讀、不提參考專案"
+d=skills/draft/bootstrap-truth
+f=$d/SKILL.md
+for s in 'setup-skills/SKILL.md' 'Section G' "parent of this skill's base directory" 'heading missing either side is blocked by the check /setup-skills installs' 'docs/agents/domain.md'; do
+  grep -qF -- "$s" "$f" || err "$f 缺少「$s」— 第 4 步要從 base directory 上一層讀 setup-skills/SKILL.md 照 Section G 裝檢查，形狀從 domain.md 讀"
+done
+grep -rqiE 'two-way orphan check|orphans go red|orphan-goes-red' "$d" && err "$d 仍描述雙向孤兒檢查 — 改寫成由 /setup-skills 安裝的檢查擋下"
+grep -rqE 'setup-skills/(check-truth-map\.sh|truth-map-check\.yml|CHECKS\.md|capability-shape\.md)' "$d" && err "$d 深連結進 setup-skills 資料夾的模板 — 讀整份 setup-skills/SKILL.md 照做"
+grep -rqiE '排場|計分|羽球|badminton|smart-lock' "$d" && err "$d 提到參考專案 — 範例一律用通用情境"
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

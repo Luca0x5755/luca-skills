@@ -23,8 +23,8 @@ docs/
 ```
 
 - **Specs stay consolidated.** Spec content never splits into per-capability spec files — scattered specs are the disease, not the cure.
-- **Capability files are thin and current-state**: what the ability does, for whom, its core behaviour rules, and which spec sections carry its contracts. The PRD records what was asked for; capability files record what the system now does.
-- **Cross-mapping is mechanical.** Spec section headings name their capabilities (`## 3.5 Socket.IO 事件（能力：排場、計分）`); each capability file lists its spec sections. Orphans go red both ways: a spec section naming no capability, a capability file naming no spec section.
+- **Capability files are thin and current-state.** The PRD records what was asked for; capability files record what the system now does. The capability-file shape lives in the target's `docs/agents/domain.md`; read it there before writing one.
+- **Cross-mapping is mechanical.** Spec section headings carry their capability tags (`## 3.4 REST API（能力：訂單、付款）`); each capability file lists its headings back. A heading missing either side is blocked by the check /setup-skills installs (Phase B step 4).
 - **Short by method, not by quota.** No line budgets. Shortness comes from the cuts: duplicated passages, process narrative, and any fact the code or config can answer.
 - The shape is the contract, not the filenames: a host whose governance already has an equivalent set (business doc / capability layer / consolidated specs / decision records / mockups) keeps its own names and numbering.
 
@@ -34,7 +34,7 @@ The first act of Phase A: does the target already govern its documents — numbe
 
 ## Layer declaration (LAYERS.yaml)
 
-> **Pending Smart-Lock validation.** The four-layer mechanism (truth / generated / history / tooling; declaration via path prefixes + orphan-goes-red check) is awaiting its first real deployment. Until that survives, this section carries no instructions — do not improvise layer content here.
+> **Pending field validation.** The four-layer mechanism (truth / generated / history / tooling; declaration via path prefixes + a check that fails on undeclared paths) is awaiting its first real deployment. Until that survives, this section carries no instructions — do not improvise layer content here.
 
 ## What may be reverse-engineered from code
 
@@ -75,10 +75,10 @@ One document per batch, each batch its own branch and PR. The capability layer a
 0. **Tickets first, once for the whole run.** File the questionnaire verdicts per `/audit-truth` step 5 (file the tickets) — read its `SKILL.md` first if the rules are not in context; tickets are tracker writes and ride no branch. A host with its own drift ledger gets the verdicts written there first, per the same step. 程式碼對 verdicts get no ticket: the document change rides a fact commit (step 2); 都錯 gets a ticket for its code half. A bug found while reading is a ticket in the same shape — Context is its evidence, no triage.
 1. Branch from the base branch.
 2. **Cut-commits are fact-neutral.** A slimming commit adds and removes zero facts — wording, structure, and deletion of duplicated or code-derivable content only. Every fact change rides its own commit, whose body carries the verdict's `Adjudicated` bullet (the `/audit-truth` record). A reviewer must be able to trust that a cut-commit changed nothing true.
-3. **Write the capability files and stamp the spec headings** per the cross-mapping plan. Capability content comes from Phase A evidence and confirmed verdicts only.
-4. **Install mechanical checks** (once): the two-way orphan check (spec section without capability, capability without spec section — red), plus regen-diff or append-only checks where the host's shape calls for them. A host with partial governance gets only the missing checks, and no templates.
+3. **Write the capability files and stamp the spec headings** per the cross-mapping plan, in the capability-file shape from `docs/agents/domain.md` — no such section there → ask the user to run `/setup-skills` first. Capability content comes from Phase A evidence and confirmed verdicts only.
+4. **Install mechanical checks** (once), on a branch cut after the capability batch has merged — Section G is offered only when `docs/capabilities/` exists. The truth-map check comes from `/setup-skills` Section G: read `setup-skills/SKILL.md` in the parent of this skill's base directory (the Skill tool cannot load user-triggered skills) and follow its Section G, so the target gets the same files `/setup-skills` installs. Add regen-diff or append-only checks where the host's shape calls for them. A host with partial governance gets only the checks it is missing.
 5. Commit following the `/git-commit` rules — **mandatory**; read its `SKILL.md` first if the rules are not in context. Stage only the files this batch touched.
-6. Report the batch: cuts applied, facts changed (each with its verdict), capability files written, `資訊缺失` lines left open. Next step: `/git-pr` per batch.
+6. Report the batch: cuts applied, facts changed (each with its verdict), capability files written, checks installed with their current red lines, `資訊缺失` lines left open. Next step: `/git-pr` per batch.
 
 ## Finish
 
