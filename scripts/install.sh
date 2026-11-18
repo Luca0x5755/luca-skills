@@ -76,13 +76,23 @@ dest_for() {
   esac
 }
 
+# 目標落在本 repo 的 core/ 或 draft/ 底下就算本 repo 管理，不要求目標仍存在：
+# 技能畢業或封存後舊連結成了斷鏈，它仍是本 repo 建的，要能被替換。
 is_managed_skill_link() {
-  [ -L "$1" ] && [ "$(resolve_directory "$1")" = "$(resolve_directory "$2")" ]
+  [ -L "$1" ] || return 1
+  local target parent
+  target="$(readlink "$1")"
+  case "$target" in /*) ;; *) target="$(dirname "$1")/$target" ;; esac
+  parent="$(resolve_directory "$(dirname "$target")")" || return 1
+  [ "$parent" = "$core_dir" ] || [ "$parent" = "$draft_dir" ]
 }
 
 resolve_directory() {
-  (cd -P "$1" && pwd)
+  (cd -P "$1" 2>/dev/null && pwd)
 }
+
+core_dir="$(resolve_directory "$repo/skills/core")"
+draft_dir="$(resolve_directory "$repo/skills/draft")"
 
 shopt -s nullglob
 skills=("$repo"/skills/core/*/ "$repo"/skills/draft/*/)

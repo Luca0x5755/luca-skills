@@ -129,6 +129,17 @@ try {
     $result = Invoke-Installer -StandardInput "1 3"
     if ($result.ExitCode -eq 0) { throw 'multi-agent installation reported success despite a collision' }
     if (-not (Test-Path (Join-Path $testHome '.claude\skills\ask-luca'))) { throw 'collision blocked the independent Claude installation' }
+
+    Write-Host 'a dangling link left by graduation is replaced'
+    Remove-TestDirectory (Join-Path $testHome '.agents')
+    $staleLink = Join-Path $testHome '.agents\skills\ask-luca'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $staleLink) -Force | Out-Null
+    # New-Item 拒絕指向不存在目標的 junction；mklink 才建得出畢業後的斷鏈
+    cmd /c mklink /J "$staleLink" "$(Join-Path $repo 'skills\draft\ask-luca')" | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'could not create the dangling junction fixture' }
+    $result = Invoke-Installer -Arguments @('-Target', 'codex')
+    if ($result.ExitCode -ne 0) { throw "install.ps1 refused its own dangling link: $($result.Output -join [Environment]::NewLine)" }
+    if (-not (Test-Path (Join-Path $staleLink 'SKILL.md'))) { throw 'dangling link was not repointed to core' }
   }
 }
 finally {

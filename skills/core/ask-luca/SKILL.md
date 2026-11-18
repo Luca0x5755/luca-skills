@@ -24,7 +24,7 @@ A **flow** is a path through the skills. Most work runs along one **main flow**;
    - **Yes** → **`/to-spec`**. Before cutting tickets, write the truth the tickets will build against: **`/to-architecture`** when the change touches tech stack, data model, or API contracts; **`/frontend-spec`** when a UI surface changes. Then **`/to-tickets`**. Each ticket declares its blocking edges. Run **`/implement`** once per ticket, **`/clear`ing context between each one** — each ticket is self-contained, so the last one's context is disposable. A one-session build that only needed its documents skips `/to-tickets` and goes straight to `/implement`.
    - **No** → **`/implement`** right here.
 
-For a whole approved spec with a task graph, **`/implement-spec`** coordinates isolated workers and verified integration; the operator can steer and confirm missing seams, and PR creation follows the tracker. For unattended committed local tickets, **`/run-queue`** (draft) keeps bounded retries, parking and PR disclosure; serial by default, optional two-worker parallel building with serial integration. Neither flow invokes the other.
+For a whole approved spec with a task graph, **`/implement-spec`** coordinates isolated workers and verified integration; the operator can steer and confirm missing seams, and PR creation follows the tracker. For unattended committed local tickets, **`/run-queue`** keeps bounded retries, parking and PR disclosure; serial by default, optional two-worker parallel building with serial integration. Neither flow invokes the other.
 
 `/implement` drives `/tdd` internally and closes with `/code-review` before committing. Reach for `/tdd` alone to build one concrete behaviour test-first; `/code-review` alone to review any branch against a fixed point.
 
@@ -59,6 +59,7 @@ Between `/implement` and the merge, for the work someone other than you has to s
 The branch lifecycle, one skill per stage — each acts only on what you decided, never guesses:
 
 - **`/git-commit`** — commit what *you* staged and push; empty staging stops and asks.
+- **`/branch-cleanup`** — before the final squash, card the debris repeated revisions left on a feature branch (superseded ADRs, swollen user stories, interim decisions, stale spec passages); you pick what goes, and you make the final commit.
 - **`/git-pr`** — open the PR (English title, Traditional Chinese body), and clean up branches after the merge is verified.
 - **`/git-release`** — bump version files, distill the changelog in Traditional Chinese, tag, and publish the release page.
 

@@ -82,6 +82,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[frontend-spec](./skills/core/frontend-spec/SKILL.md)** — 為有 UI 的規格定前端真相：路由表、四態頁面、style tokens，mockup 由子代理逐頁畫在 Penpot 上。
 - **[implement-spec](./skills/core/implement-spec/SKILL.md)** — 整份規格依阻塞圖在隔離工作樹平行建置，支援已設定的追蹤器，可介入，PR 視需要建立。
 - **[implement](./skills/core/implement/SKILL.md)** — 依規格或一組票建置，在議定的接縫上驅動 TDD，收尾跑一次程式碼審查。
+- **[run-queue](./skills/core/run-queue/SKILL.md)** — 本機票核可後無人看管執行並開 PR：預設串行，`parallel` 可用最多兩個隔離 worker；整合與驗證串行，保留五輪重試、擱置與人工 merge。
 - **[test-blueprint](./skills/core/test-blueprint/SKILL.md)** — 分析專案並提案測試藍圖：層佈局、縫清單、CI 時段，核准後寫入 `docs/test-blueprint.md`。
 - **[uat-cases](./skills/core/uat-cases/SKILL.md)** — 從規格推導 UAT 案例清單，發出凍結的 TC 編號 —— `/browser-evidence` 的上游。
 - **[browser-evidence](./skills/core/browser-evidence/SKILL.md)** — 把既定案例清單跑成可交付的證據 —— 截圖、網路紀錄與被測版本 manifest，落在 `docs/uat/`。
@@ -89,6 +90,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[improve-codebase-architecture](./skills/core/improve-codebase-architecture/SKILL.md)** — 勘查程式庫的深化機會，排序後呈上，再對你挑中的那一個進行拷問。
 - **[wayfinder](./skills/core/wayfinder/SKILL.md)** — 把龐大而迷霧重重的工程畫成一張決策票地圖，一次解一張，直到通往終點的路清晰為止。
 - **[git-commit](./skills/core/git-commit/SKILL.md)** — 檢視已暫存的變更，撰寫英文 commit 並推上遠端。只提交 staged 的內容，絕不代替使用者 stage。
+- **[branch-cleanup](./skills/core/branch-cleanup/SKILL.md)** — 在最後提交前收斂功能分支反覆修訂的文件與無用交付內容。
 - **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR（英文標題＋繁中內文、前後證據與合併風險）與合併後清理分支，分支生命週期的頭與尾。
 - **[git-release](./skills/core/git-release/SKILL.md)** — 更新版本檔中的版本號，彙整兩版本間的 commit 寫成繁體中文發布摘要，打 tag 推上遠端並發佈 release 頁面。
 - **[wait-what](./skills/core/wait-what/SKILL.md)** — 停 — 剛才那段沒讓人聽懂，要求代理重新講一次。
@@ -111,7 +113,6 @@ $ask-luca        # 不確定該用哪個技能時
 
 - **[audit-truth](./skills/draft/audit-truth/SKILL.md)** — 持續性稽核刀：掃真相層找語意矛盾（文件↔程式碼、文件↔文件），問卷裁決後開票，裁決留在 commit 的 Adjudicated bullet；宿主已有帳本才寫宿主格式。
 - **[bootstrap-truth](./skills/draft/bootstrap-truth/SKILL.md)** — 一次性正規化刀：在宿主既有治理的形狀內把文件瘦身變準、補業務能力薄檔、標上能力對應；砍字與改事實分開 commit。
-- **[branch-cleanup](./skills/draft/branch-cleanup/SKILL.md)** — 在最後提交前收斂功能分支反覆修訂的文件與無用交付內容。
 - **[briefing](./skills/draft/briefing/SKILL.md)** — 把簡報圖變成上台用的口頭講稿＋導讀：結論先行、節間串場、預期質詢與建議答法，寫成 `briefing.md`。
 - **[caveman](./skills/draft/caveman/SKILL.md)** — 聊天回覆切換為繁中電報體，砍廢話省輸出 token；程式碼、commit、文件照常散文。
 - **[diagram](./skills/draft/diagram/SKILL.md)** — 依受眾與情境挑選最合適的圖表並繪製，缺資訊時先畫草稿再問。
@@ -121,7 +122,6 @@ $ask-luca        # 不確定該用哪個技能時
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** — 管理框架知識庫與診斷：OKR、精實、六標準差、Scrum 等的選用判準。
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改變可觀察行為的結構重整：特徵測試護網、一次一個 transform、綠燈即提交。
 - **[research](./skills/draft/research/SKILL.md)** — 為一個具名決策向外取證：回到原始材料、借其他領域的方法、交外部裁判檢驗，產出可翻盤的判決與主張帳本，讀完自己刪。
-- **[run-queue](./skills/draft/run-queue/SKILL.md)** — 本機票核可後無人看管執行並開 PR：預設串行，`parallel` 可用最多兩個隔離 worker；整合與驗證串行，保留五輪重試、擱置與人工 merge。
 - **[study-repo](./skills/draft/study-repo/SKILL.md)** — 讀懂一個第三方 repo：先跑起來、追一條核心路徑，產出拋棄式的學習報告。
 - **[svg-palette](./skills/draft/svg-palette/SKILL.md)** — SVG 繪圖的色盤與用色規則 —— 預設靛青深淺＋橘強調，可套品牌色。
 - **[writing-hooks](./skills/draft/writing-hooks/SKILL.md)** — 撰寫與審查 Claude Code hook 的判準：什麼規則該降到 hook、怎麼防靜默腐爛。
@@ -138,7 +138,7 @@ $ask-luca        # 不確定該用哪個技能時
 | 1・想清楚 | 一問一答把想法磨到可以動手 | `/grill-with-docs`（還沒有 codebase 時用 `/grilling`） |
 | 1・繞道 | 有問題要跑起來才能回答 | ① `/handoff` 拿文件路徑 → ② 開新 session 貼路徑，跑 `/prototype` → ③ 答完再 `/handoff` 拿新路徑 → ④ 開新 session 貼路徑，回主流程 |
 | 2・切開 | 一個 session 做不完，先切小 | `/to-spec` →（動到架構或 UI 才跑 `/to-architecture`、`/frontend-spec`）→ `/to-tickets` |
-| 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear`；整份規格可用 `/implement-spec` 平行建置；本機追蹤器也可改用 `/run-queue`（試用中，預設串行，可選 `parallel`）無人看管跑完全部票並直接開 PR，不經階段 4 的手動 squash |
+| 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear`；整份規格可用 `/implement-spec` 平行建置；本機追蹤器也可改用 `/run-queue`（預設串行，可選 `parallel`）無人看管跑完全部票並直接開 PR，不經階段 4 的手動 squash |
 | 3.5・驗收 | 證據要交給別人簽核時才走 | 專案第一次先 `/test-blueprint` 定測試藍圖 → `/uat-cases` 產凍結編號的案例 → `/browser-evidence` 跑成截圖與網路紀錄 |
 | 4・收尾 | 審查、提交、分支收尾整理、開 PR 到合併出貨 | `/code-review`（`/implement` 收尾自動跑）→ `/git-commit` → `/branch-cleanup` → 由你 squash 並更新遠端 → `/git-pr`（GitLab 用 `/git-mr`，試用中）→ 要發版才跑 `/git-release` |
 
