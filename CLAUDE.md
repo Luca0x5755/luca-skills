@@ -67,7 +67,7 @@
 
 被追蹤的檔案、commit 訊息、PR 標題與內文、議題、分支名裡，外部對象只出現兩種：`README.md`〈參考來源〉列名的，以及使用者明確指名要研究或借鏡的。〈參考來源〉要加一條，前提是使用者指名了它。對話裡的案例、使用者其他專案的名稱與實測細節，一律寫成一般化的失效模式與決策本身的理由。research 的一次性報告不在此限，照常保留出處 — 它讀完就刪，不進 repo。
 
-名單放 repo 外（`~/.claude/private-terms.txt`，一行一詞）：`check.sh` [19] 掃被追蹤的檔案與分支名，`hooks/guard-private-terms.sh` 掃 commit 訊息與 PR／議題內文；沒有名單就略過，所以 CI 一定略過。沒列進名單的泛稱只靠本段。
+名單放 repo 外（`~/.claude/private-terms.txt`），機器護欄是 `check.sh` [19] 與 `hooks/HOOKS.md` 的 `guard-private-terms.sh`；沒列進名單的泛稱只靠本段。
 
 ## 寫技能
 
