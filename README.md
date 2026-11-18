@@ -195,6 +195,7 @@ session 規則：
 
 ```bash
 bash scripts/check.sh
+bash scripts/test-tooling.sh
 ```
 
-一致性規則全部由這支腳本強制，CI 每次 PR 都跑。詳見 [CLAUDE.md](./CLAUDE.md)。
+一致性規則全部由 `check.sh` 強制，hook 與安裝器的行為測試在 `test-tooling.sh`，CI 每次 PR 兩支都跑。詳見 [CLAUDE.md](./CLAUDE.md)。

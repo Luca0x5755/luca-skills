@@ -11,6 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash scripts/check.sh
+      - run: bash scripts/test-tooling.sh
 
   windows-installer:
     runs-on: windows-latest

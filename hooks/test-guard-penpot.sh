@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # guard-penpot.sh 的回歸規格。每條餵一份真實形狀的 PreToolUse payload，斷言擋或放行。
 # 行為變更必須先改這張表 — 沒有檢查的規則不是規則，是願望。
-# 執行：bash hooks/test-guard-penpot.sh（scripts/check.sh 會跑）
+# 執行：bash hooks/test-guard-penpot.sh（scripts/test-tooling.sh 會跑）
 set -u
 cd "$(dirname "$0")"
 HOOK="$PWD/guard-penpot.sh"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # guard-private-terms.sh 的回歸規格。每列：預期判決 <TAB> 指令。
 # 名單由 PRIVATE_TERMS_FILE 指向暫存 fixture，不碰使用者的真名單；fixture 詞是虛構的。
-# 執行：bash hooks/test-guard-private-terms.sh（scripts/check.sh 會跑）
+# 執行：bash hooks/test-guard-private-terms.sh（scripts/test-tooling.sh 會跑）
 set -u
 cd "$(dirname "$0")"
 HOOK="$PWD/guard-private-terms.sh"

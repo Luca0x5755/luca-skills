@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # 不變量檢查。CLAUDE.md 裡的每一條規則，在這裡都要有對應的檢查。
 # 沒有檢查的規則不是規則，是願望。
+# [8]、[11] 是 hook 與安裝器測試，住在 scripts/test-tooling.sh — 編號共用，這裡留空號。
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -69,16 +70,6 @@ for bucket in core draft; do
   done
 done
 
-echo "[8] hooks/ 每支 hook 都有對應測試且跑綠；hook 寫 log 用 >>，不用 tee"
-for h in hooks/*.sh; do
-  b=$(basename "$h")
-  case "$b" in test-*) continue ;; esac
-  t="hooks/test-$b"
-  if [ ! -f "$t" ]; then err "$b 沒有對應測試 $t — 沒有檢查的 hook 會靜默腐爛"; continue; fi
-  bash "$t" >/dev/null 2>&1 || err "$t 未過 — 跑 bash $t 看細節"
-done
-grep -lE '\btee\b' hooks/*.sh >/dev/null 2>&1 && err "hook 用 tee 寫 log 會把訊息漏進 stdout — 改用 >>：$(grep -lE '\btee\b' hooks/*.sh | tr '\n' ' ')"
-
 echo "[9] 每個 core 與 draft 技能都出現在 flow.svg 或 toolbox.svg 其中之一"
 for n in $core $draft; do
   grep -qF "/$n" assets/flow.svg 2>/dev/null || grep -qF "/$n" assets/toolbox.svg 2>/dev/null \
@@ -101,17 +92,6 @@ else
   for b in $(grep -o 'hooks/[a-z-]*\.sh' .claude/settings.json | sed 's|hooks/||' | sort -u); do
     [ -f "hooks/$b" ] || err "settings.json 掛載 $b，但 hooks/$b 不存在 — 掛載在說謊"
   done
-fi
-
-echo "[11] 安裝器拒絕已移除的目標，且不覆寫外來同名技能"
-case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*) echo "  - Git Bash / MSYS：install.sh 刻意拒絕此環境，略過其測試（Windows 由下方 test-install.ps1 驗）" ;;
-  *) bash scripts/test-install.sh >/dev/null 2>&1 || err "scripts/test-install.sh 未過 — 跑 bash scripts/test-install.sh 看細節" ;;
-esac
-if command -v pwsh >/dev/null 2>&1; then
-  pwsh -NoProfile -File scripts/test-install.ps1 >/dev/null 2>&1 || err "scripts/test-install.ps1 未過 — 跑 pwsh -NoProfile -File scripts/test-install.ps1 看細節"
-else
-  echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
 fi
 
 echo "[12] setup-skills 的議題檢查模板：檔案在、SKILL.md 或 CHECKS.md 有引用、workflow 以 base.sha 呼叫腳本、測試跑綠"
@@ -225,6 +205,11 @@ else
   [ -n "$hits" ] && err "這些檔案含私有名單詞 — 改寫成一般化的失效模式：$(printf '%s\n' "$hits" | tr '\n' ' ')"
   git symbolic-ref --short -q HEAD | grep -qiF -e "$terms" && err "分支名含私有名單詞 — 換一個一般化的分支名"
 fi
+
+echo "[20] CI 跑 scripts/test-tooling.sh（hook 與安裝器測試住那裡，Stop hook 不跑它們）"
+[ -f scripts/test-tooling.sh ] || err "scripts/test-tooling.sh 不存在 — [8]、[11] 會沒人跑"
+grep -qE '^[[:space:]]*-[[:space:]]*run:.*scripts/test-tooling\.sh' .github/workflows/check.yml 2>/dev/null \
+  || err ".github/workflows/check.yml 沒有呼叫 scripts/test-tooling.sh — hook 與安裝器測試會靜默停跑"
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
