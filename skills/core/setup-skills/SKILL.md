@@ -1,6 +1,6 @@
 ---
 name: setup-skills
-description: 為這個 repo 設定工程技能所需的組態 — 本機與遠端兩套議題追蹤器、領域文件位置、git 護欄 hook，以及本機議題用的 CI 檢查。初始化跑一次；重跑可調整追蹤器記錄或補裝、更新護欄。
+description: 為這個 repo 設定工程技能所需的組態 — 本機與遠端兩套議題追蹤器、領域文件位置、git 與 Penpot 護欄 hook，以及本機議題用的 CI 檢查。初始化跑一次；重跑可調整追蹤器記錄或補裝、更新護欄。
 disable-model-invocation: true
 ---
 
@@ -13,7 +13,7 @@ Produces:
 - `docs/agents/issue-tracker.md` — the routing criteria on top, then where 本機議題 and 遠端議題 live
 - `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, and the collaboration mode
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
-- Copies of `guard-git.sh` and `guard-secrets.sh` in `.claude/hooks/`, registered in `.claude/settings.json`
+- Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
 - In private mode: entries in `.git/info/exclude`
 
@@ -60,10 +60,12 @@ Record the reasoning in `domain.md` so future sessions apply it: a document only
 
 **Section E — Guard hooks.** Two PreToolUse hooks on `Bash`, copied in from the luca-skills repo: `guard-git.sh` (blocks `git add -A`/`git add .`, force push, `git reset --hard` beyond HEAD, `--no-verify`, PR merges — merging is the user's button — and the three `/git-commit` rules a machine can check: branch commits with a verified version-only release exception, message via `-F` not `-m`, no trailers) and `guard-secrets.sh` (blocks `git commit` while a credential literal sits in the staged diff). Prose rules hold roughly 70% compliance; these red lines ride on exit code 2 instead. Propose both, one nod per hook.
 
-- **Source**: resolve the luca-skills repo from this skill folder's link target (`(Get-Item <skill-dir> -Force).Target` — the repo root is two levels up); the files are `<repo>/hooks/guard-git.sh` and `<repo>/hooks/guard-secrets.sh`. Unresolvable → ask where the repo lives.
+A third, `guard-penpot.sh`, is a PreToolUse hook on the Penpot MCP tools: it blocks the `penpotUtils.findShape*` helpers and `export_shape` with a shape id, the calls that search the whole design file and freeze the browser tab, and its message gives the current-page and selection forms to use instead. Propose it when the project uses Penpot — its `CLAUDE.md` declares a Penpot file; otherwise ask the user once whether it does. It takes its own nod. `/frontend-spec` refuses to run without it.
+
+- **Source**: resolve the luca-skills repo from this skill folder's link target (`(Get-Item <skill-dir> -Force).Target` — the repo root is two levels up); the files are `<repo>/hooks/<name>.sh`. Unresolvable → ask where the repo lives.
 - **Copy byte-for-byte into `.claude/hooks/`**, never reference the repo by path: a copy that ages still runs the old guard, while a pointer to a moved repo guards nothing and says nothing. Their tests stay in luca-skills — the copy is verbatim, so a green source is a green copy.
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
-- **Register** each under `PreToolUse`, matcher `Bash`, in `.claude/settings.json` as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
+- **Register** each under `PreToolUse` in `.claude/settings.json` — matcher `Bash` for the git pair, `mcp__penpot__execute_code|mcp__penpot__export_shape` for `guard-penpot.sh` — as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
 **Section F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored). A GitHub Actions check that fails a PR whose net change adds files under `docs/issues/` — every issue the branch created must be gone by merge. Propose it, one nod for the pair.
 
