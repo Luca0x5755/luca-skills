@@ -114,25 +114,52 @@ else
   echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
 fi
 
-echo "[12] setup-skills 的議題檢查模板：檔案在、SKILL.md 有引用、workflow 以 base.sha 呼叫腳本、測試跑綠"
+echo "[12] setup-skills 的議題檢查模板：檔案在、SKILL.md 或 CHECKS.md 有引用、workflow 以 base.sha 呼叫腳本、測試跑綠"
 d=skills/core/setup-skills
 for f in issues-check.yml check-issues.sh; do
   [ -f "$d/$f" ] || { err "$d/$f 不存在 — setup-skills Section F 要複製它"; continue; }
-  grep -qF "$f" "$d/SKILL.md" || err "$d/SKILL.md 沒有提到 $f — 模板沒人會裝"
+  grep -qF "$f" "$d/SKILL.md" "$d/CHECKS.md" 2>/dev/null || err "$d/SKILL.md 與 CHECKS.md 都沒有提到 $f — 模板沒人會裝"
 done
 grep -q 'check-issues\.sh' "$d/issues-check.yml" 2>/dev/null && grep -q 'base\.sha' "$d/issues-check.yml" 2>/dev/null \
   || err "$d/issues-check.yml 沒有以 base.sha 呼叫 check-issues.sh — 檢查會失明"
 bash scripts/test-issues-check.sh >/dev/null 2>&1 || err "scripts/test-issues-check.sh 未過 — 跑 bash scripts/test-issues-check.sh 看細節"
 
-echo "[13] setup-skills 的真相地圖檢查模板：檔案在、SKILL.md 有引用、workflow 呼叫腳本、測試跑綠"
+echo "[13] setup-skills 的真相地圖檢查模板：檔案在、SKILL.md 或 CHECKS.md 有引用、workflow 呼叫腳本、測試跑綠"
 d=skills/core/setup-skills
 for f in truth-map-check.yml check-truth-map.sh; do
   [ -f "$d/$f" ] || { err "$d/$f 不存在 — setup-skills Section G 要複製它"; continue; }
-  grep -qF "$f" "$d/SKILL.md" || err "$d/SKILL.md 沒有提到 $f — 模板沒人會裝"
+  grep -qF "$f" "$d/SKILL.md" "$d/CHECKS.md" 2>/dev/null || err "$d/SKILL.md 與 CHECKS.md 都沒有提到 $f — 模板沒人會裝"
 done
 grep -q 'check-truth-map\.sh' "$d/truth-map-check.yml" 2>/dev/null \
   || err "$d/truth-map-check.yml 沒有呼叫 check-truth-map.sh — 檢查會失明"
 bash scripts/test-truth-map-check.sh >/dev/null 2>&1 || err "scripts/test-truth-map-check.sh 未過 — 跑 bash scripts/test-truth-map-check.sh 看細節"
+
+echo "[14] setup-skills 的 capability 檔形狀：五部分齊、寫進 domain.md、只有一個家；SKILL.md 精瘦、F／G 細節在 CHECKS.md"
+d=skills/core/setup-skills
+shape=$d/capability-shape.md
+retired='<ID> — retired：<理由>'
+if [ ! -f "$shape" ]; then
+  err "$shape 不存在 — capability 檔形狀沒有家"
+else
+  for part in '現況' '服務對象' \
+              '## 規格章節' '- `<合訂本路徑>` <標題全文去掉標記>' '`docs/03_architecture_design.md`' '`docs/05_frontend_spec.md`' \
+              '## Promises' '<ID> — <行為>' "$retired" '行首的 `- ` 可有可無' \
+              '## 驗證' '選用'; do
+    grep -qF -- "$part" "$shape" || err "$shape 缺少「$part」— 形狀不完整"
+  done
+fi
+grep -F 'capability-shape.md' "$d/SKILL.md" | grep -F 'docs/agents/domain.md' >/dev/null \
+  || err "$d/SKILL.md 沒有在同一行把 capability-shape.md 寫進 docs/agents/domain.md — 形狀沒人會裝"
+for f in $(grep -rlF -- "$retired" skills/core skills/draft 2>/dev/null); do
+  [ "$f" = "$shape" ] || err "$f 重述了 capability 檔形狀 — 形狀只住 $shape"
+done
+n=$(wc -l < "$d/SKILL.md")
+[ "$n" -le 150 ] || err "$d/SKILL.md 有 $n 行，超過 150 — 細節往 CHECKS.md 拆"
+grep -qF '(CHECKS.md)' "$d/SKILL.md" || err "$d/SKILL.md 沒有以相對路徑 (CHECKS.md) 連到檢查細節"
+for sec in 'Section F' 'Section G'; do
+  grep -q "^## $sec" "$d/CHECKS.md" 2>/dev/null || err "$d/CHECKS.md 沒有「## $sec」標題 — 細節沒搬過去"
+  grep -qF "**$sec" "$d/SKILL.md" && err "$d/SKILL.md 仍有「**$sec」細節 — 搬走，不是複製"
+done
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi

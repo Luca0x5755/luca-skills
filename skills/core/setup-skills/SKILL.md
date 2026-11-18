@@ -11,7 +11,7 @@ Write the per-repo configuration the other skills assume. Prompt-driven, not a s
 Produces:
 
 - `docs/agents/issue-tracker.md` — the routing criteria on top, then where 本機議題 and 遠端議題 live
-- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, and the collaboration mode
+- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, the collaboration mode, and the capability-file shape
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
@@ -25,7 +25,7 @@ Read what exists. Assume nothing.
 - `git remote -v` — GitHub? GitLab? No remote?
 - `CLAUDE.md` / `AGENTS.md` at root — does either exist? Does either already have an `## Agent skills` section?
 - `GLOSSARY.md`, `docs/adr/` — is a domain layer already here?
-- `docs/agents/` — has this skill already run?
+- `docs/agents/` — has this skill already run? Does `domain.md` carry the `## Capability 檔形狀` section, and does it still match `capability-shape.md` beside this `SKILL.md`?
 - `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
 - `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
@@ -69,18 +69,10 @@ A third, `guard-penpot.sh`, is a PreToolUse hook on the Penpot MCP tools: it blo
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
 - **Register** each under `PreToolUse` in `.claude/settings.json` — matcher `Bash` for the git pair, `mcp__penpot__execute_code|mcp__penpot__export_shape` for `guard-penpot.sh` — as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
-**Section F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored). A GitHub Actions check that fails a PR whose net change adds files under `docs/issues/` — every issue the branch created must be gone by merge. Propose it, one nod for the pair.
+Sections F and G are the CI checks; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
 
-- **Source**: `issues-check.yml` and `check-issues.sh`, beside this `SKILL.md`.
-- **Copy byte-for-byte** to `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`. The tests stay in luca-skills; the copy is verbatim, so a green source is a green copy.
-- **Drift**: copies present but differing from source → show the diff, propose refreshing.
-
-**Section G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked. A GitHub Actions check that fails a PR when a `##`/`###` heading in `docs/03_architecture_design.md` or `docs/05_frontend_spec.md` lacks its `（能力：X）` / `（能力：共用）` tag, or names a capability with no `docs/capabilities/X.md`. Propose it, one nod for the pair.
-
-- **Source**: `truth-map-check.yml` and `check-truth-map.sh`, beside this `SKILL.md`.
-- **Copy byte-for-byte** to `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh`. The tests stay in luca-skills; the copy is verbatim, so a green source is a green copy.
-- **Drift**: copies present but differing from source → show the diff, propose refreshing.
-- **Current red**: after copying, run `bash .github/scripts/check-truth-map.sh` at the repo root and put every red line it prints in the install report. An existing project installs as-is with its red list in hand: write no baseline file, and leave branch protection as it is.
+- **F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored).
+- **G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked.
 
 ## 3. Confirm
 
@@ -112,6 +104,8 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 `docs/agents/domain.md` must record the collaboration mode and, in private mode, which paths are excluded — downstream skills read it to know whether their output is committed or personal.
 
+Copy `capability-shape.md` byte-for-byte into `docs/agents/domain.md` as its last section, every run, whether or not `docs/capabilities/` exists yet. It is the one home of the capability-file shape: the skills that write capability files read it there. The template is target content, so it is written in Traditional Chinese like the generated docs, not in this skill's English. On a re-run, a section that differs from the source → show the diff, propose refreshing.
+
 `docs/agents/issue-tracker.md` must record, concretely, in the two-section format: first a `## 分流判準` section (the routing criteria, per Section A), then `## 本機` and `## 遠端`. Each of the two sections records the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess.
 
 - `## 本機` adds the file-name pattern, the next-number rule, and the lifecycle: delete the file when done.
@@ -120,7 +114,7 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies and the capability-file shape.
 
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
 
