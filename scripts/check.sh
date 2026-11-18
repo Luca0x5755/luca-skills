@@ -204,6 +204,15 @@ for part in 'keeps its number' 'test assertion would have to change' 'retired：
   grep -qF -- "$part" "$f" || err "$f 缺少「$part」— Promise IDs 沒區分措辭改動與意思改動"
 done
 
+echo "[18] bootstrap-truth：第 4 步照 /setup-skills Section G 安裝檢查、不深連結模板、形狀從 domain.md 讀"
+d=skills/draft/bootstrap-truth
+f=$d/SKILL.md
+for s in 'setup-skills/SKILL.md' 'Section G' "parent of this skill's base directory" 'heading missing either side is blocked by the check /setup-skills installs' 'docs/agents/domain.md'; do
+  grep -qF -- "$s" "$f" || err "$f 缺少「$s」— 第 4 步要從 base directory 上一層讀 setup-skills/SKILL.md 照 Section G 裝檢查，形狀從 domain.md 讀"
+done
+grep -rqiE 'two-way orphan check|orphans go red|orphan-goes-red' "$d" && err "$d 仍描述雙向孤兒檢查 — 改寫成由 /setup-skills 安裝的檢查擋下"
+grep -rqE 'setup-skills/(check-truth-map\.sh|truth-map-check\.yml|CHECKS\.md|capability-shape\.md)' "$d" && err "$d 深連結進 setup-skills 資料夾的模板 — 讀整份 setup-skills/SKILL.md 照做"
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail
