@@ -14,14 +14,14 @@ Boards:
   <… all eight, or only the missing ones on a resume>
 
 Page section from docs/05_frontend_spec.md:
-<paste the page's Story, Dominant region and Boards lines>
+<paste the page's Story, Dominant region, Promise IDs and Boards lines>
 
 Style tokens: read the style-tokens section of docs/05_frontend_spec.md.
 
 Before the first Penpot call
-1. Read the Penpot operating rules section in the project's CLAUDE.md. It
-   names the design file, the token sets, and the traps already paid for.
-   Its rules win over anything here.
+1. Read the `## Penpot` section of the project's CLAUDE.md. It names the
+   design file, the token sets, and the traps already paid for. Its rules
+   win over anything here.
 2. Call `high_level_overview` once.
 3. List the boards already on this page by name. A board that exists is
    updated in place and keeps its name.
@@ -57,5 +57,7 @@ boards:
   <board name> | <id> | <done or missing>
   …
 deviations: <where the result departs from this brief, or none>
+lessons: <each Penpot trap you hit that the ## Penpot section does not
+  name, one line each with its fix, or none>
 stopped: <none | tab suspended | plugin unreachable | other: reason>
 ```

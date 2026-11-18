@@ -1,6 +1,6 @@
 ---
 name: frontend-spec
-description: 為有 UI 的規格定前端真相：路由表、四態頁面與 style tokens 寫進前端合訂本（docs/05_frontend_spec.md，章節標能力），mockup 由子代理逐頁畫在專案的 Penpot 設計稿正本上。/to-spec 之後、/to-tickets 之前跑，可選。
+description: 為有 UI 的規格定前端真相：路由表、每頁四項（故事、主導區域、承諾 ID、board 名單）與 style tokens 寫進前端合訂本（docs/05_frontend_spec.md，章節標能力、只引用承諾 ID），mockup 由子代理逐頁畫在專案的 Penpot 設計稿正本上。/to-spec 之後、/to-tickets 之前跑，可選。
 disable-model-invocation: true
 ---
 
@@ -17,11 +17,13 @@ Turn a spec's UI surface into frontend truth plus Penpot mockups. Runs after `/t
 - **`docs/05_frontend_spec.md`** — the consolidated frontend volume, edited on the feature branch and merged in the same PR as the code, so `main` never describes UI it doesn't have. It holds the routes table, the page sections, and a style-tokens section (chosen archetype, colors, type, density — set once as Penpot tokens, shared by every board; extend it, never fork per-feature tokens or restyle per page). Specs stay consolidated — never split pages into per-capability spec files. Touch only the sections this spec changes.
 - **The design master** — the project's one Penpot file, and the source of truth for layout. It has no branches, so it may lead `main`. A board counts only when a `05` page section lists it by name; `05` is the roster. The `.penpot` snapshot in the repo may lag the master, and updating it is the user's call.
 
-**Cross-mapping is mechanical.** Every page section this skill writes or touches in `05` names its capabilities (`### 排場頁（能力：排場）`); the owning `docs/capabilities/<name>.md` lists them back. A section naming no capability is an orphan and goes red.
+**Promises are cited by ID.** A page section names the promises it serves by ID (`PR-ORDER-03`) and never restates promise text — that text lives only in the capability file. The capability-file shape lives in the target's `docs/agents/domain.md`; read it there before writing one.
+
+**Cross-mapping is mechanical.** Every page section this skill writes or touches in `05` carries its capability tag (`### 訂單列表頁（能力：訂單）`); the owning `docs/capabilities/<name>.md` lists the heading back. A heading missing either side is blocked by the check /setup-skills installs.
 
 No truth layer yet? An inherited legacy project goes through `/bootstrap-truth` first; a young project just starts its `05` and first capability file here.
 
-**Precondition.** The project's `CLAUDE.md` declares its Penpot file and carries a section of Penpot operating rules. Either one missing → stop and ask the user to create the file, connect the plugin, and declare both. Opening a design file is theirs to do. The project also has `.claude/hooks/guard-penpot.sh` registered in `.claude/settings.json` — it blocks the Penpot calls that search the whole file and freeze the tab; missing or unregistered → stop and ask the user to run `/setup-skills`.
+**Precondition.** The project's `CLAUDE.md` declares its Penpot file and has a `## Penpot` heading, where the Penpot operating lessons live. Either one missing → stop and ask the user to create the file, connect the plugin, and declare both. Opening a design file is theirs to do. The project also has `.claude/hooks/guard-penpot.sh` registered in `.claude/settings.json` — it blocks the Penpot calls that search the whole file and freeze the tab; missing or unregistered → stop and ask the user to run `/setup-skills`.
 
 ## Shape
 
@@ -37,10 +39,13 @@ In `docs/05_frontend_spec.md`:
 - **Story**: as <role>, I want <action>, so that <goal>.
 - **Dominant region**: the one question this page answers, and its one
   primary action.
+- **Promise IDs**: PR-ORDER-03, PR-ORDER-07.
 - **Boards**: `<page> · <State> · <Desktop|Mobile>` for each of Loading /
   Empty / Error / Success — eight names, listed in full. A page missing a
   board is not done.
 ```
+
+Four items, nothing else. A testable interaction detail goes upstream as a promise (`/to-spec`) and comes back here as its ID; a visual-only detail is drawn on its boards. An acceptance checklist in `05` is blocked by the check /setup-skills installs — the promises are the acceptance.
 
 The board name is the string tickets cite, so it follows this format exactly. Light and dark are a token theme, one board serving both.
 
@@ -48,11 +53,12 @@ The board name is the string tickets cite, so it follows this format exactly. Li
 
 Drawing one page takes on the order of a hundred Penpot calls plus image exports. All of it stays inside subagents: **the main thread calls no `penpot` tool and exports no image.** Its job is the documents, the dispatching, and the roster.
 
-1. **Draft `05`.** Show the section drafts to the user, then write them once approved. A project whose `05` has no style-tokens section yet chooses its archetype here, with the user. Done when every page in the spec has its row in the routes table, its section and its eight board names, and the style-tokens section exists.
+1. **Draft `05`.** Show the section drafts to the user, then write them once approved. A project whose `05` has no style-tokens section yet chooses its archetype here, with the user. Done when every page in the spec has its row in the routes table and its four-item section, and the style-tokens section exists.
 2. **Shared foundation.** When step 1 wrote or changed the style-tokens section, or the pages need a component not yet in the design master, dispatch one subagent to set up those tokens and components before any page. Skip when the spec adds neither. Done when its report lists each token set and component as `done`.
 3. **First page — the gate.** Dispatch one subagent for the first page. When it reports, stop and ask the user to review that page's boards in Penpot. The first page sets how tokens, density and the four states are expressed, so the remaining pages wait for the user's approval. Changes asked for → dispatch the correction, then ask again. Done when the user approves the page.
 4. **Remaining pages.** One subagent per page, dispatched after the previous one has reported. Done when every page has a report with `stopped: none`.
 5. **Reconcile the roster.** Check every board name in the `05` sections this run touched against the subagent reports. Done when each is reported `done`, or is named as undone in the final report.
+6. **Keep the lessons.** Write every `lessons` line from the reports under `## Penpot` in the project's `CLAUDE.md`, merged into what is already there. Done when no reported lesson is missing from that heading.
 
 ### Dispatching
 
@@ -67,6 +73,7 @@ Fill [`PAGE-BRIEF.md`](PAGE-BRIEF.md) and pass it as the subagent's prompt.
 ## Rules
 
 - **Pixels live in the design master.** `05`'s page sections carry briefs and the board roster. Never hand-write HTML/CSS as a stand-in for a mockup.
+- **Clean what you touch, in a cut-commit.** Before writing into a page section, delete its 文件快取資訊 (anything code, config or one lookup already answers), its restated promise text and any acceptance checklist, then commit that alone, under the same `/git-commit` rules as Finish, as a fact-neutral cut-commit: words removed, no fact changed. Only touched pages are cleaned; the rest stay as they are. There is no line budget.
 - **Write the post-merge truth.** Routes and pages state what is true once this PR merges — no "we will", no history of what the page used to be.
 - **All four states, every page.** Silent failure is not a design. An Empty state nobody drew becomes an Error state nobody handled.
 - **Boards are updated in place.** A page that changes keeps its boards and their names; it is never redrawn beside the old ones.
@@ -75,7 +82,7 @@ Fill [`PAGE-BRIEF.md`](PAGE-BRIEF.md) and pass it as the subagent's prompt.
 
 ## Finish
 
-**Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. Nothing written → no commit.
+**Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. The cut-commit is already in; this is the content commit. Nothing written → no commit.
 
 Report the files edited, then the boards by page: drawn, changed, and undone with the reason. Say which pages the user has reviewed — only the first was gated — and ask them to review the rest in Penpot. The design master already holds the boards; the snapshot was left alone.
 
