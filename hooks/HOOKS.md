@@ -21,6 +21,14 @@
 - **定位**：優先使用 payload.cwd 所屬 Git root 的整份 index；路徑無法進入時擋下提交，避免掃錯樹。
 - **關係**：與 guard-git.sh 同為 `setup-skills` 外發的護欄組。
 
+## guard-private-terms.sh
+
+- **事件**：PreToolUse（matcher: Bash）。
+- **擋**：含 `git commit` 或 `gh pr|issue create|edit|comment` 的指令，其指令文字（涵蓋 `-m`、`--title`、`--body`、heredoc）或 `-F`／`--file`／`--body-file` 檔案含私有名單上的詞（不分大小寫）。名單在 repo 外，預設 `~/.claude/private-terms.txt`（`PRIVATE_TERMS_FILE` 可覆寫），一行一詞、`#` 為註解；沒有名單就放行。exit 2。
+- **為什麼**：CLAUDE.md〈repo 內容的邊界〉的機器版 — 名單本身就是不該進 repo 的資訊，所以只能放在 repo 外；代理寫 commit 與 PR 時最常把對話案例與其他專案名帶進來。
+- **已知限制**：沒列進名單的泛稱擋不到；同一指令裡別處提到名單詞（例如前面的 `grep`）也會連帶擋下。
+- **關係**：只在本 repo 掛載，不外發 — 複製進其他專案會讓那個專案連自己的名字都寫不進去。檔案面的同一份名單由 `check.sh` [19] 掃。
+
 ## guard-penpot.sh
 
 - **事件**：PreToolUse（matcher: `mcp__penpot__execute_code|mcp__penpot__export_shape`）。

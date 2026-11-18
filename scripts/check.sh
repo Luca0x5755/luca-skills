@@ -213,6 +213,19 @@ done
 grep -rqiE 'two-way orphan check|orphans go red|orphan-goes-red' "$d" && err "$d 仍描述雙向孤兒檢查 — 改寫成由 /setup-skills 安裝的檢查擋下"
 grep -rqE 'setup-skills/(check-truth-map\.sh|truth-map-check\.yml|CHECKS\.md|capability-shape\.md)' "$d" && err "$d 深連結進 setup-skills 資料夾的模板 — 讀整份 setup-skills/SKILL.md 照做"
 
+echo "[19] 被追蹤的檔案與分支名不含私有名單詞（名單在 repo 外；沒有名單就略過）"
+terms_file=${PRIVATE_TERMS_FILE:-$HOME/.claude/private-terms.txt}
+# 名單的讀法與 hooks/guard-private-terms.sh 相同，改一邊就改另一邊。
+terms=$( [ -r "$terms_file" ] && tr -d '\r' < "$terms_file" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' | grep -vE '^(#|$)' )
+if [ -z "$terms" ]; then
+  ok "略過：沒有名單 $terms_file"
+else
+  # 換行分隔的單一樣式即多個樣式；不設 LC_ALL=C，Git Bash 的 grep 搭 -iF 會 abort。
+  hits=$(git ls-files -z | xargs -0 grep -liF -e "$terms" -- 2>/dev/null)
+  [ -n "$hits" ] && err "這些檔案含私有名單詞 — 改寫成一般化的失效模式：$(printf '%s\n' "$hits" | tr '\n' ' ')"
+  git symbolic-ref --short -q HEAD | grep -qiF -e "$terms" && err "分支名含私有名單詞 — 換一個一般化的分支名"
+fi
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

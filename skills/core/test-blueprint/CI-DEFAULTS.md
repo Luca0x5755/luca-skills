@@ -1,13 +1,13 @@
 # CI defaults
 
-Starting positions for step 2's tier layout, distilled from how seven high-star projects run CI (Kubernetes, Rust, Chromium, Node.js, PostgreSQL, LLVM, React). Every one is overridable per project — the proposal states the override and its reason.
+Starting positions for step 2's tier layout, distilled from how large, long-running open-source projects run CI. Every one is overridable per project — the proposal states the override and its reason.
 
 ## Tiers
 
 Placement is a cost × risk decision; no surveyed project runs everything per PR.
 
-- **presubmit** — every PR: full static layer, unit tests, integration tests affected by the change. Budget is real: Chromium requires CQ builders to keep a sub-40-minute median before admission.
-- **merge** — before merge, against the latest base: the full suite. A merge queue (bors/Tide style) when volume justifies one; below that volume, branch protection on the same checks.
+- **presubmit** — every PR: full static layer, unit tests, integration tests affected by the change. Budget is real: large projects admit a presubmit builder only while its median stays under about 40 minutes.
+- **merge** — before merge, against the latest base: the full suite. A merge queue when volume justifies one; below that volume, branch protection on the same checks.
 - **periodic** — on a schedule: expensive E2E, cross-platform matrices, ecosystem regression sweeps.
 
 ## Gates
@@ -18,7 +18,7 @@ Static checks and unit tests are hard required checks. Keep the required set sma
 
 ## Flake policy
 
-Default: **no auto-retry** — a red is investigated, not re-rolled. This is the Kubernetes position, and it is the right one while the suite is small: it forces flakes to be fixed while they are still cheap. Past roughly a thousand tests, revisit — at that scale Chromium and Node institutionalize retry plus a quarantine list. The split holds either way: executing the quarantine list is a script's job; adding to or removing from it is a judgment.
+Default: **no auto-retry** — a red is investigated, not re-rolled. This is the strictest position large projects take, and it is the right one while the suite is small: it forces flakes to be fixed while they are still cheap. Past roughly a thousand tests, revisit — at that scale large projects institutionalize retry plus a quarantine list. The split holds either way: executing the quarantine list is a script's job; adding to or removing from it is a judgment.
 
 ## Coverage
 
