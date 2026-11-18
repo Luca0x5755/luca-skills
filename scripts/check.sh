@@ -161,6 +161,13 @@ for sec in 'Section F' 'Section G'; do
   grep -qF "**$sec" "$d/SKILL.md" && err "$d/SKILL.md 仍有「**$sec」細節 — 搬走，不是複製"
 done
 
+echo "[15] to-architecture：孤兒規則交給 /setup-skills 的檢查、形狀從 domain.md 讀、清理走獨立 cut-commit"
+f=skills/core/to-architecture/SKILL.md
+grep -qF 'orphan and goes red' "$f" && err "$f 仍宣稱「orphan and goes red」— 改寫成由 /setup-skills 安裝的檢查擋下"
+grep -qF 'blocked by the check /setup-skills installs' "$f" || err "$f 沒有說明標題標記由 /setup-skills 安裝的檢查擋下"
+grep -qF 'docs/agents/domain.md' "$f" || err "$f 沒有指向 docs/agents/domain.md 讀 capability 檔形狀"
+grep -qF 'cut-commit' "$f" || err "$f 沒有「改到的章節清理走獨立 cut-commit」規則"
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail
