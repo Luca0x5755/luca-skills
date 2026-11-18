@@ -121,7 +121,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 git-pr：開 MR（有 glab 直建，沒有就給連結、標題、內文自己貼）與合併後清理分支。
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** — 管理框架知識庫與診斷：OKR、精實、六標準差、Scrum 等的選用判準。
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改變可觀察行為的結構重整：特徵測試護網、一次一個 transform、綠燈即提交。
-- **[research](./skills/draft/research/SKILL.md)** — 為一個具名決策向外取證：回到原始材料、借其他領域的方法、交外部裁判檢驗，產出可翻盤的判決與主張帳本，讀完自己刪。
+- **[research](./skills/draft/research/SKILL.md)** — 向外取證回答問題或蒐集清單：先分類、給研究計畫確認、拆題平行取證、交外部裁判檢驗，產出結論與主張帳本（不下建議），讀完自己刪。
 - **[study-repo](./skills/draft/study-repo/SKILL.md)** — 讀懂一個第三方 repo：先跑起來、追一條核心路徑，產出拋棄式的學習報告。
 - **[svg-palette](./skills/draft/svg-palette/SKILL.md)** — SVG 繪圖的色盤與用色規則 —— 預設靛青深淺＋橘強調，可套品牌色。
 - **[writing-hooks](./skills/draft/writing-hooks/SKILL.md)** — 撰寫與審查 Claude Code hook 的判準：什麼規則該降到 hook、怎麼防靜默腐爛。
@@ -186,8 +186,11 @@ session 規則：
 
 研究技能（research）的設計依據：
 
-- Felix Rieseberg、[How to be more ambitious: A tutorial for humans with models](https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/) — Altitude、Depth、Range 三個面向，以及不讓模型評自己的外部裁判原則。
-- Anthropic、[How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 依複雜度調整投入、先廣後窄、子代理的委派四要素與多代理的 token 成本。
+- Felix Rieseberg、[How to be more ambitious: A tutorial for humans with models](https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/) — Altitude（本 repo 解為研究結果的用途）、Depth、Range 三個面向，以及不讓模型評自己的外部裁判原則。
+- Anthropic、[How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — 依複雜度調整投入、先廣後窄、子代理的委派四要素與多代理的 token 成本；[research_lead_agent.md](https://github.com/anthropics/claude-cookbooks/blob/main/patterns/agents/prompts/research_lead_agent.md) 的單純／廣度／深度分類決定拆法與投入、不擋請求，清單任務也照收。
+- OpenAI、[Deep Research API with the Agents SDK](https://github.com/openai/openai-cookbook/blob/main/examples/deep_research_api/introduction_to_deep_research_api_agents.ipynb) — 釐清問題設上限、改寫成研究指示時「沒講的細節不准發明」。
+- [langchain-ai/open_deep_research](https://github.com/langchain-ai/open_deep_research/blob/1b7d2e80db9faa586165c60e09096dbbfd483a64/src/open_deep_research/prompts.py) 與 [bytedance/deer-flow](https://github.com/bytedance/deer-flow/blob/main-1.x/src/prompts/coordinator.md) — 事實題也交給研究、比較題每個選項各派子代理；DeerFlow 以研究計畫審核取代確認改寫後的問題。
+- [mattpocock/skills](https://github.com/mattpocock/skills/blob/main/docs/engineering/research.md) — 「產出的是決策而不是事實，就是 grilling」：研究不下建議，決策交給拷問。
 - [robonuggets/be-ambitious](https://github.com/robonuggets/be-ambitious/blob/main/SKILL.md) — 「野心提高標準，不提高權限」的邊界。
 - [Analysis of competing hypotheses](https://en.wikipedia.org/wiki/Analysis_of_competing_hypotheses)（Heuer）— 競爭假說與診斷性證據。
 
