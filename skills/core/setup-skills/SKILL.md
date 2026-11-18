@@ -1,6 +1,6 @@
 ---
 name: setup-skills
-description: 為這個 repo 設定工程技能所需的組態 — 本機與遠端兩套議題追蹤器、領域文件位置、git 與 Penpot 護欄 hook，以及本機議題用的 CI 檢查。初始化跑一次；重跑可調整追蹤器記錄或補裝、更新護欄。
+description: 為這個 repo 設定工程技能所需的組態 — 本機與遠端兩套議題追蹤器、領域文件位置、git 與 Penpot 護欄 hook，以及本機議題與真相地圖的 CI 檢查。初始化跑一次；重跑可調整追蹤器記錄或補裝、更新護欄。
 disable-model-invocation: true
 ---
 
@@ -11,10 +11,11 @@ Write the per-repo configuration the other skills assume. Prompt-driven, not a s
 Produces:
 
 - `docs/agents/issue-tracker.md` — the routing criteria on top, then where 本機議題 and 遠端議題 live
-- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, and the collaboration mode
+- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, the collaboration mode, and the capability-file shape
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
+- When the project has `docs/capabilities/`: `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh`
 - In private mode: entries in `.git/info/exclude`
 
 ## 1. Explore
@@ -24,15 +25,16 @@ Read what exists. Assume nothing.
 - `git remote -v` — GitHub? GitLab? No remote?
 - `CLAUDE.md` / `AGENTS.md` at root — does either exist? Does either already have an `## Agent skills` section?
 - `GLOSSARY.md`, `docs/adr/` — is a domain layer already here?
-- `docs/agents/` — has this skill already run?
+- `docs/agents/` — has this skill already run? Does `domain.md` carry the `## Capability 檔形狀` section, and does it still match `capability-shape.md` beside this `SKILL.md`?
 - `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
 - `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
+- `docs/capabilities/` — present? Then `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh` — present, and do they still match their source (Section G)?
 - Monorepo signals: `pnpm-workspace.yaml`, a `workspaces` field, populated `packages/*`
 
 ## 2. Present and ask
 
-Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the three sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker. Every other section collects a nod, re-runs included.
+Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the four sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker, G without `docs/capabilities/`. Every other section collects a nod, re-runs included.
 
 **Section A — Issue trackers.** Both trackers are recorded, never one instead of the other: a 本機議題 tracker, and a 遠端議題 tracker when the repo has a remote. `to-tickets`, `to-spec`, `wayfinder`, and `triage` choose between them by the routing criteria at the top of `docs/agents/issue-tracker.md` (「分流判準」) and read from and write to the one it points at; they need to know whether to run `gh issue create`, `glab issue create`, write a file under `docs/issues/`, or follow something you describe.
 
@@ -67,11 +69,10 @@ A third, `guard-penpot.sh`, is a PreToolUse hook on the Penpot MCP tools: it blo
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
 - **Register** each under `PreToolUse` in `.claude/settings.json` — matcher `Bash` for the git pair, `mcp__penpot__execute_code|mcp__penpot__export_shape` for `guard-penpot.sh` — as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
-**Section F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored). A GitHub Actions check that fails a PR whose net change adds files under `docs/issues/` — every issue the branch created must be gone by merge. Propose it, one nod for the pair.
+Sections F and G are the CI checks; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
 
-- **Source**: `issues-check.yml` and `check-issues.sh`, beside this `SKILL.md`.
-- **Copy byte-for-byte** to `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`. The tests stay in luca-skills; the copy is verbatim, so a green source is a green copy.
-- **Drift**: copies present but differing from source → show the diff, propose refreshing.
+- **F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored).
+- **G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked.
 
 ## 3. Confirm
 
@@ -103,6 +104,8 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 `docs/agents/domain.md` must record the collaboration mode and, in private mode, which paths are excluded — downstream skills read it to know whether their output is committed or personal.
 
+Copy `capability-shape.md` byte-for-byte into `docs/agents/domain.md` as its last section, every run, whether or not `docs/capabilities/` exists yet. It is the one home of the capability-file shape: the skills that write capability files read it there. The template is target content, so it is written in Traditional Chinese like the generated docs, not in this skill's English. On a re-run, a section that differs from the source → show the diff, propose refreshing.
+
 `docs/agents/issue-tracker.md` must record, concretely, in the two-section format: first a `## 分流判準` section (the routing criteria, per Section A), then `## 本機` and `## 遠端`. Each of the two sections records the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess.
 
 - `## 本機` adds the file-name pattern, the next-number rule, and the lifecycle: delete the file when done.
@@ -111,6 +114,8 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook and issues-check copies.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies and the capability-file shape.
 
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
+
+After installing Section G, tell the user the same of `truth-map-check`: it blocks merging only once they mark it required, and until then its red list is a to-do, not a gate.

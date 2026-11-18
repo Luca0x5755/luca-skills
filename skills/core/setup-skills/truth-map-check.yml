@@ -1,0 +1,13 @@
+# Installed by /setup-skills (project with docs/capabilities/). The job name `truth-map-check` is the
+# status check to mark as required in branch protection.
+name: Truth map check
+
+on:
+  pull_request:
+
+jobs:
+  truth-map-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash .github/scripts/check-truth-map.sh
