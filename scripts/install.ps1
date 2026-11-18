@@ -57,20 +57,18 @@ function Select-Targets {
   }
 }
 
+# 目標落在本 repo 的 core/ 或 draft/ 底下就算本 repo 管理，不要求目標仍存在：
+# 技能畢業或封存後舊連結成了斷鏈，它仍是本 repo 建的，要能被替換。
+$buckets = @('core', 'draft') | ForEach-Object { [System.IO.Path]::GetFullPath((Join-Path $repo "skills\$_")) }
+
 function Test-ManagedSkillLink {
-  param(
-    [System.IO.FileSystemInfo]$Item,
-    [string]$Source
-  )
+  param([System.IO.FileSystemInfo]$Item)
 
   if (-not $Item.LinkType) { return $false }
-  $expected = [System.IO.Path]::GetFullPath($Source).TrimEnd('\', '/')
   foreach ($target in @($Item.Target)) {
-    try {
-      $actual = [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $target -ErrorAction Stop).Path).TrimEnd('\', '/')
-      if ($actual -ieq $expected) { return $true }
-    }
-    catch { }
+    $full = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine((Split-Path -Parent $Item.FullName), $target))
+    $parent = [System.IO.Path]::GetDirectoryName($full.TrimEnd('\', '/'))
+    if ($buckets -icontains $parent) { return $true }
   }
   $false
 }
@@ -90,7 +88,7 @@ foreach ($agent in $targets) {
   $conflicts = foreach ($skill in $skills) {
     $link = Join-Path $dest $skill.Name
     $item = Get-Item -LiteralPath $link -Force -ErrorAction SilentlyContinue
-    if ($item -and -not (Test-ManagedSkillLink -Item $item -Source $skill.Source)) { $link }
+    if ($item -and -not (Test-ManagedSkillLink -Item $item)) { $link }
   }
   if ($conflicts) {
     [Console]::Error.WriteLine("$agent 無法安裝：以下同名技能不由本 repo 管理，未做任何變更：$($conflicts -join ', ')")

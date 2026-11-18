@@ -193,7 +193,7 @@ grep -qF '## Penpot' "$b" || err "$b 沒有把子代理指向 CLAUDE.md 的「##
 grep -qF 'docs/agents/domain.md' "$f" || err "$f 沒有指向 docs/agents/domain.md 讀 capability 檔形狀"
 
 echo "[17] implement 只寫進 capability 檔、形狀從 domain.md 讀；to-spec 意思改了就換新 ID"
-for f in skills/core/implement/SKILL.md skills/core/implement-spec/SKILL.md skills/draft/run-queue/*.md; do
+for f in skills/core/implement/SKILL.md skills/core/implement-spec/SKILL.md skills/core/run-queue/*.md; do
   grep -qF 'consolidated spec section' "$f" && err "$f 仍有「consolidated spec section」退路 — 行為規則只寫進 capability 檔"
 done
 f=skills/core/implement/SKILL.md

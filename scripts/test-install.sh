@@ -118,3 +118,16 @@ fi
   exit 1
 }
 [ -f "$foreign_skill/sentinel.txt" ] && [ ! -e "$test_home/.agents/skills/tdd" ]
+
+echo 'a dangling link left by graduation is replaced'
+rm -rf "$test_home/.agents"
+mkdir -p "$test_home/.agents/skills"
+ln -s "$repo/skills/draft/ask-luca" "$test_home/.agents/skills/ask-luca"
+HOME="$test_home" bash "$repo/scripts/install.sh" codex >/dev/null 2>&1 || {
+  echo 'install.sh refused its own dangling link' >&2
+  exit 1
+}
+[ -f "$test_home/.agents/skills/ask-luca/SKILL.md" ] || {
+  echo 'dangling link was not repointed to core' >&2
+  exit 1
+}

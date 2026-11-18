@@ -14,6 +14,7 @@
   ],
   "skills": [
     "./skills/core/ask-luca",
+    "./skills/core/branch-cleanup",
     "./skills/core/browser-evidence",
     "./skills/core/code-review",
     "./skills/core/diagnosing-bugs",
@@ -30,6 +31,7 @@
     "./skills/core/improve-codebase-architecture",
     "./skills/core/prototype",
     "./skills/core/retro",
+    "./skills/core/run-queue",
     "./skills/core/setup-skills",
     "./skills/core/tdd",
     "./skills/core/test-blueprint",
