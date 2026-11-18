@@ -168,6 +168,30 @@ grep -qF 'blocked by the check /setup-skills installs' "$f" || err "$f 沒有說
 grep -qF 'docs/agents/domain.md' "$f" || err "$f 沒有指向 docs/agents/domain.md 讀 capability 檔形狀"
 grep -qF 'cut-commit' "$f" || err "$f 沒有「改到的章節清理走獨立 cut-commit」規則"
 
+echo "[16] frontend-spec：每頁四項、05 無打勾清單、只引用 ID、cut-commit、## Penpot 前置條件、形狀從 domain.md 讀"
+f=skills/core/frontend-spec/SKILL.md
+b=skills/core/frontend-spec/PAGE-BRIEF.md
+# 只看 ## Shape 底下第一個 code fence 裡的頁面項目
+items=$(awk '/^## Shape/{s=1} s&&/^```/{n++; if(n==2) exit; next} s&&n==1&&/^- \*\*/' "$f")
+[ "$(grep -c '^- \*\*' <<<"$items")" -eq 4 ] || err "$f 的頁面範本不是恰好四項"
+paste=$(grep -F "paste the page's" "$b")
+for label in 'Story' 'Dominant region' 'Promise IDs' 'Boards'; do
+  grep -qF -- "- **$label**" <<<"$items" || err "$f 的頁面範本缺「$label」"
+  grep -qF -- "$label" <<<"$paste" || err "$b 的頁面章節貼上行沒有「$label」— 與頁面形狀不一致"
+done
+grep -qF 'upstream as a promise' "$f" || err "$f 沒有說可測的互動細節回上游登記成承諾"
+grep -qF 'drawn on its boards' "$f" || err "$f 沒有說純視覺細節畫在 board 上"
+grep -qE '^[[:space:]]*- \[[ xX]\]' "$f" && err "$f 含打勾清單行 — 05 不寫驗收清單"
+grep -qF 'acceptance checklist in `05` is blocked by the check /setup-skills installs' "$f" || err "$f 沒有說明 05 的打勾清單由 /setup-skills 安裝的檢查擋下"
+grep -qF 'heading missing either side is blocked by the check /setup-skills installs' "$f" || err "$f 沒有說明標題標記由 /setup-skills 安裝的檢查擋下"
+grep -qF 'orphan and goes red' "$f" && err "$f 仍宣稱「orphan and goes red」"
+grep -qF 'cited by ID' "$f" && grep -qF 'never restate' "$f" || err "$f 沒有「承諾只引用 ID、不重述」規則"
+grep -qF 'cut-commit' "$f" && grep -qF 'Only touched pages are cleaned' "$f" || err "$f 沒有「只清改到的頁、走獨立 cut-commit」規則"
+grep -qF '## Penpot' "$f" || err "$f 的前置條件沒有檢查 CLAUDE.md 的「## Penpot」標題"
+grep -qF 'guard-penpot.sh' "$f" || err "$f 丟了 guard-penpot.sh 前置條件"
+grep -qF '## Penpot' "$b" || err "$b 沒有把子代理指向 CLAUDE.md 的「## Penpot」"
+grep -qF 'docs/agents/domain.md' "$f" || err "$f 沒有指向 docs/agents/domain.md 讀 capability 檔形狀"
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

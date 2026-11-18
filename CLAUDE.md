@@ -54,7 +54,7 @@
 5. `.claude-plugin/plugin.json` 與 `package.json` 的 `version` 相等。
 6. `skills/core/ask-luca/SKILL.md` 提到每一個 core 技能。路由器漏掉一個，就是一張說謊的地圖。
 
-上列編號即 `check.sh` 的 [1]–[6]。另有 `check.sh` [12]、[13]：`skills/core/setup-skills/` 複製到目標專案的 CI 檢查模板（議題檢查、真相地圖檢查）檔案都在、`SKILL.md` 或其 `CHECKS.md` 有提到、workflow 呼叫腳本、本 repo 的對應測試（`scripts/test-issues-check.sh`、`scripts/test-truth-map-check.sh`）跑綠。`check.sh` [14]：capability 檔形狀只住 `skills/core/setup-skills/capability-shape.md`（五部分齊、`SKILL.md` 指示寫進目標的 `docs/agents/domain.md`、別的技能不得重述），且 setup-skills 的 `SKILL.md` 不超過 150 行、Section F／G 細節在 `CHECKS.md`。`check.sh` [15]：`skills/core/to-architecture/SKILL.md` 不再宣稱「orphan and goes red」、改寫成由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md` 讀形狀、有改到章節的 cut-commit 規則。
+上列編號即 `check.sh` 的 [1]–[6]。另有 `check.sh` [12]、[13]：`skills/core/setup-skills/` 複製到目標專案的 CI 檢查模板（議題檢查、真相地圖檢查）檔案都在、`SKILL.md` 或其 `CHECKS.md` 有提到、workflow 呼叫腳本、本 repo 的對應測試（`scripts/test-issues-check.sh`、`scripts/test-truth-map-check.sh`）跑綠。`check.sh` [14]：capability 檔形狀只住 `skills/core/setup-skills/capability-shape.md`（五部分齊、`SKILL.md` 指示寫進目標的 `docs/agents/domain.md`、別的技能不得重述），且 setup-skills 的 `SKILL.md` 不超過 150 行、Section F／G 細節在 `CHECKS.md`。`check.sh` [15]：`skills/core/to-architecture/SKILL.md` 不再宣稱「orphan and goes red」、改寫成由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md` 讀形狀、有改到章節的 cut-commit 規則。`check.sh` [16]：`skills/core/frontend-spec/SKILL.md` 的頁面範本恰好四項（Story、Dominant region、Promise IDs、Boards）且 `PAGE-BRIEF.md` 一致、無打勾清單、承諾只引用 ID、改到的頁走 cut-commit、前置條件檢查 `CLAUDE.md` 的 `## Penpot` 並保留 `guard-penpot.sh`、標記規則由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md`。
 
 ## Hooks（機器護欄）
 
