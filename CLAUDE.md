@@ -54,6 +54,8 @@
 5. `.claude-plugin/plugin.json` 與 `package.json` 的 `version` 相等。
 6. `skills/core/ask-luca/SKILL.md` 提到每一個 core 技能。路由器漏掉一個，就是一張說謊的地圖。
 
+上列編號即 `check.sh` 的 [1]–[6]。另有 `check.sh` [12]、[13]：`skills/core/setup-skills/` 複製到目標專案的 CI 檢查模板（議題檢查、真相地圖檢查）檔案都在、`SKILL.md` 有提到、workflow 呼叫腳本、本 repo 的對應測試（`scripts/test-issues-check.sh`、`scripts/test-truth-map-check.sh`）跑綠。
+
 ## Hooks（機器護欄）
 
 腳本在 `hooks/`、掛載在 `.claude/settings.json`、地圖在 `hooks/HOOKS.md` — 每條 hook 掛哪個事件、擋什麼、為什麼，都寫在地圖裡，此處不重述。三方對齊（settings.json 的掛載 ↔ `hooks/` 目錄的腳本 ↔ HOOKS.md 的條目）由 `check.sh` 強制，缺一即紅。技能裡的禁令是模型自律，hook 是機器強制 — 兩者同構，後者不會忘。

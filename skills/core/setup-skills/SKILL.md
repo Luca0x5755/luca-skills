@@ -1,6 +1,6 @@
 ---
 name: setup-skills
-description: 為這個 repo 設定工程技能所需的組態 — 本機與遠端兩套議題追蹤器、領域文件位置、git 與 Penpot 護欄 hook，以及本機議題用的 CI 檢查。初始化跑一次；重跑可調整追蹤器記錄或補裝、更新護欄。
+description: 為這個 repo 設定工程技能所需的組態 — 本機與遠端兩套議題追蹤器、領域文件位置、git 與 Penpot 護欄 hook，以及本機議題與真相地圖的 CI 檢查。初始化跑一次；重跑可調整追蹤器記錄或補裝、更新護欄。
 disable-model-invocation: true
 ---
 
@@ -15,6 +15,7 @@ Produces:
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
+- When the project has `docs/capabilities/`: `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh`
 - In private mode: entries in `.git/info/exclude`
 
 ## 1. Explore
@@ -28,11 +29,12 @@ Read what exists. Assume nothing.
 - `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
 - `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
+- `docs/capabilities/` — present? Then `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh` — present, and do they still match their source (Section G)?
 - Monorepo signals: `pnpm-workspace.yaml`, a `workspaces` field, populated `packages/*`
 
 ## 2. Present and ask
 
-Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the three sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker. Every other section collects a nod, re-runs included.
+Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the four sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker, G without `docs/capabilities/`. Every other section collects a nod, re-runs included.
 
 **Section A — Issue trackers.** Both trackers are recorded, never one instead of the other: a 本機議題 tracker, and a 遠端議題 tracker when the repo has a remote. `to-tickets`, `to-spec`, `wayfinder`, and `triage` choose between them by the routing criteria at the top of `docs/agents/issue-tracker.md` (「分流判準」) and read from and write to the one it points at; they need to know whether to run `gh issue create`, `glab issue create`, write a file under `docs/issues/`, or follow something you describe.
 
@@ -73,6 +75,13 @@ A third, `guard-penpot.sh`, is a PreToolUse hook on the Penpot MCP tools: it blo
 - **Copy byte-for-byte** to `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`. The tests stay in luca-skills; the copy is verbatim, so a green source is a green copy.
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
 
+**Section G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked. A GitHub Actions check that fails a PR when a `##`/`###` heading in `docs/03_architecture_design.md` or `docs/05_frontend_spec.md` lacks its `（能力：X）` / `（能力：共用）` tag, or names a capability with no `docs/capabilities/X.md`. Propose it, one nod for the pair.
+
+- **Source**: `truth-map-check.yml` and `check-truth-map.sh`, beside this `SKILL.md`.
+- **Copy byte-for-byte** to `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh`. The tests stay in luca-skills; the copy is verbatim, so a green source is a green copy.
+- **Drift**: copies present but differing from source → show the diff, propose refreshing.
+- **Current red**: after copying, run `bash .github/scripts/check-truth-map.sh` at the repo root and put every red line it prints in the install report. An existing project installs as-is with its red list in hand: write no baseline file, and leave branch protection as it is.
+
 ## 3. Confirm
 
 Show a draft of every file to be written and the block to be added to `CLAUDE.md`. Let it be edited before anything lands on disk.
@@ -111,6 +120,8 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook and issues-check copies.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies.
 
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
+
+After installing Section G, tell the user the same of `truth-map-check`: it blocks merging only once they mark it required, and until then its red list is a to-do, not a gate.
