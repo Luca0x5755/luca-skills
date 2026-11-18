@@ -192,6 +192,18 @@ grep -qF 'guard-penpot.sh' "$f" || err "$f 丟了 guard-penpot.sh 前置條件"
 grep -qF '## Penpot' "$b" || err "$b 沒有把子代理指向 CLAUDE.md 的「## Penpot」"
 grep -qF 'docs/agents/domain.md' "$f" || err "$f 沒有指向 docs/agents/domain.md 讀 capability 檔形狀"
 
+echo "[17] implement 只寫進 capability 檔、形狀從 domain.md 讀；to-spec 意思改了就換新 ID"
+for f in skills/core/implement/SKILL.md skills/core/implement-spec/SKILL.md skills/draft/run-queue/*.md; do
+  grep -qF 'consolidated spec section' "$f" && err "$f 仍有「consolidated spec section」退路 — 行為規則只寫進 capability 檔"
+done
+f=skills/core/implement/SKILL.md
+grep -F 'docs/capabilities/<name>.md' "$f" | grep -qF 'docs/agents/domain.md' \
+  || err "$f 落地行為規則那一行沒有指向 docs/agents/domain.md 讀 capability 檔形狀"
+f=skills/core/to-spec/SKILL.md
+for part in 'keeps its number' 'test assertion would have to change' 'retired：由 <新 ID> 取代' 'never reissued'; do
+  grep -qF -- "$part" "$f" || err "$f 缺少「$part」— Promise IDs 沒區分措辭改動與意思改動"
+done
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail
