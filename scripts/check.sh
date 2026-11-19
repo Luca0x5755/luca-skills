@@ -211,6 +211,41 @@ echo "[20] CI 跑 scripts/test-tooling.sh（hook 與安裝器測試住那裡，S
 grep -qE '^[[:space:]]*-[[:space:]]*run:.*scripts/test-tooling\.sh' .github/workflows/check.yml 2>/dev/null \
   || err ".github/workflows/check.yml 沒有呼叫 scripts/test-tooling.sh — hook 與安裝器測試會靜默停跑"
 
+echo "[21] README 錨點：README 內部與 repo 內 .md 連進 README.md#… 的連結，都對得到標題"
+# 錨點規則仿 github-slugger（GitHub 實際渲染結果已核對）：小寫、刪標點／符號／分隔字元（保留 - 與空白）、空白換 -、重名加 -1、-2…
+anchors=$(perl -CSD -ne '
+  $fence = !$fence if /^\s*```/; next if $fence;
+  next unless s/^#{1,6}[ \t]+//; chomp; s/\r//; s/[ \t]+#*[ \t]*$//;
+  $_ = lc; s/(?![- ])(?!\p{Alphabetic})[\p{No}\p{Ps}\p{Pe}\p{Pi}\p{Pf}\p{Po}\p{Pd}\p{S}\p{Cc}\p{Co}\p{Cf}\p{Cn}\p{Z}]//g; s/ /-/g;
+  $n = $seen{$_}++; print $n ? "$_-$n\n" : "$_\n";' README.md)
+check_anchor() {  # $1 = 出處，$2 = 錨點
+  printf '%s\n' "$anchors" | grep -qxF -- "$2" || err "$1 連到 README.md#$2，但 README 沒有這個標題 — 改了標題就同步改連結"
+}
+while IFS= read -r a; do [ -n "$a" ] && check_anchor README.md "$a"; done \
+  < <(grep -oP '\]\(#\K[^)]+' README.md)
+while IFS= read -r f; do
+  while IFS= read -r link; do
+    target=$(realpath -m --relative-to=. "$(dirname "$f")/${link%%#*}")
+    [ "$target" = README.md ] && check_anchor "$f" "${link#*#}"
+  done < <(grep -oP '\]\(\K[^)#]*README\.md#[^)]+' "$f")
+done < <(git ls-files '*.md' | grep -vx README.md)
+
+echo "[22] 圖上的標示與技能一致：虛線 draft ↔ skills/draft/，user／model ↔ frontmatter 的 disable-model-invocation"
+for svg in assets/flow.svg assets/toolbox.svg; do
+  # 每個 class="box …" 方框，配對緊接其後第一個 class="skill"／"skill-sm" 文字裡的技能名；只寫在註記裡、沒有方框的技能不在此列
+  while read -r name cls; do
+    if   [ -d "skills/draft/$name" ]; then bucket=draft
+    elif [ -d "skills/core/$name" ];  then bucket=core
+    else continue; fi
+    case " $cls " in *" draft "*) drawn=draft ;; *) drawn=core ;; esac
+    [ "$drawn" = "$bucket" ] || err "$svg：/$name 畫成 $drawn，但技能在 skills/$bucket/ — 畢業或降級時同步改圖上的 draft class"
+    grep -q '^disable-model-invocation:[[:space:]]*true' "skills/$bucket/$name/SKILL.md" && want=user || want=model
+    case " $cls " in *" $want "*) ;; *) err "$svg：/$name 的方框不是 $want 卡 — 觸發方式改了就同步改圖上的 user／model class" ;; esac
+  done < <(perl -ne '
+    $cls = $1 if /class="(box[^"]*)"/;
+    if (defined $cls && /class="skill(?:-sm)?">([^<]*)/) { my $t = $1; print "$_ $cls\n" for $t =~ m{/([a-z0-9-]+)}g; undef $cls }' "$svg")
+done
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail
