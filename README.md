@@ -159,6 +159,7 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** ⚡ — 管理問題該用哪個框架：OKR、精實、Scrum…
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改行為的結構重整，特徵測試護網、綠燈即提交。
 - **[research](./skills/draft/research/SKILL.md)** — 向外取證回答問題或蒐集清單，交外部裁判檢驗，不下建議。
+- **[salvage-branch](./skills/draft/salvage-branch/SKILL.md)** — 分支做歪救不回時，抽出故事、概念與翻案軌跡，從 main 重來。
 - **[study-repo](./skills/draft/study-repo/SKILL.md)** — 讀懂第三方 repo：先跑起來，追一條核心路徑。
 - **[writing-hooks](./skills/draft/writing-hooks/SKILL.md)** ⚡ — Claude Code hook 的判準：該不該降到 hook、怎麼防腐爛。
 
