@@ -38,3 +38,4 @@
 2026-11-19 「core 技能不得呼叫 draft／archive 技能」要升為 `check.sh` 規則，另開票不併入畢業 PR — 同一失效第二次出現（前次見 2026-10-29 條「畢業流程不檢查呼叫者」）；grep 判準可能誤擋散文與範例，需要自己的測試案例。
 2026-11-19 README 文件圖的三條豁免（不受 >15 節點拆圖、不用 1920×1080 畫布、不標日期版本）暫不寫回 `diagram` 的 STYLE.md，第二次遇到 README 圖場景再補「文件圖」一節 — 只有 #50 一次觀察，一次就立規則是預先設計；畢業不要求零已知縫隙。
 2026-11-19 刪除 draft 技能 `feasibility`，其中唯一沒有別處承接的「成功指標」移交 `/to-spec` 的可選段 `## Success indicators`，落地後住驗收議題、由人量完後關閉；`/grill-with-docs` 不加必問題，缺目標值或里程碑時進 `## Open questions` 退回訪談 — 建檔近四個月無實戰紀錄，技術風險已由 `/prototype` 繞道承接、替代方案由 `/research` 取證加 `/grill-with-docs` 拍板，量級成本價值低，且它排在規格之後，判「值不值得做」太晚；指標改放驗收議題是因本機規格落地即刪，搬進 capability 檔要改形狀與 `check.sh` [14]。不寫 ADR：技能刪除可由 git 救回，可逆。
+2026-11-19 `/branch-cleanup` 收尾改為自行逐組 commit（不 push）、交棒 `/git-pr`，不再要求手動 squash；`run-queue` 跳過它的理由改為「需使用者逐項挑選、佇列無人值守」 — squash merge 已把分支收成一個 commit，手動 squash 只多出被 guard 擋下的 force push 路徑。不加 `check.sh` 檢查：one-hop 收尾在其他技能也無檢查，單獨加是特例。`/git-pr` push 被拒的處理延後到出現實例。
