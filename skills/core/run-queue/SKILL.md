@@ -79,7 +79,7 @@ All workers have stopped, and either no ready ticket remains or a systemic denia
 
 Only now may the coordinator remove an unreferenced spec: verify on the integration branch that every frozen promise ID and retired line is in the truth layer. Missing truth-layer evidence: retain the spec and report incomplete. Commit final cleanup, then run required final integration checks. New failures get focused validation within the affected ticket's remaining budget; unresolved failures remain disclosed, not green.
 
-Follow sibling `git-pr/SKILL.md` §A by reading it. Skip manual squash and `/branch-cleanup`: per-ticket commits are the audit source. Remaining tickets/specs or unresolved validation: draft PR; none: normal PR. A branch with no deliverable diff cannot open a PR; report that exception and the stalled queue instead of inventing a URL.
+Follow sibling `git-pr/SKILL.md` §A by reading it. Skip `/branch-cleanup`: it needs the user to select items, and the queue runs unattended. Remaining tickets/specs or unresolved validation: draft PR; none: normal PR. A branch with no deliverable diff cannot open a PR; report that exception and the stalled queue instead of inventing a URL.
 
 Under 測試, disclose **自我核准痕跡**, per completed ticket, from all of its integrated commits:
 

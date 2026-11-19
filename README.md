@@ -90,7 +90,7 @@ $ask-luca        # 不確定該用哪個技能時
 - **[improve-codebase-architecture](./skills/core/improve-codebase-architecture/SKILL.md)** — 勘查程式庫的深化機會，排序後呈上，再對你挑中的那一個進行拷問。
 - **[wayfinder](./skills/core/wayfinder/SKILL.md)** — 把龐大而迷霧重重的工程畫成一張決策票地圖，一次解一張，直到通往終點的路清晰為止。
 - **[git-commit](./skills/core/git-commit/SKILL.md)** — 檢視已暫存的變更，撰寫英文 commit 並推上遠端。只提交 staged 的內容，絕不代替使用者 stage。
-- **[branch-cleanup](./skills/core/branch-cleanup/SKILL.md)** — 在最後提交前收斂功能分支反覆修訂的文件與無用交付內容。
+- **[branch-cleanup](./skills/core/branch-cleanup/SKILL.md)** — 在開 PR 前收斂功能分支反覆修訂的文件與無用交付內容。
 - **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR（英文標題＋繁中內文、前後證據與合併風險）與合併後清理分支，分支生命週期的頭與尾。
 - **[git-release](./skills/core/git-release/SKILL.md)** — 更新版本檔中的版本號，彙整兩版本間的 commit 寫成繁體中文發布摘要，打 tag 推上遠端並發佈 release 頁面。
 - **[wait-what](./skills/core/wait-what/SKILL.md)** — 停 — 剛才那段沒讓人聽懂，要求代理重新講一次。
@@ -137,9 +137,9 @@ $ask-luca        # 不確定該用哪個技能時
 | 1・想清楚 | 一問一答把想法磨到可以動手 | `/grill-with-docs`（還沒有 codebase 時用 `/grilling`） |
 | 1・繞道 | 有問題要跑起來才能回答 | ① `/handoff` 拿文件路徑 → ② 開新 session 貼路徑，跑 `/prototype` → ③ 答完再 `/handoff` 拿新路徑 → ④ 開新 session 貼路徑，回主流程 |
 | 2・切開 | 一個 session 做不完，先切小 | `/to-spec` →（動到架構或 UI 才跑 `/to-architecture`、`/frontend-spec`）→ `/to-tickets` |
-| 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear`；整份規格可用 `/implement-spec` 平行建置；本機追蹤器也可改用 `/run-queue`（預設串行，可選 `parallel`）無人看管跑完全部票並直接開 PR，不經階段 4 的手動 squash |
+| 3・建置 | 一個 session 做一張票 | `/clear` → `/implement` 指定一張票（會自動跑 `/tdd` 與 `/code-review`）→ 還有票就回到 `/clear`；整份規格可用 `/implement-spec` 平行建置；本機追蹤器也可改用 `/run-queue`（預設串行，可選 `parallel`）無人看管跑完全部票並直接開 PR，不經 `/branch-cleanup` |
 | 3.5・驗收 | 證據要交給別人簽核時才走 | 專案第一次先 `/test-blueprint` 定測試藍圖 → `/uat-cases` 產凍結編號的案例 → `/browser-evidence` 跑成截圖與網路紀錄 |
-| 4・收尾 | 審查、提交、分支收尾整理、開 PR 到合併出貨 | `/code-review`（`/implement` 收尾自動跑）→ `/git-commit` → `/branch-cleanup` → 由你 squash 並更新遠端 → `/git-pr`（GitLab 用 `/git-mr`，試用中）→ 要發版才跑 `/git-release` |
+| 4・收尾 | 審查、提交、分支收尾整理、開 PR 到合併出貨 | `/code-review`（`/implement` 收尾自動跑）→ `/git-commit` → `/branch-cleanup` → `/git-pr`（GitLab 用 `/git-mr`，試用中）→ 要發版才跑 `/git-release` |
 
 session 規則：
 

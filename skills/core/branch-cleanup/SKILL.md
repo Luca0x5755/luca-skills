@@ -1,15 +1,15 @@
 ---
 name: branch-cleanup
-description: 在最後提交前收斂功能分支反覆修訂的文件與無用交付內容。
+description: 在開 PR 前收斂功能分支反覆修訂的文件與無用交付內容。
 disable-model-invocation: true
 ---
 
 # Branch Cleanup
 
-Prepare one feature branch for its final squash or PR. Repeated revisions can
+Prepare one feature branch for its PR. Repeated revisions can
 leave superseded ADRs, swollen user stories, interim decisions, and stale spec
-passages. Card the evidence, let the user choose, then leave a verified working
-tree that states the final facts. The user owns the final commit.
+passages. Card the evidence, let the user choose, then commit a verified
+branch that states the final facts.
 
 ## 1. Bound the current branch
 
@@ -86,8 +86,10 @@ Group selected work by purpose and verification method. For each group:
    reference search as appropriate.
 3. On a failed check, report the command, output, and affected files. Repair
    within the selected scope or ask the user to narrow or adjudicate it.
-
-Leave the changes unstaged and uncommitted for the user's final squash.
+4. **Commit — mandatory, commit only.** Green → commit the group on its own,
+   following the `/git-commit` rules for the files it touched; read
+   `git-commit/SKILL.md` first, in the parent of this skill's base directory.
+   Unresolved → leave that group's edits uncommitted and list them in the report.
 
 ## 4. Close
 
@@ -95,8 +97,10 @@ No candidates, or no selected candidates: report the start commit, scan scope,
 and that no files changed.
 
 After edits, review `git diff <start>` and `git status --short`; inspect any
-untracked files separately. Run `git diff --check` and the affected checks.
-Report the start commit, selected candidates, final facts retained, files
-changed, verification, unresolved conflicts, and items left untouched. Hand
-the working tree back for the user's final commit, squash, and remote update;
-`/git-pr` follows once the final commit is on the remote branch.
+untracked files separately. Run `git diff --check <start>` and the affected
+checks. Report the start commit, selected candidates, final facts retained,
+commits created, files changed, verification, unresolved conflicts, and items
+left untouched.
+
+In either case, report the next step as **one hop tagged with its trigger**:
+`/git-pr` (branch ready for PR). `/git-pr` pushes the branch itself.
