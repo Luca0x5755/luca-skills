@@ -98,7 +98,7 @@ draft 的畢業流程：
 
 1. `skills/draft/<name>/SKILL.md`，跑一次 `scripts/install.ps1` 讓它可被叫用，並在 `README.md` 的〈試用中〉小節補一行（不變量 3）。
 2. 用兩週。從來沒被觸發 → `description` 的觸發語句寫壞了。觸發了但做錯事 → 該鎖成使用者觸發。內容在真實情境下改過至少一輪。
-3. `git mv` 進 `core/`，同時把 `README.md` 條目從〈試用中〉搬進正式清單、補 `plugin.json` 條目、`ask-luca` 的路由，並拿掉圖上方框的 `draft` class（不變量 [22]）。
+3. `git mv` 進 `core/`，同時把 `README.md` 條目從〈試用中〉搬進正式清單、補 `plugin.json` 條目、`ask-luca` 的路由，並拿掉圖上方框的 `draft` class（`check.sh` [22]）。
 4. `bash scripts/check.sh` 綠了才 commit。
 
 ## Agent skills
