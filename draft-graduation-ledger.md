@@ -37,4 +37,4 @@ draft 技能的試用紀錄，只增不改。畢業判準見 `CLAUDE.md`〈新�
 
 ## 2026-11-19 — feasibility 刪除（grilling 定案）
 
-- **feasibility** — 刪除（分支 `feature/success-indicators`）：建檔近四個月無實戰紀錄；技術風險由 `/prototype` 承接、替代方案由 `/research` 加 `/grill-with-docs` 承接，唯一獨有的成功指標移進 `/to-spec` 的可選段 `## Success indicators`。
+- **feasibility** — 刪除（分支 `feature/success-indicators`）：無實戰紀錄；成功指標移進 `/to-spec`，理由見 `docs/decision-log.md` 2026-11-19。
