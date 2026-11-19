@@ -28,6 +28,11 @@ Every testable commitment this spec makes, one line each, carrying a frozen
 ID: `<ID> — <the behaviour promised>`. Everything downstream — test
 cases, test markers, the blueprint's traceability table — keys on these.
 
+## Success indicators
+Optional. 2–4 outcomes measured after release, each with a target value and
+the milestone at which it is measured. Omit the section when nothing will be
+measured after release.
+
 ## Out of scope
 What it deliberately does not, and why. Load-bearing — this is the section
 that stops the build drifting.
@@ -62,13 +67,14 @@ Specs written before IDs existed get numbered **on demand** — a promise takes 
 
 - **Use the project's vocabulary.** Read `GLOSSARY.md` first. A spec that invents its own words forces a translation step on every reader.
 - **A promise that cannot be enumerated is not a promise.** 「登入要好用」 cannot be traced or tested; 「會員以正確憑證登入後導向儀表板」 can. A Scope line that resists being written as a numbered promise means the conversation left it vague — that belongs under Open questions, not under a number.
+- **A success indicator is measured, not tested.** Anything a test assertion can check is a promise. An indicator nobody will actually measure is cut; one missing its target value or milestone goes under Open questions.
 - **Behaviour, not implementation.** The spec says what must be true. How to build it is `/to-tickets` and `/implement`.
 - **Do not invent.** Anything not settled in the conversation goes under Open questions. Filling a gap with a plausible guess is how a spec quietly becomes wrong.
 - **Show the draft before publishing.** Let the user edit, then publish.
 
 ## Finish
 
-**Route — confirm once.** Before publishing, propose the destination (本機議題 or 遠端議題) with a one-line reason, judged by the criteria at the top of `docs/agents/issue-tracker.md` — the criteria live there only. The user confirms once; that answer routes the spec and, later, its tickets (they share one side). In the same message ask one question: is there an acceptance issue? If yes, create it on the remote tracker alongside the spec; the PR references it with the non-closing form recorded in that file, so a person closes it after accepting. A spec already on the remote carries acceptance as one of its tickets. No remote recorded → local, skip the proposal.
+**Route — confirm once.** Before publishing, propose the destination (本機議題 or 遠端議題) with a one-line reason, judged by the criteria at the top of `docs/agents/issue-tracker.md` — the criteria live there only. The user confirms once; that answer routes the spec and, later, its tickets (they share one side). In the same message ask one question: is there an acceptance issue? If yes, create it on the remote tracker alongside the spec; the PR references it with the non-closing form recorded in that file, so a person closes it after accepting. A spec already on the remote carries acceptance as one of its tickets. A spec with `## Success indicators` is accepted only once a person has measured them: recommend yes to the acceptance question, and copy the indicators into that acceptance issue or ticket — a local spec is deleted when the work lands. No remote recorded → local, skip the proposal. Success indicators with no acceptance issue or ticket to receive them → say they are deleted with the local spec.
 
 Publish per `docs/agents/issue-tracker.md` and report the URL or path. On a local markdown tracker, publishing is writing the file **and** committing it; an uncommitted spec is still a draft.
 
