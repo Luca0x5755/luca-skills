@@ -70,6 +70,7 @@ Off the main flow entirely.
 - **`/wizard`** — when a procedure needs the **human's** hands (provisioning, credentials, CI secrets, a one-off migration), generate an interactive bash wizard that walks them through it. Steps the agent can do itself never go in a wizard.
 - **`/wait-what`** — the agent's last message didn't land. Stop and make it re-pitch: context first, plain technical language, the project's vocabulary.
 - **`/to-questionnaire`** — a decision you can't answer alone becomes a questionnaire for the one person who can. It grills the *send* (who, and what you need back), never the subject.
+- **`/diagram`** — a diagram for a briefing, a tender, or an engineering doc, picked by audience. Its SVG colors come from **`/svg-palette`**, which it loads; reach for `/svg-palette` alone when any other SVG needs colors or a brand palette mapped in.
 - **`/writing-for-agents`** — the reference for writing any document an agent consumes: skills, `CLAUDE.md`/`AGENTS.md`, pointed-at docs. Load it before writing or editing one.
 
 ## Vocabulary underneath
