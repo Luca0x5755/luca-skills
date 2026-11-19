@@ -105,6 +105,8 @@ $ask-luca        # 不確定該用哪個技能時
 - **[code-review](./skills/core/code-review/SKILL.md)** — 沿三條軸審查自某個定點以來的 diff — Standards（有沒有遵守這個 repo 的規範？）、Spec（有沒有做到票要求的事？）與 Reuse（倉庫裡有沒有現成的？）。當使用者要審查一個分支、一個 PR 或進行中的工作時使用，也對應 "code review"、"review this branch"、「審一下」、「有沒有現成的」、「重複造輪子」等說法。
 - **[diagnosing-bugs](./skills/core/diagnosing-bugs/SKILL.md)** — 對付硬 bug、間歇性失敗與效能回歸的紀律迴圈 — 重現、最小化、立假說、下探針、修好、補回歸測試。當東西壞了而原因不明顯時使用，也對應 "flaky"、"regression"、「時好時壞」、「找不到原因」等說法。
 - **[wizard](./skills/core/wizard/SKILL.md)** — 生成一支互動式 bash 精靈，一步步引導人類完成只有人能做的步驟。當要開通基礎設施、設定憑證或 CI secrets、走一遍陌生的第三方後台、或跑一次性的遷移／切換時使用。代理自己能做的步驟不要用它。
+- **[diagram](./skills/core/diagram/SKILL.md)** — 依受眾與情境挑選最合適的圖表並繪製，缺資訊時先畫草稿再問。當使用者要畫「架構圖」「泳道圖」「流程圖」「甘特圖」「時序圖」「循序圖」「ERD」「技術堆疊」「WBS」「網路架構圖」「部署圖」「里程碑」，或要為「會報」「簡報」「標案文件」準備圖表，或說「畫個圖」「用圖表呈現」時使用。
+- **[svg-palette](./skills/core/svg-palette/SKILL.md)** — SVG 繪圖的色盤與用色規則 — 預設靛青深淺＋橘強調，可用使用者指定色票（公司 CI 色）覆蓋。當要繪製任何 SVG 圖、挑「配色」「色票」「圖表顏色」，或使用者提供品牌色要套進圖裡時使用。
 - **[writing-for-agents](./skills/core/writing-for-agents/SKILL.md)** — 撰寫給代理讀的文件的通用工法：context pointer、兩種負載、資訊階梯、completion criteria。建立或編輯技能、修改 `CLAUDE.md` 時使用。
 
 ### 試用中（draft）
@@ -115,7 +117,6 @@ $ask-luca        # 不確定該用哪個技能時
 - **[bootstrap-truth](./skills/draft/bootstrap-truth/SKILL.md)** — 一次性正規化刀：在宿主既有治理的形狀內把文件瘦身變準、補業務能力薄檔、標上能力對應；砍字與改事實分開 commit。
 - **[briefing](./skills/draft/briefing/SKILL.md)** — 把簡報圖變成上台用的口頭講稿＋導讀：結論先行、節間串場、預期質詢與建議答法，寫成 `briefing.md`。
 - **[caveman](./skills/draft/caveman/SKILL.md)** — 聊天回覆切換為繁中電報體，砍廢話省輸出 token；程式碼、commit、文件照常散文。
-- **[diagram](./skills/draft/diagram/SKILL.md)** — 依受眾與情境挑選最合適的圖表並繪製，缺資訊時先畫草稿再問。
 - **[feasibility](./skills/draft/feasibility/SKILL.md)** — 在規格與拆票之間補上可行性判決（✅／⚠️／❌），以 comment 掛回 spec issue。
 - **[git-merge](./skills/draft/git-merge/SKILL.md)** — 把指定分支合併進當前分支；衝突時停下來分析與建議，解法是使用者的決定。
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 git-pr：開 MR（有 glab 直建，沒有就給連結、標題、內文自己貼）與合併後清理分支。
@@ -123,7 +124,6 @@ $ask-luca        # 不確定該用哪個技能時
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改變可觀察行為的結構重整：特徵測試護網、一次一個 transform、綠燈即提交。
 - **[research](./skills/draft/research/SKILL.md)** — 向外取證回答問題或蒐集清單：先分類、給研究計畫確認、拆題平行取證、交外部裁判檢驗，產出結論與主張帳本（不下建議），讀完自己刪。
 - **[study-repo](./skills/draft/study-repo/SKILL.md)** — 讀懂一個第三方 repo：先跑起來、追一條核心路徑，產出拋棄式的學習報告。
-- **[svg-palette](./skills/draft/svg-palette/SKILL.md)** — SVG 繪圖的色盤與用色規則 —— 預設靛青深淺＋橘強調，可套品牌色。
 - **[writing-hooks](./skills/draft/writing-hooks/SKILL.md)** — 撰寫與審查 Claude Code hook 的判準：什麼規則該降到 hook、怎麼防靜默腐爛。
 
 ## 主流程
