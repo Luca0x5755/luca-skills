@@ -16,9 +16,10 @@ PR-TRACKER-08 — 本機議題做不完時，在遠端建議題並引用原內�
 PR-TRACKER-09 — `implement`、`implement-spec` 依判準指到的位置讀取與完成議題；`implement-spec` 現有的跨追蹤器行為不退步。
 PR-TRACKER-10 — `run-queue` 的前提由「追蹤器是本機 markdown」改為「有本機票」；遠端規格不歸它管。
 PR-TRACKER-11 — `audit-truth` 的漂移票固定只讀遠端；沒有 remote 時只看宿主漂移帳本。`diagram` 讀判準指到的位置。
-PR-TRACKER-12 — `feasibility` 對本機規格，把報告追加成規格檔末節 `## Feasibility`；對遠端規格維持貼成留言。
+PR-TRACKER-12 — retired：`feasibility` 技能已刪除，其成功指標移交 `/to-spec`（PR-TRACKER-15）。
 PR-TRACKER-13 — 本 repo 的 `issue-tracker.md` 與 `CLAUDE.md` 的追蹤器小節改成雙套；`GLOSSARY.md` 遠端議題條的措辭與 PR-TRACKER-02 一致。
 PR-TRACKER-14 — `bash scripts/check.sh` 通過。
+PR-TRACKER-15 — `to-spec` 的規格帶 `## Success indicators` 時，驗收議題一題建議答「有」，並把指標複製進驗收議題或驗收票；沒有驗收議題或票承接時，提醒指標會隨本機規格刪除。
 
 ## 驗證
 

@@ -117,7 +117,6 @@ $ask-luca        # 不確定該用哪個技能時
 - **[bootstrap-truth](./skills/draft/bootstrap-truth/SKILL.md)** — 一次性正規化刀：在宿主既有治理的形狀內把文件瘦身變準、補業務能力薄檔、標上能力對應；砍字與改事實分開 commit。
 - **[briefing](./skills/draft/briefing/SKILL.md)** — 把簡報圖變成上台用的口頭講稿＋導讀：結論先行、節間串場、預期質詢與建議答法，寫成 `briefing.md`。
 - **[caveman](./skills/draft/caveman/SKILL.md)** — 聊天回覆切換為繁中電報體，砍廢話省輸出 token；程式碼、commit、文件照常散文。
-- **[feasibility](./skills/draft/feasibility/SKILL.md)** — 在規格與拆票之間補上可行性判決（✅／⚠️／❌），以 comment 掛回 spec issue。
 - **[git-merge](./skills/draft/git-merge/SKILL.md)** — 把指定分支合併進當前分支；衝突時停下來分析與建議，解法是使用者的決定。
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 git-pr：開 MR（有 glab 直建，沒有就給連結、標題、內文自己貼）與合併後清理分支。
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** — 管理框架知識庫與診斷：OKR、精實、六標準差、Scrum 等的選用判準。

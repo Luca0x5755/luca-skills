@@ -35,3 +35,6 @@ draft 技能的試用紀錄，只增不改。畢業判準見 `CLAUDE.md`〈新�
 - **bootstrap-truth / audit-truth** — 留 draft：成對不拆；audit-truth 轉接模式首戰未回報（見 08-29 待驗證），回報後兩把一起升。
 - **implement-all** — 刪除（分支 `chore/remove-implement-all`）：批次派工的編排未經實戰，先拿掉。
 
+## 2026-11-19 — feasibility 刪除（grilling 定案）
+
+- **feasibility** — 刪除（分支 `feature/success-indicators`）：無實戰紀錄；成功指標移進 `/to-spec`，理由見 `docs/decision-log.md` 2026-11-19。
