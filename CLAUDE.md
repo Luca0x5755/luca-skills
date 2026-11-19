@@ -56,6 +56,7 @@
 
 上列編號即 `check.sh` 的 [1]–[6]。另有 `check.sh` [12]、[13]：`skills/core/setup-skills/` 複製到目標專案的 CI 檢查模板（議題檢查、真相地圖檢查）檔案都在、`SKILL.md` 或其 `CHECKS.md` 有提到、workflow 呼叫腳本、本 repo 的對應測試（`scripts/test-issues-check.sh`、`scripts/test-truth-map-check.sh`）跑綠。`check.sh` [14]：capability 檔形狀只住 `skills/core/setup-skills/capability-shape.md`（五部分齊、`SKILL.md` 指示寫進目標的 `docs/agents/domain.md`、別的技能不得重述），且 setup-skills 的 `SKILL.md` 不超過 150 行、Section F／G 細節在 `CHECKS.md`。`check.sh` [15]：`skills/core/to-architecture/SKILL.md` 不再宣稱「orphan and goes red」、改寫成由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md` 讀形狀、有改到章節的 cut-commit 規則。`check.sh` [16]：`skills/core/frontend-spec/SKILL.md` 的頁面範本恰好四項（Story、Dominant region、Promise IDs、Boards）且 `PAGE-BRIEF.md` 一致、無打勾清單、承諾只引用 ID、改到的頁走 cut-commit、前置條件檢查 `CLAUDE.md` 的 `## Penpot` 並保留 `guard-penpot.sh`、標記規則由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md`。
 `check.sh` [18]：`skills/draft/bootstrap-truth/SKILL.md` 第 4 步從 base directory 上一層讀 `setup-skills/SKILL.md` 照 Section G 安裝檢查、標記規則由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md`，且整個資料夾不描述雙向孤兒檢查、不深連結 setup-skills 的模板檔。
+`check.sh` [21]：`README.md` 內部的 `#…` 連結與 repo 內 `.md` 連進 `README.md#…` 的連結，都對得到 GitHub 生成的標題錨點 — 改標題就同步改連結。`check.sh` [22]：`assets/flow.svg`、`assets/toolbox.svg` 上畫成方框的技能，虛線 `draft` class 與所在桶一致、`user`／`model` class 與 frontmatter 的 `disable-model-invocation` 一致；圖的 `<desc>` 只寫圖例，不逐一點名技能。
 
 ## Hooks（機器護欄）
 
@@ -97,7 +98,7 @@ draft 的畢業流程：
 
 1. `skills/draft/<name>/SKILL.md`，跑一次 `scripts/install.ps1` 讓它可被叫用，並在 `README.md` 的〈試用中〉小節補一行（不變量 3）。
 2. 用兩週。從來沒被觸發 → `description` 的觸發語句寫壞了。觸發了但做錯事 → 該鎖成使用者觸發。內容在真實情境下改過至少一輪。
-3. `git mv` 進 `core/`，同時把 `README.md` 條目從〈試用中〉搬進正式清單、補 `plugin.json` 條目、`ask-luca` 的路由。
+3. `git mv` 進 `core/`，同時把 `README.md` 條目從〈試用中〉搬進正式清單、補 `plugin.json` 條目、`ask-luca` 的路由，並拿掉圖上方框的 `draft` class（`check.sh` [22]）。
 4. `bash scripts/check.sh` 綠了才 commit。
 
 ## Agent skills
