@@ -57,7 +57,7 @@ Drawing one page takes on the order of a hundred Penpot calls plus image exports
 2. **Shared foundation.** When step 1 wrote or changed the style-tokens section, or the pages need a component not yet in the design master, dispatch one subagent to set up those tokens and components before any page. Skip when the spec adds neither. Done when its report lists each token set and component as `done`.
 3. **First page — the gate.** Dispatch one subagent for the first page. When it reports, stop and ask the user to review that page's boards in Penpot. The first page sets how tokens, density and the four states are expressed, so the remaining pages wait for the user's approval. Changes asked for → dispatch the correction, then ask again. Done when the user approves the page.
 4. **Remaining pages.** One subagent per page, dispatched after the previous one has reported. Done when every page has a report with `stopped: none`.
-5. **Reconcile the roster.** Check every board name in the `05` sections this run touched against the subagent reports. Done when each is reported `done`, or is named as undone in the final report.
+5. **Reconcile the roster.** Check every board name in the `05` sections this run touched against the subagent reports. Done when each is reported `done` and `exported`, or is named as undone or unexported in the final report.
 6. **Keep the lessons.** Write every `lessons` line from the reports under `## Penpot` in the project's `CLAUDE.md`, merged into what is already there. Done when no reported lesson is missing from that heading.
 
 ### Dispatching
@@ -84,7 +84,7 @@ Fill [`PAGE-BRIEF.md`](PAGE-BRIEF.md) and pass it as the subagent's prompt.
 
 **Commit — mandatory, commit only.** Follow the `/git-commit` rules for the files this skill wrote; read `git-commit/SKILL.md` first, in the parent of this skill's base directory. The cut-commit is already in; this is the content commit. Nothing written → no commit.
 
-Report the files edited, then the boards by page: drawn, changed, and undone with the reason. Say which pages the user has reviewed — only the first was gated — and ask them to review the rest in Penpot. The design master already holds the boards; the snapshot was left alone.
+Report the files edited, then the boards by page: drawn, changed, and undone with the reason, and any board whose export failed — `/to-tickets` stops on a missing board export, so name the page to re-export. Say which pages the user has reviewed — only the first was gated — and ask them to review the rest in Penpot. The design master already holds the boards; the snapshot was left alone.
 
 Then report the next step as **one hop tagged with its trigger**: `/to-tickets` (multi-session) or `/implement` (one session).
 

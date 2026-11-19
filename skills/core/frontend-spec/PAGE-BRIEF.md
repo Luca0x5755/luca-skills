@@ -1,6 +1,6 @@
 # Page brief
 
-The prompt for one drawing subagent. Fill every `<…>` and send the whole block. For the shared-foundation dispatch, put the tokens and components to set up where the boards go and drop the state names.
+The prompt for one drawing subagent. Fill every `<…>` and send the whole block; `<receiver>` is the absolute path of [`receive-board.py`](receive-board.py) in this skill's base directory. For the shared-foundation dispatch, put the tokens and components to set up where the boards go and drop the state names.
 
 ```text
 Draw one page of mockups in the project's Penpot design file. You own this
@@ -51,10 +51,25 @@ While drawing
   report. The first occurrence ends your run: only the user can bring the
   tab back, and a retry spends context for nothing.
 
+After the last board
+Write a board export of every board you drew or changed, so tickets can
+attach a frozen image of it (none drawn → skip):
+1. From the project root, start `python <receiver> "<board name>" …` in the
+   background with those board names. It writes each PNG under
+   `$(git rev-parse --git-common-dir)/board-exports/`, replacing the old one,
+   and exits once all have arrived.
+2. One `execute_code` call per board, so the bytes never pass through you:
+   `const b = penpot.currentPage.getShapeById(id);`
+   `await fetch("http://127.0.0.1:47811/?name=" + encodeURIComponent(b.name),
+   { method: "POST", body: await b.export({ type: "png", scale: 2 }) })`,
+   returning only the response status and text.
+3. Done when the receiver has exited: `all received`, or `missing:` naming
+   the boards that failed.
+
 Report — exactly this, as your final message:
 page: <page name>
 boards:
-  <board name> | <id> | <done or missing>
+  <board name> | <id> | <done or missing> | <exported or export failed>
   …
 deviations: <where the result departs from this brief, or none>
 lessons: <each Penpot trap you hit that the ## Penpot section does not
