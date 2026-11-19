@@ -244,6 +244,11 @@ for svg in assets/flow.svg assets/toolbox.svg; do
   done < <(perl -ne '
     $cls = $1 if /class="(box[^"]*)"/;
     if (defined $cls && /class="skill(?:-sm)?">([^<]*)/) { my $t = $1; print "$_ $cls\n" for $t =~ m{/([a-z0-9-]+)}g; undef $cls }' "$svg")
+  # <desc> 只寫圖例：逐一點名技能的散文沒有檢查跟得上，一出現就擋
+  desc=$(perl -0ne 'print $1 if m{<desc>(.*?)</desc>}s' "$svg")
+  for n in $core $draft; do
+    printf '%s' "$desc" | grep -qwF -- "$n" && err "$svg 的 <desc> 點名了 $n — <desc> 只寫圖例，技能的分類看方框的 class"
+  done
 done
 
 echo
