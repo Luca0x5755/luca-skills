@@ -28,6 +28,7 @@ Write the research question in the user's terms. A detail the user did not give 
 
 - **Type** — one per request. **Straightforward**: one lookup or one fetch answers it. **Breadth-first**: it splits into independent sub-questions; a request holding several questions is breadth-first, "compare A, B and C" splits by option, and a list splits by entity once the item set is fetched. **Depth-first**: one question that needs several angles on the same thing.
 - **Sub-questions** — the split itself, one line each. Every sub-question runs.
+- **Comparison dimensions** — when the sub-questions are parallel (options compared, or classes measured on the same attributes), the attributes every sub-question is answered on. Gathering hunts each one per sub-question, and the report tabulates them. Sub-questions that share no attributes declare none.
 - **Purpose** (altitude) — what the user does with the result: learn, decide, write, monitor. Unstated → a clarifying question in step 4; at Light it stays `無特定限制`.
 - **Flip finding** — per sub-question, the discovery that would change its answer. For a list, the finding that would add or remove a row: an inclusion criterion failing, or the data going stale.
 
@@ -70,7 +71,7 @@ Done when the level's depth questions are answered, every field has its action l
 
 **Light** — go on to step 5.
 
-**Medium and Heavy** — send one message and wait for one approval. It holds the plan — research question, type, sub-questions, purpose, flip findings, level, methods, data to download, third-party code to run, and a budget in subagents or time — and at most **3 clarifying questions**: the ones whose answers would change the plan's structure or direction. A question the user leaves unanswered stays `無特定限制`. Approval covers everything inside the plan.
+**Medium and Heavy** — send one message and wait for one approval. It holds the plan — research question, type, sub-questions, comparison dimensions, purpose, flip findings, level, methods, data to download, third-party code to run, and a budget in subagents or time — and at most **3 clarifying questions**: the ones whose answers would change the plan's structure or direction. A question the user leaves unanswered stays `無特定限制`. Approval covers everything inside the plan.
 
 ## 5. Gather
 
@@ -99,41 +100,9 @@ Done when every claim and row has a grade you can point to evidence for.
 
 ## 7. Write the report
 
-Write `AI_RESEARCH-<slug>.md` in exactly this order, headings in the session's language:
+Write `AI_RESEARCH-<slug>.md` in the shape and order of [`REPORT-TEMPLATE.md`](REPORT-TEMPLATE.md), headings in the session's language.
 
-```markdown
-# <research question>
-
-## 結論
-<the answer — for a list: the inclusion criteria, the row count and how fresh the data is.
-Confidence: 高 / 中 / 低 with a one-line reason.
-Name any claim the answer leans on that only passed Refutation.>
-
-## 清單
-| <fields> | 來源 | 裁判 | 狀態 | 資料日期 |
-| --- | --- | --- | --- | --- |
-
-## 翻盤條件
-- <finding that would change this answer or add or remove a list row, and how to look for it>
-
-## 主張帳本
-| 主張 | 來源 | 裁判 | 狀態 |
-| --- | --- | --- | --- |
-| <claim> | <URL with passage, or how to re-obtain the data> | Executable / Source / Refutation / Unverified | 成立 / 被推翻 / 未驗證 |
-
-Refutation 由同一模型系列執行，獨立性有限。
-
-## 缺口
-- <what could not be found, and why>
-```
-
-`## 清單` appears only for a list. Each row carries its own source, grade, status and date, so the ledger holds only claims outside the list; a refuted row stays, marked 被推翻. A cell nobody could source reads `查無`.
-
-Several sub-questions → one `###` per sub-question under `## 結論` and under `## 翻盤條件`, and a leading `子題` column in the ledger.
-
-When evidence cannot answer, write `現有證據無法回答` and name the single verifiable action that would settle it. "Needs further research" is an adjective, not an action. Confidence stays in three words because a percentage would claim precision the evidence lacks.
-
-Absence is a finding: "found no reliable source on X" belongs in the gaps. Refuted claims stay in the ledger, since knowing what failed is part of the result.
+Done when the first screen holds the answer, its confidence and — where step 1 declared comparison dimensions — the filled table; every body claim cites a ledger ID; and every heading is backed by the grade it claims.
 
 ## 8. Hand over
 
