@@ -2,7 +2,7 @@
 # guard-secrets.sh 的回歸規格。每條在暫存假 repo 裡 stage 一段內容再餵指令進去 —
 # 判準是「這顆 commit 引入了什麼」，所以測試必須有真的 staged diff，不能只餵字串。
 # 行為變更必須先改這張表 — 沒有檢查的規則不是規則，是願望。
-# 執行：bash hooks/test-guard-secrets.sh（scripts/check.sh 會跑）
+# 執行：bash hooks/test-guard-secrets.sh（scripts/test-tooling.sh 會跑）
 set -u
 cd "$(dirname "$0")"
 HOOK="$PWD/guard-secrets.sh"

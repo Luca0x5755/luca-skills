@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # check-on-stop.sh 的回歸規格。四條路徑，每條在暫存假 repo 裡搭場景：
 # 有 payload.cwd 時測實際工作樹，無 cwd 時保留從 hook 位置定位的相容行為。
-# 執行：bash hooks/test-check-on-stop.sh（scripts/check.sh 會跑）
+# 執行：bash hooks/test-check-on-stop.sh（scripts/test-tooling.sh 會跑）
 set -u
 cd "$(dirname "$0")"
 HOOK="$PWD/check-on-stop.sh"

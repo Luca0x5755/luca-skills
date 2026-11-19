@@ -2,7 +2,7 @@
 
 本 repo 掛載的每一條 hook：它掛在哪個事件、擋什麼、為什麼。技能裡的禁令是模型自律，hook 是機器強制 — 兩者同構，後者不會忘。
 
-三方對齊由 `scripts/check.sh` 強制：`.claude/settings.json` 的掛載 ↔ `hooks/` 目錄的腳本 ↔ 本檔的 `## <腳本名>` 條目，缺一即紅。每支腳本另有同名 `test-*.sh` 測試（check.sh 不變量 8）。
+三方對齊由 `scripts/check.sh` 強制：`.claude/settings.json` 的掛載 ↔ `hooks/` 目錄的腳本 ↔ 本檔的 `## <腳本名>` 條目，缺一即紅。每支腳本另有同名 `test-*.sh` 測試，由 `scripts/test-tooling.sh` [8] 在 CI 跑；改了 hook 就手動跑一次。
 
 ## guard-git.sh
 
@@ -40,7 +40,7 @@
 ## check-on-stop.sh
 
 - **事件**：Stop。
-- **擋**：不變量表面（`skills/`、`.claude-plugin/`、`README.md`、`package.json`）有未提交變更且 `check.sh` 紅著，不准收工。查 `stop_hook_active` 防無限迴圈。
+- **擋**：不變量表面（`skills/`、`.claude-plugin/`、`README.md`、`package.json`）有未提交變更且 `check.sh` 紅著，不准收工。`check.sh` 只檢查這個表面；hook 與安裝器測試在 `test-tooling.sh`，不在此跑。查 `stop_hook_active` 防無限迴圈。
 - **為什麼**：紅著收工的 session 把爛攤子留給下一個 session。
 - **定位**：有 payload.cwd 時定位到該工作樹 root（含子目錄）；沒有時保留 hook 位置的相容定位。
 - **關係**：只在本 repo 掛載，不外發。
