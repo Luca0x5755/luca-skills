@@ -32,15 +32,15 @@ The three destinations look identical in shell and cost wildly differently:
 
 A hook has two legitimate forms: a **decider** (can exit 2 — silent until it decides) and an **observer** (writes logs — silent always). A hook that always exits 0 and still talks is pure liability: it taxes every tool call to say nothing. Status broadcasts ("hook fired", "done") are worse than waste — they make dead functionality look alive.
 
-`tee` is stdout in disguise: it writes the file **and** stdout by definition. Write logs with `>>`; this repo's `scripts/test-tooling.sh` rejects `tee` in hooks (invariant [8]).
+`tee` is stdout in disguise: it writes the file **and** stdout by definition. Write logs with `>>`; this repo's `tests/test-tooling.sh` rejects `tee` in hooks (invariant [8]).
 
 ## Staying alive: every hook ships with its test
 
 The three rot modes ([PATHOLOGY.md](PATHOLOGY.md)) share one root cause: nothing verified the hook still worked. So the rule, enforced here by invariant [8]:
 
-- Every `hooks/<name>.sh` has a `hooks/test-<name>.sh`, run by `scripts/test-tooling.sh` on every PR.
+- Every `hooks/<name>.sh` has a `tests/hooks/test-<name>.sh`, run by `tests/test-tooling.sh` on every PR.
 - The test feeds **real payloads** through the hook and asserts its **decisions** (allow/block), never just that it ran — running is the default, deciding is the function.
-- The hook locates the inspected worktree from payload `cwd`, while its script may be addressed from the original project root. Test a real linked worktree, including a subdirectory and a launcher outside it. When payload `cwd` is absent, a documented `$0` fallback may preserve compatibility. `hooks/test-check-on-stop.sh` is the model.
+- The hook locates the inspected worktree from payload `cwd`, while its script may be addressed from the original project root. Test a real linked worktree, including a subdirectory and a launcher outside it. When payload `cwd` is absent, a documented `$0` fallback may preserve compatibility. `tests/hooks/test-check-on-stop.sh` is the model.
 
 A rule you cannot write a check for is a rule you should not encode as a hook — an unverified hook is worse than none, because it creates the illusion that someone is watching the door.
 

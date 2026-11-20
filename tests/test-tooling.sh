@@ -9,11 +9,11 @@ cd "$(dirname "$0")/.."
 fail=0
 err() { echo "  ✗ $*"; fail=1; }
 
-echo "[8] hooks/ 每支 hook 都有對應測試且跑綠；hook 寫 log 用 >>，不用 tee"
+echo "[8] hooks/ 每支 hook 在 tests/hooks/ 都有對應測試且跑綠；hook 寫 log 用 >>，不用 tee"
 for h in hooks/*.sh; do
   b=$(basename "$h")
   case "$b" in test-*) continue ;; esac
-  t="hooks/test-$b"
+  t="tests/hooks/test-$b"
   if [ ! -f "$t" ]; then err "$b 沒有對應測試 $t — 沒有檢查的 hook 會靜默腐爛"; continue; fi
   bash "$t" >/dev/null 2>&1 || err "$t 未過 — 跑 bash $t 看細節"
 done
@@ -24,15 +24,15 @@ echo "[11] 安裝器的安裝、移除、檢查：拒絕已移除的目標，且
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*)
     if command -v pwsh >/dev/null 2>&1; then
-      pwsh -NoProfile -File scripts/test-manage.ps1 >/dev/null 2>&1 || err "scripts/test-manage.ps1 未過 — 跑 pwsh -NoProfile -File scripts/test-manage.ps1 看細節"
+      pwsh -NoProfile -File tests/scripts/test-manage.ps1 >/dev/null 2>&1 || err "tests/scripts/test-manage.ps1 未過 — 跑 pwsh -NoProfile -File tests/scripts/test-manage.ps1 看細節"
     else
       echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
     fi ;;
-  *) bash scripts/test-manage.sh >/dev/null 2>&1 || err "scripts/test-manage.sh 未過 — 跑 bash scripts/test-manage.sh 看細節" ;;
+  *) bash tests/scripts/test-manage.sh >/dev/null 2>&1 || err "tests/scripts/test-manage.sh 未過 — 跑 bash tests/scripts/test-manage.sh 看細節" ;;
 esac
 
 run_test() {  # run_test <腳本名>：輸出丟掉，失敗時指路
-  bash "scripts/$1.sh" >/dev/null 2>&1 || err "scripts/$1.sh 未過 — 跑 bash scripts/$1.sh 看細節"
+  bash "tests/scripts/$1.sh" >/dev/null 2>&1 || err "tests/scripts/$1.sh 未過 — 跑 bash tests/scripts/$1.sh 看細節"
 }
 
 echo "[25] setup-skills 的議題檢查模板（[12] 的行為測試）"
