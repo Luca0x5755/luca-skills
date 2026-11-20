@@ -19,16 +19,16 @@ for h in hooks/*.sh; do
 done
 grep -lE '\btee\b' hooks/*.sh >/dev/null 2>&1 && err "hook 用 tee 寫 log 會把訊息漏進 stdout — 改用 >>：$(grep -lE '\btee\b' hooks/*.sh | tr '\n' ' ')"
 
-echo "[11] 安裝器拒絕已移除的目標，且不覆寫外來同名技能"
-# 各平台只測自己的安裝器：install.sh 刻意拒絕 Git Bash，install.ps1 只服務 Windows。
+echo "[11] 安裝器的安裝、移除、檢查：拒絕已移除的目標，且不覆寫、不刪外來同名技能"
+# 各平台只測自己的安裝器：manage.sh 刻意拒絕 Git Bash，manage.ps1 只服務 Windows。
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*)
     if command -v pwsh >/dev/null 2>&1; then
-      pwsh -NoProfile -File scripts/test-install.ps1 >/dev/null 2>&1 || err "scripts/test-install.ps1 未過 — 跑 pwsh -NoProfile -File scripts/test-install.ps1 看細節"
+      pwsh -NoProfile -File scripts/test-manage.ps1 >/dev/null 2>&1 || err "scripts/test-manage.ps1 未過 — 跑 pwsh -NoProfile -File scripts/test-manage.ps1 看細節"
     else
       echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
     fi ;;
-  *) bash scripts/test-install.sh >/dev/null 2>&1 || err "scripts/test-install.sh 未過 — 跑 bash scripts/test-install.sh 看細節" ;;
+  *) bash scripts/test-manage.sh >/dev/null 2>&1 || err "scripts/test-manage.sh 未過 — 跑 bash scripts/test-manage.sh 看細節" ;;
 esac
 
 run_test() {  # run_test <腳本名>：輸出丟掉，失敗時指路

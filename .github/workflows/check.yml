@@ -17,7 +17,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pwsh -NoProfile -File scripts/test-install.ps1
+      - run: pwsh -NoProfile -File scripts/test-manage.ps1
+      # 同一組測試再以 Windows PowerShell 5.1 當子行程跑一遍
+      - run: pwsh -NoProfile -File scripts/test-manage.ps1
+        env:
+          MANAGE_TEST_SHELL: powershell.exe
       # 只有 Windows runner 同時有 PowerShell 5.1 與 7；ubuntu 的 test-tooling.sh [28] 只驗得到 7
       - run: bash scripts/test-ops-script-skeleton-ps.sh
         shell: bash

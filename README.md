@@ -18,27 +18,33 @@ Codex 把技能名稱前的 `/` 改成 `$`，例如 `$ask-luca`。
 Windows：
 
 ```powershell
-.\scripts\install.ps1            # 互動選擇：1 Claude Code、2 Copilot、3 Codex，可多選
-.\scripts\install.ps1 claude     # 或直接指定：claude、copilot、codex
+.\scripts\manage.ps1                    # 互動：先選動作（install／uninstall／status），再選代理（1 Claude Code、2 Copilot、3 Codex，可多選）
+.\scripts\manage.ps1 install claude     # 或直接指定：claude、copilot、codex，可接多個
+.\scripts\manage.ps1 claude             # install claude 的簡寫
+.\scripts\manage.ps1 uninstall claude   # 移除本 repo 建立的連結（互動時會確認；無終端機加 -Yes）
+.\scripts\manage.ps1 status claude      # 檢查連結狀態
 ```
 
 Linux / macOS：
 
 ```bash
-bash scripts/install.sh          # 互動選擇，同上
-bash scripts/install.sh claude   # 或直接指定：claude、copilot、codex
+bash scripts/manage.sh                   # 互動選擇，同上
+bash scripts/manage.sh install claude    # 或直接指定：claude、copilot、codex，可接多個
+bash scripts/manage.sh claude            # install claude 的簡寫
+bash scripts/manage.sh uninstall claude  # 移除本 repo 建立的連結（互動時會確認；無終端機加 -y）
+bash scripts/manage.sh status claude     # 檢查連結狀態
 ```
 
-安裝器把技能連進代理的個人技能目錄，改這個 repo 的檔案立刻生效。
+腳本把技能連進代理的個人技能目錄，改這個 repo 的檔案立刻生效。`install` 與 `uninstall` 都支援預演（`-WhatIf`／`--dry-run`），只印將執行的指令、什麼都不改。
 
 <details>
 <summary>安裝器細節：目錄、連結方式、選單</summary>
 
-連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`，Codex 是 `~/.agents/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。`skills/core/` 與 `skills/draft/` 都會連入 —— draft 是還在試用、尚未畢業的技能，清單見下方[試用中](#試用中draft)。同名技能若不是本 repo 建立的連結，安裝器會停止該代理的安裝，不會覆寫它。
+連進該代理的個人技能目錄 —— Claude Code 是 `~/.claude/skills`，Copilot 是 `~/.copilot/skills`，Codex 是 `~/.agents/skills`。Windows 用 Junction，不需管理員權限；其他平台用 symlink。`skills/core/` 與 `skills/draft/` 都會連入 —— draft 是還在試用、尚未畢業的技能，清單見下方[試用中](#試用中draft)。同名技能若不是本 repo 建立的連結，`install` 會停止該代理的安裝、不會覆寫它，`uninstall` 也不會碰它。技能封存或改名後留下的舊連結，下次 `install` 會順手清掉。
 
-兩個平台的互動選單一致：`1` 是 Claude Code、`2` 是 Copilot、`3` 是 Codex。輸入 `1 3` 可多選，重複編號只安裝一次。選定後直接安裝；空白輸入、逗號輸入或無效編號會提示並重問，按 Ctrl+C 取消。代理名稱參數供自動化使用。
+兩個平台的互動選單一致：先選動作，再選代理 —— `1` 是 Claude Code、`2` 是 Copilot、`3` 是 Codex。輸入 `1 3` 可多選，重複編號只處理一次。`install` 選定後直接安裝；`uninstall` 會先確認一次（預設不移除）；空白輸入、逗號輸入或無效編號會提示並重問，按 Ctrl+C 取消。`status` 只讀，有缺漏、斷鏈、過期或同名衝突時結束碼為 1。代理名稱參數供自動化使用。
 
-> Windows 上不要用 Git Bash 跑 `install.sh`：MSYS 的 `ln -s` 會退化成複製目錄，裝出一份不會跟著更新的技能。腳本會擋下來要你改用 `install.ps1`。
+> Windows 上不要用 Git Bash 跑 `manage.sh`：MSYS 的 `ln -s` 會退化成複製目錄，裝出一份不會跟著更新的技能。腳本會擋下來要你改用 `manage.ps1`。
 
 </details>
 
