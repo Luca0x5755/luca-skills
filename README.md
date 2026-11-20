@@ -157,6 +157,7 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[git-merge](./skills/draft/git-merge/SKILL.md)** — 合併指定分支；衝突時停下分析，解法由你決定。
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 `/git-pr`：開 MR，合併後清理分支。
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** ⚡ — 管理問題該用哪個框架：OKR、精實、Scrum…
+- **[ops-script](./skills/draft/ops-script/SKILL.md)** ⚡ — 寫或改常駐 repo 的運維腳本：選單加子命令、結束碼、--dry-run，附 bash 骨架。
 - **[refactor](./skills/draft/refactor/SKILL.md)** — 不改行為的結構重整，特徵測試護網、綠燈即提交。
 - **[research](./skills/draft/research/SKILL.md)** — 向外取證回答問題或蒐集清單，交外部裁判檢驗，不下建議。
 - **[salvage-branch](./skills/draft/salvage-branch/SKILL.md)** — 分支做歪救不回時，抽出故事、概念與翻案軌跡，從 main 重來。

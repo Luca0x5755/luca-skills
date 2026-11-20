@@ -251,6 +251,9 @@ for svg in assets/flow.svg assets/toolbox.svg; do
   done
 done
 
+echo "[23] ops-script 骨架：CLI 與 LIB 兩個接縫的行為、語法、結構"
+bash scripts/test-ops-script-skeleton.sh >/dev/null 2>&1 || err "scripts/test-ops-script-skeleton.sh 未過 — 跑 bash scripts/test-ops-script-skeleton.sh 看細節"
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

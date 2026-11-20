@@ -87,5 +87,10 @@
       <text x="266" y="856" text-anchor="middle" class="sub">回看編碼 session，找代理環境的改善</text>
       <text x="266" y="880" text-anchor="middle" class="sub">依證據排序，由使用者選擇落實項目</text>
     </g>
+
+    <rect x="508" y="790" width="436" height="104" rx="8" class="box model draft"/>
+    <text x="726" y="826" text-anchor="middle" class="skill">/ops-script</text>
+    <text x="726" y="856" text-anchor="middle" class="sub">常駐 repo、反覆執行的運維腳本 —</text>
+    <text x="726" y="880" text-anchor="middle" class="sub">選單加子命令、結束碼、--dry-run</text>
   </g>
 </svg>

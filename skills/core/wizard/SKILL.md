@@ -11,6 +11,8 @@ The delightful UX is already solved by [template.sh](template.sh) — stage-coun
 
 A wizard is ephemeral by default — built for one run, saved to a scratch or `scripts/` path, deleted when the job's done. Commit it only when the user wants a repeatable setup path that should live in the repo.
 
+A script that stays in the repo and gets run again and again (menu plus subcommands, callable from a scheduler) is not a wizard — use `/ops-script`.
+
 ## Process
 
 ### 1. Scope the procedure
