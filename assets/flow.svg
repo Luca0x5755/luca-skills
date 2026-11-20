@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2282" viewBox="0 0 1320 2282" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="2314" viewBox="0 0 1320 2314" font-family="'Noto Sans TC','Microsoft JhengHei','微軟正黑體','PingFang TC',sans-serif">
   <title>Luca's Skills 藍圖：想法 → 出貨（變更驅動＋文件驅動）</title>
   <desc>主流程藍圖，雙軌：左側垂直主軸是變更驅動軌（想法→規格→票→建置→出貨），右欄「文件驅動軌」是真相層，真相文件只在 feature branch 上改，隨 PR 與程式碼合併；下方是交流道與隨時可用的技能。白卡為使用者觸發，淡靛青卡為模型觸發，虛線框為試用中的 draft。元技能見 toolbox.svg。</desc>
 
@@ -28,7 +28,7 @@
     </style>
   </defs>
 
-  <rect width="1320" height="2214" fill="#FFFFFF"/>
+  <rect width="1320" height="2314" fill="#FFFFFF"/>
 
   <!-- header -->
   <g id="header">
