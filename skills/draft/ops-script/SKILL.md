@@ -1,6 +1,6 @@
 ---
 name: ops-script
-description: 寫或改留在 repo 裡、反覆執行的運維腳本（bash）時的規則與骨架。當要新增部署、備份、還原、檢查類腳本，要讓腳本同時有互動選單與子命令，要讓排程或 CI 呼叫腳本，或要修改既有運維腳本時使用。只跑一次就丟的引導流程不用它，那是 /wizard。
+description: 寫或改留在 repo 裡、反覆執行的運維腳本（bash 或 PowerShell）時的規則與骨架。當要新增部署、備份、還原、檢查類腳本，要讓腳本同時有互動選單與子命令，要讓排程或 CI 呼叫腳本，或要修改既有運維腳本時使用。只跑一次就丟的引導流程不用它，那是 /wizard。
 ---
 
 # Ops Script
@@ -10,6 +10,8 @@ An **ops script** stays in the repo and gets run again and again by an operator 
 Not this skill: a script run once and thrown away, walking a human through a manual procedure — that is `/wizard`.
 
 Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v2 ----` and `# ---- END ops-lib ----` is **copied verbatim** into every script, never hand-edited — a script must run alone on a machine where the repo does not exist, so there is no shared file to `source`. To change the block, change the skeleton, bump the version, and sync it back into each script; two scripts in one project carrying two different version numbers means one was missed (`grep -rn "BEGIN ops-lib"` shows them all). Edit the skeleton only; a fix made inside one script is lost at the next sync.
+
+**PowerShell script?** Read [POWERSHELL.md](POWERSHELL.md) too: same structure from [skeleton.ps1](skeleton.ps1), plus the encoding (UTF-8 with BOM), 5.1-and-7, confirmation and `-WhatIf` rules that exist only there. The rules below are written in bash terms; the function map in that file translates them.
 
 ## Rules
 

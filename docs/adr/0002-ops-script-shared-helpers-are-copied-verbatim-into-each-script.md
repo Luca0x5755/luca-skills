@@ -1,6 +1,6 @@
 # 0002：運維腳本的共用函式逐字複製進每一支腳本，不抽成共用檔
 
-Status: Proposed
+Status: Accepted
 
 日期：2026-11-20
 
