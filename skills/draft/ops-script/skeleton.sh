@@ -172,6 +172,7 @@ print_menu() {
 
 # run_menu [轉交給子命令的參數...]：選了就先印等價指令再執行；取消 exit 1。
 # 取消直接 exit、呼叫端不以 `||` 接它：函式在 `||` 左側時 errexit 失效，子命令失敗會被吞掉。
+# shellcheck disable=SC2120 # 轉交參數是選配：主流程不帶，測試與擴充才帶
 run_menu() {
   local choice name
   while true; do
@@ -194,7 +195,7 @@ run_command() {
   local name=$1
   shift
   # 整行精確比對；不用空白拼接，否則含空白的名稱會同時對上兩列。
-  if [[ -z "$(table_rows | grep -Fx -- "$name")" ]]; then
+  if ! table_rows | grep -Fx -- "$name" >/dev/null; then
     usage_error "未知子命令：$name" "用 --help 查看可用的子命令"
   fi
   "cmd_${name//-/_}" "$@"
@@ -260,6 +261,7 @@ main() {
     -h | --help) usage ;;
     "")
       if _is_tty 0; then
+        # shellcheck disable=SC2119 # 主流程沒有要轉交的參數；參數只給測試與擴充用
         run_menu
       else
         usage_error "未指定子命令" "帶上子命令，或在終端機中執行以進入選單"
