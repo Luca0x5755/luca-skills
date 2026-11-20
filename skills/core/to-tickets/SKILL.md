@@ -48,11 +48,28 @@ restate it.
 Traps, decided-against alternatives, the seam to test at.
 ```
 
+### Tickets that build a board
+
+A ticket that builds against boards writes the look as **observable** Done-when lines — which elements a state shows, Mobile collapsing to one column — never "matches the board": the reviewer gate in `/run-queue` needs a seam it can check. On a 本機議題 ticket, its Notes also carry the board export of each board it cites:
+
+```markdown
+Board exports (frozen when this ticket was published; the board in the
+design master wins where they differ), relative to
+`git rev-parse --git-common-dir`:
+- `board-exports/Dashboard · Empty · Mobile.png`
+Export missing on this machine → build from Done when and the `05` page
+section, and say "board export missing, not compared to the design" in
+your report.
+```
+
+A 遠端議題 ticket names the board only — the image stays local.
+
 ## Rules
 
 - **Do not triage these.** They are already agent-ready. `/triage` is for issues that arrived from outside.
 - **Show the full set before publishing** — the sizing and the edges are much easier to judge as a list than one at a time. Let the user edit, then publish: the publishing commit is the approval `/run-queue` checks for.
-- **Cite truth by name.** When `/to-architecture` or `/frontend-spec` ran, a ticket names the `docs/03_architecture_design.md` section, the `docs/05_frontend_spec.md` page, or the board (`<page> · <State> · <Desktop|Mobile>`) it builds against. The documents ride the feature branch and merge with the code — a ticket that restates them is a second copy that drifts.
+- **Cite truth by name.** When `/to-architecture` or `/frontend-spec` ran, a ticket names the `docs/03_architecture_design.md` section, the `docs/05_frontend_spec.md` page, or the board (`<page> · <State> · <Desktop|Mobile>`, with the real `Desktop` or `Mobile`) it builds against. The documents ride the feature branch and merge with the code — a ticket that restates them is a second copy that drifts. The one exception is the board export path above: a frozen reference that names the board it came from, never a copy of the truth.
+- **Every cited board export exists before publishing.** Check each path under `$(git rev-parse --git-common-dir)/board-exports/`. One missing → stop, name the page, and ask the user to re-export it through `/frontend-spec`.
 
 ## Route
 
