@@ -2,9 +2,9 @@
 # guard-secrets.sh 的回歸規格。每條在暫存假 repo 裡 stage 一段內容再餵指令進去 —
 # 判準是「這顆 commit 引入了什麼」，所以測試必須有真的 staged diff，不能只餵字串。
 # 行為變更必須先改這張表 — 沒有檢查的規則不是規則，是願望。
-# 執行：bash hooks/test-guard-secrets.sh（scripts/test-tooling.sh 會跑）
+# 執行：bash tests/hooks/test-guard-secrets.sh（tests/test-tooling.sh 會跑）
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../../hooks"
 HOOK="$PWD/guard-secrets.sh"
 
 fail=0
@@ -76,7 +76,7 @@ run_case "暫存區乾淨"                    "$C" ''                           
 
 # 這支閘自己的兩個檔要寫得出它抓的形狀，否則規則無法定義 — 依路徑排除，不是依標記
 run_case "閘自己的實作不自擋"            "$C" 'TEST_PW = "UatTest#2026"' ALLOW hooks/guard-secrets.sh
-run_case "閘自己的測試不自擋"            "$C" 'TEST_PW = "UatTest#2026"' ALLOW hooks/test-guard-secrets.sh
+run_case "閘自己的測試不自擋"            "$C" 'TEST_PW = "UatTest#2026"' ALLOW tests/hooks/test-guard-secrets.sh
 # setup-skills 會把副本抄進目標專案的 .claude/hooks/ — 副本提交自己時同樣不得自擋
 run_case "副本在 .claude/hooks/ 不自擋"  "$C" 'TEST_PW = "UatTest#2026"' ALLOW .claude/hooks/guard-secrets.sh
 

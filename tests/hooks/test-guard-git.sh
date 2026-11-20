@@ -3,9 +3,9 @@
 # 行為變更必須先改這張表 — 沒有檢查的規則不是規則，是願望。
 # 所有案例都在暫存假 repo 裡跑：分支預設 work，第二段換到 main／master 驗分支規則；
 # msg-ok.txt／msg-bad.txt 驗 -F 檔案的 trailer 規則。
-# 執行：bash hooks/test-guard-git.sh（scripts/test-tooling.sh 會跑）
+# 執行：bash tests/hooks/test-guard-git.sh（tests/test-tooling.sh 會跑）
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/../../hooks"
 HOOK="$PWD/guard-git.sh"
 
 fail=0

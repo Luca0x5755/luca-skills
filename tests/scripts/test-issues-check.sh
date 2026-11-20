@@ -2,9 +2,9 @@
 # check-issues.sh 的回歸規格。每個案例在暫存假 repo 裡開一條分支、做一件事、commit，
 # 再以 main 當 base 跑檢查，只看 exit code（與失敗時 stderr 是否點名檔案）。
 # 行為變更必須先改這份規格 — 沒有檢查的規則不是規則，是願望。
-# 執行：bash scripts/test-issues-check.sh（scripts/check.sh 會跑）
+# 執行：bash tests/scripts/test-issues-check.sh（tests/test-tooling.sh 會跑）
 set -u
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 CHECK="$PWD/skills/core/setup-skills/check-issues.sh"
 
 fail=0

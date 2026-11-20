@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ops-script 骨架的回歸規格。兩個接縫：CLI（bash skeleton.sh <args> 的結束碼／輸出／副作用）
 # 與 LIB（SKELETON_LIB=1 source 之後呼叫共用段）。不碰內部變數，不測真終端機分支（沒有 pty）。
-# 執行：bash scripts/test-ops-script-skeleton.sh（scripts/check.sh 會跑）
+# 執行：bash tests/scripts/test-ops-script-skeleton.sh（tests/test-tooling.sh 會跑）
 set -u
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 SK="$PWD/skills/draft/ops-script/skeleton.sh"
 
 fail=0

@@ -58,6 +58,7 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 - No cap on file length; functions stay short and do one thing; indentation stays within 3 levels.
 - Wrap the main flow in `main` and guard its call with the test seam (S): `<script-name>_LIB=1` (rename the skeleton's `SKELETON_LIB` in all three places), compared strictly against `"1"`. Tests source the script under that variable and call functions directly.
 - Sourcing without the seam is refused (S), because `exit` and `set -e` would leak into the operator's shell.
+- Tests live outside the script folder, in `tests/<source-folder>/test-<script>.sh` (`scripts/backup.sh` → `tests/scripts/test-backup.sh`). Mirror the folder name one level only, flat inside; keep the script folder's top level to entry points so a person scanning it finds the right one. A project that already has its own test convention follows it instead.
 - Comments follow the target project's comment language.
 
 **Editing an existing script.** When it breaks these rules, ask the user whether to overhaul the whole script before touching it. Fix only what was asked until they answer.

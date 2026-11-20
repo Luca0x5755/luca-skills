@@ -34,7 +34,7 @@ cd "$task_root" || exit 0
 # setup-skills installs the copy in other projects; same file, same reason.
 added=$(git diff --cached -U0 -- . \
           ':(exclude)hooks/guard-secrets.sh' \
-          ':(exclude)hooks/test-guard-secrets.sh' \
+          ':(exclude)tests/hooks/test-guard-secrets.sh' \
           ':(exclude).claude/hooks/guard-secrets.sh' 2>/dev/null \
         | grep -E '^\+' | grep -vE '^\+\+\+')
 [ -z "$added" ] && exit 0
