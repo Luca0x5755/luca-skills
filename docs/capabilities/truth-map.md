@@ -26,6 +26,6 @@ PR-TRUTH-18 — 技能文字、GLOSSARY、decision-log 與 commit 訊息不提�
 
 ## 驗證
 
-- `bash scripts/test-truth-map-check.sh`：PR-TRUTH-03、07、08、10、12，在 C.UTF-8 與 C 兩種 locale 下跑紅綠案例。
-- `bash scripts/check.sh`：[13] 檢查模板與測試、[14] capability 檔形狀只有一個家、[15]–[18] 各技能的措辭（PR-TRUTH-01、02、05、06、11、14、15、16）。
+- `bash scripts/test-truth-map-check.sh`（CI 由 `scripts/test-tooling.sh` [26] 跑）：PR-TRUTH-03、07、08、10、12，在 C.UTF-8 與 C 兩種 locale 下跑紅綠案例。
+- `bash scripts/check.sh`：[13] 檢查模板檔案與引用、[14] capability 檔形狀只有一個家、[15]–[18] 各技能的措辭（PR-TRUTH-01、02、05、06、11、14、15、16）。
 - PR-TRUTH-04、18 與技能在真實專案的執行行為沒有機械檢查。

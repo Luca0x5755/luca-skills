@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# 工具測試：hook 與安裝器的行為測試。編號與 check.sh 共用，[8]、[11] 住這裡。
-# 受測檔案（hooks/、scripts/）不在 Stop hook 的監看範圍，所以只由 CI 跑；本機改了這些檔案就手動跑一次。
+# 行為測試：hook、安裝器、setup-skills 模板與 ops-script 骨架。編號與 check.sh 共用，
+# [8]、[11]、[25]–[28] 住這裡；check.sh 只放靜態不變量（[20] 強制）。
+# 這些測試慢（Windows 上要好幾分鐘），不進 Stop hook，只由 CI 跑；本機改了受測檔案
+# （hooks/、scripts/、setup-skills 模板、ops-script 骨架）就手動跑一次。
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -28,6 +30,23 @@ case "$(uname -s)" in
     fi ;;
   *) bash scripts/test-install.sh >/dev/null 2>&1 || err "scripts/test-install.sh 未過 — 跑 bash scripts/test-install.sh 看細節" ;;
 esac
+
+run_test() {  # run_test <腳本名>：輸出丟掉，失敗時指路
+  bash "scripts/$1.sh" >/dev/null 2>&1 || err "scripts/$1.sh 未過 — 跑 bash scripts/$1.sh 看細節"
+}
+
+echo "[25] setup-skills 的議題檢查模板（[12] 的行為測試）"
+run_test test-issues-check
+
+echo "[26] setup-skills 的真相地圖檢查模板（[13] 的行為測試）"
+run_test test-truth-map-check
+
+echo "[27] ops-script bash 骨架：CLI 與 LIB 兩個接縫的行為、語法、結構"
+run_test test-ops-script-skeleton
+
+# ubuntu 只有 pwsh；Windows PowerShell 5.1 由 Windows job 跑到，缺哪個版本會在細節輸出明說
+echo "[28] ops-script PowerShell 骨架：BOM、STATIC／CLI／LIB 三個接縫（5.1 與 7 各跑）"
+run_test test-ops-script-skeleton-ps
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
