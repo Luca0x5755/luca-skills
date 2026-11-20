@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # 不變量檢查。CLAUDE.md 裡的每一條規則，在這裡都要有對應的檢查。
 # 沒有檢查的規則不是規則，是願望。
-# [8]、[11] 是 hook 與安裝器測試，住在 scripts/test-tooling.sh — 編號共用，這裡留空號。
+# 這裡只放靜態不變量：Stop hook 每次都跑它，行為測試會讓它拖到數分鐘（[20] 強制）。
+# 行為測試住在 scripts/test-tooling.sh — 編號共用：[8]、[11] 是 hook 與安裝器測試，
+# [25]–[28] 是 [12]、[13]、[23]、[24] 的測試；這裡留空號，[23]、[24] 沒有靜態部分。
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -94,7 +96,7 @@ else
   done
 fi
 
-echo "[12] setup-skills 的議題檢查模板：檔案在、SKILL.md 或 CHECKS.md 有引用、workflow 以 base.sha 呼叫腳本、測試跑綠"
+echo "[12] setup-skills 的議題檢查模板：檔案在、SKILL.md 或 CHECKS.md 有引用、workflow 以 base.sha 呼叫腳本"
 d=skills/core/setup-skills
 for f in issues-check.yml check-issues.sh; do
   [ -f "$d/$f" ] || { err "$d/$f 不存在 — setup-skills Section F 要複製它"; continue; }
@@ -102,9 +104,8 @@ for f in issues-check.yml check-issues.sh; do
 done
 grep -q 'check-issues\.sh' "$d/issues-check.yml" 2>/dev/null && grep -q 'base\.sha' "$d/issues-check.yml" 2>/dev/null \
   || err "$d/issues-check.yml 沒有以 base.sha 呼叫 check-issues.sh — 檢查會失明"
-bash scripts/test-issues-check.sh >/dev/null 2>&1 || err "scripts/test-issues-check.sh 未過 — 跑 bash scripts/test-issues-check.sh 看細節"
 
-echo "[13] setup-skills 的真相地圖檢查模板：檔案在、SKILL.md 或 CHECKS.md 有引用、workflow 呼叫腳本、測試跑綠"
+echo "[13] setup-skills 的真相地圖檢查模板：檔案在、SKILL.md 或 CHECKS.md 有引用、workflow 呼叫腳本"
 d=skills/core/setup-skills
 for f in truth-map-check.yml check-truth-map.sh; do
   [ -f "$d/$f" ] || { err "$d/$f 不存在 — setup-skills Section G 要複製它"; continue; }
@@ -112,7 +113,6 @@ for f in truth-map-check.yml check-truth-map.sh; do
 done
 grep -q 'check-truth-map\.sh' "$d/truth-map-check.yml" 2>/dev/null \
   || err "$d/truth-map-check.yml 沒有呼叫 check-truth-map.sh — 檢查會失明"
-bash scripts/test-truth-map-check.sh >/dev/null 2>&1 || err "scripts/test-truth-map-check.sh 未過 — 跑 bash scripts/test-truth-map-check.sh 看細節"
 
 echo "[14] setup-skills 的 capability 檔形狀：五部分齊、寫進 domain.md、只有一個家；SKILL.md 精瘦、F／G 細節在 CHECKS.md"
 d=skills/core/setup-skills
@@ -206,10 +206,20 @@ else
   git symbolic-ref --short -q HEAD | grep -qiF -e "$terms" && err "分支名含私有名單詞 — 換一個一般化的分支名"
 fi
 
-echo "[20] CI 跑 scripts/test-tooling.sh（hook 與安裝器測試住那裡，Stop hook 不跑它們）"
-[ -f scripts/test-tooling.sh ] || err "scripts/test-tooling.sh 不存在 — [8]、[11] 會沒人跑"
+echo "[20] 行為測試只住 scripts/test-tooling.sh：CI 跑它、check.sh 不呼叫任何測試、Windows CI 補跑 PowerShell 骨架測試"
+[ -f scripts/test-tooling.sh ] || err "scripts/test-tooling.sh 不存在 — [8]、[11]、[25]–[28] 會沒人跑"
 grep -qE '^[[:space:]]*-[[:space:]]*run:.*scripts/test-tooling\.sh' .github/workflows/check.yml 2>/dev/null \
-  || err ".github/workflows/check.yml 沒有呼叫 scripts/test-tooling.sh — hook 與安裝器測試會靜默停跑"
+  || err ".github/workflows/check.yml 沒有呼叫 scripts/test-tooling.sh — 行為測試會靜默停跑"
+# check.sh 只放靜態不變量：Stop hook 每次都跑它，行為測試會讓它拖到數分鐘
+grep -nE '^[[:space:]]*bash scripts/test-' scripts/check.sh | sed 's/^/      /' | grep . \
+  && err "scripts/check.sh 呼叫了行為測試（見上）— 搬進 scripts/test-tooling.sh"
+for t in test-issues-check test-truth-map-check test-ops-script-skeleton test-ops-script-skeleton-ps; do
+  grep -qE "^run_test $t\$" scripts/test-tooling.sh 2>/dev/null \
+    || err "scripts/test-tooling.sh 沒有呼叫 scripts/$t.sh — 這個測試會沒人跑"
+done
+# ubuntu 沒有 Windows PowerShell 5.1，只有 Windows job 驗得到它
+grep -qF 'test-ops-script-skeleton-ps.sh' .github/workflows/check.yml 2>/dev/null \
+  || err ".github/workflows/check.yml 的 Windows job 沒有跑 test-ops-script-skeleton-ps.sh — 5.1 路徑會沒人驗證"
 
 echo "[21] README 錨點：README 內部與 repo 內 .md 連進 README.md#… 的連結，都對得到標題"
 # 錨點規則仿 github-slugger（GitHub 實際渲染結果已核對）：小寫、刪標點／符號／分隔字元（保留 - 與空白）、空白換 -、重名加 -1、-2…
@@ -250,12 +260,6 @@ for svg in assets/flow.svg assets/toolbox.svg; do
     printf '%s' "$desc" | grep -qwF -- "$n" && err "$svg 的 <desc> 點名了 $n — <desc> 只寫圖例，技能的分類看方框的 class"
   done
 done
-
-echo "[23] ops-script 骨架：CLI 與 LIB 兩個接縫的行為、語法、結構"
-bash scripts/test-ops-script-skeleton.sh >/dev/null 2>&1 || err "scripts/test-ops-script-skeleton.sh 未過 — 跑 bash scripts/test-ops-script-skeleton.sh 看細節"
-
-echo "[24] ops-script PowerShell 骨架：BOM、STATIC／CLI／LIB 三個接縫（5.1 與 7 各跑；缺哪個會在輸出明說）"
-bash scripts/test-ops-script-skeleton-ps.sh >/dev/null 2>&1 || err "scripts/test-ops-script-skeleton-ps.sh 未過 — 跑 bash scripts/test-ops-script-skeleton-ps.sh 看細節"
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
