@@ -9,13 +9,19 @@ An **ops script** stays in the repo and gets run again and again by an operator 
 
 Not this skill: a script run once and thrown away, walking a human through a manual procedure — that is `/wizard`.
 
-Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v1 ----` and `# ---- END ops-lib ----` is **copied verbatim** into every script, never hand-edited — a script must run alone on a machine where the repo does not exist, so there is no shared file to `source`. To change the block, change the skeleton, bump the version, and sync it back into each script; two scripts in one project carrying different `vN` means one was missed.
+Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v2 ----` and `# ---- END ops-lib ----` is **copied verbatim** into every script, never hand-edited — a script must run alone on a machine where the repo does not exist, so there is no shared file to `source`. To change the block, change the skeleton, bump the version, and sync it back into each script; two scripts in one project carrying two different version numbers means one was missed (`grep -rn "BEGIN ops-lib"` shows them all). Edit the skeleton only; a fix made inside one script is lost at the next sync.
 
 ## Rules
 
 Hold every rule below; the skeleton already embodies the ones marked (S).
 
-**Strict mode is a safety net.** Keep `set -euo pipefail` (S), and catch every failure that matters yourself — check, then `die` with a message. Known traps: `set -e` is ignored inside `if`/`||` conditions and in command substitutions in assignments like `local x=$(cmd)`; `((n++))` returns 1 when `n` is 0; a pipeline hides every failure but the last unless `pipefail` is on.
+**Strict mode is a safety net.** Keep `set -euo pipefail` (S), and catch every failure that matters yourself — check, then `die` with a message. Traps the skeleton steers around:
+
+- `read` at end of input returns non-zero: write `read -r x || …` and decide what EOF means (S, `confirm` treats it as No).
+- `grep -q` closes the pipe early; under `pipefail` the upstream command dies of SIGPIPE and the pipeline reports failure. Use `grep -c` or capture first.
+- `-u` with an empty array: expand it as `${arr[@]+"${arr[@]}"}` (S, `print_summary`); a plain `"${arr[@]}"` aborts on older bash.
+- `local x=$(cmd)` swallows `cmd`'s failure, because `local` returns 0. Declare, then assign on the next line.
+- `set -e` is ignored inside `if`/`||` conditions, so a function on the left of `||` never aborts midway; `((n++))` returns 1 when `n` is 0 — count with `n=$((n + 1))` (S).
 
 **Messages and diagnostics.**
 
@@ -40,6 +46,10 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 - One table drives the menu, the `--help` list and the dispatch (S): the table is the `#/` subcommand rows, and a row `x-y` dispatches to `cmd_x_y`. Adding a subcommand is one row plus one function.
 - A menu choice prints the equivalent command line before running it (S).
 - Every subcommand that changes the system supports `--dry-run`: print the commands that would run, change nothing (S, `run`).
+
+**Results and picking (S).** `step` titles a phase; `pass`/`fail`/`warn`/`skip` record each outcome and `finish` prints the summary and exits `1` when any `fail` was recorded. A step that can fail is wrapped in `if cmd; then pass …; else fail …; fi` so it is counted, not aborted. `multiselect` takes a title and items: the operator types `1 3 5-7` to toggle, `a` all, `n` none, Enter to confirm (case-insensitive, out-of-range numbers ignored). Confirmed picks come back on stdout, one number per line; nothing picked, or end of input, returns `1` and the caller decides. An action that needs picks also accepts them as a flag (`--pick 1,3`) so it runs unattended.
+
+**Bash version.** The skeleton runs on any bash 4 or newer and uses no nameref. A nameref (`local -n`) needs bash 4.3; if you add one, say so in the script's header.
 
 **Shape.**
 

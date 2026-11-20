@@ -3,7 +3,7 @@
 #/ 不帶參數且有終端機時進入選單；帶子命令時直接執行（可供排程與其他腳本呼叫）。
 #/
 #/ 子命令：
-#/   hello   示範：建立一個目錄（支援 --dry-run，只印將執行的指令）
+#/   hello   示範：用多選器挑要建立的目錄（--pick 1,3 免互動；支援 --dry-run，只印將執行的指令）
 #/
 #/ 選項：
 #/   -h, --help   顯示這份說明
@@ -24,7 +24,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v1 ----
+# ---- BEGIN ops-lib v2 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -59,6 +59,94 @@ confirm() {
 # require_tty：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
 require_tty() {
   _is_tty 0 || die_with 2 "需要終端機" "改用旗標或參數傳入所需的值，或在終端機中執行"
+}
+
+# ---- 結果回報 ----
+# 計數與訊息：每個行程從 0 開始。計數一律用 $((…))，不用 ((n++))（n 為 0 時回傳 1，set -e 會中止）。
+N_PASS=0; N_FAIL=0; N_WARN=0; N_SKIP=0
+ISSUES=()
+
+# step 標題：步驟標題，走 stderr。
+step() { printf '%s== %s%s\n' "$BOLD" "$*" "$RESET" >&2; }
+
+pass() { N_PASS=$((N_PASS + 1)); printf '[PASS] %s\n' "$*" >&2; }
+skip() { N_SKIP=$((N_SKIP + 1)); printf '[SKIP] %s\n' "$*" >&2; }
+warn() {
+  N_WARN=$((N_WARN + 1)); ISSUES+=("[WARN] $*")
+  printf '[WARN] %s\n' "$*" >&2
+}
+fail() {
+  N_FAIL=$((N_FAIL + 1)); ISSUES+=("[FAIL] $*")
+  printf '%s[FAIL] %s%s\n' "$RED" "$*" "$RESET" >&2
+}
+
+# print_summary：總表走 stderr，並重列所有 fail 與 warn。
+# 空陣列在 -u 下要用 ${arr[@]+"${arr[@]}"}，舊版 bash 直接展開會當成未設定變數。
+print_summary() {
+  local line
+  printf '總計：pass %d  fail %d  warn %d  skip %d\n' "$N_PASS" "$N_FAIL" "$N_WARN" "$N_SKIP" >&2
+  for line in ${ISSUES[@]+"${ISSUES[@]}"}; do printf '  %s\n' "$line" >&2; done
+}
+
+# finish：印總表後結束；有任何 fail 結束碼為 1，否則 0。
+finish() {
+  print_summary
+  if ((N_FAIL > 0)); then exit 1; fi
+  exit 0
+}
+
+# ---- 多選器 ----
+# _ms_toggle LO HI：切換 MS_SEL 的第 LO～HI 項（1 起算）；越界的部分忽略。
+_ms_toggle() {
+  local i lo=$1 hi=$2 t
+  if ((lo > hi)); then t=$lo; lo=$hi; hi=$t; fi
+  # 夾進 1..n：越界的部分直接不走，不靠迴圈跑完再丟棄。
+  if ((lo < 1)); then lo=1; fi
+  if ((hi > ${#MS_SEL[@]})); then hi=${#MS_SEL[@]}; fi
+  for ((i = lo; i <= hi; i++)); do MS_SEL[i - 1]=$((1 - MS_SEL[i - 1])); done
+}
+
+# _ms_apply 一行輸入：a 全選、n 全不選、「3」「5-7」切換；不認得的記號忽略。
+_ms_apply() {
+  local tok i toks=()
+  # 用 read -a 切詞：for tok in $1 會讓 * 與 ? 依目前目錄的檔名展開。
+  read -ra toks <<<"$1" || true
+  for tok in ${toks[@]+"${toks[@]}"}; do
+    if [[ "$tok" =~ ^[aA]$ ]]; then
+      for i in "${!MS_SEL[@]}"; do MS_SEL[i]=1; done
+    elif [[ "$tok" =~ ^[nN]$ ]]; then
+      for i in "${!MS_SEL[@]}"; do MS_SEL[i]=0; done
+    elif [[ "$tok" =~ ^([0-9]{1,6})-([0-9]{1,6})$ ]]; then
+      _ms_toggle "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))"
+    elif [[ "$tok" =~ ^[0-9]{1,6}$ ]]; then
+      _ms_toggle "$((10#$tok))" "$((10#$tok))"
+    fi
+  done
+}
+
+# multiselect 標題 項目...（MS_SEL 為本區段保留的全域名）：畫面與提示走 stderr；確定後 stdout 每行一個選中的編號（1 起算、遞增）、回傳 0。
+# 取消（什麼都沒選就 Enter，或讀到 EOF）回傳 1、stdout 無輸出；用 return，由呼叫端決定怎麼收尾。
+multiselect() {
+  local title=$1 line="" i n picked=0
+  shift
+  local items=("$@")
+  n=${#items[@]}
+  MS_SEL=()
+  for ((i = 0; i < n; i++)); do MS_SEL+=(0); done
+  while true; do
+    printf '%s\n' "$title" >&2
+    for ((i = 0; i < n; i++)); do
+      printf '  [%s] %d) %s\n' "$( ((MS_SEL[i])) && echo x || echo ' ')" "$((i + 1))" "${items[i]}" >&2
+    done
+    printf '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' >&2
+    IFS= read -r line || return 1
+    if [[ -z "${line//[[:space:]]/}" ]]; then break; fi
+    _ms_apply "$line"
+  done
+  for ((i = 0; i < n; i++)); do
+    if ((MS_SEL[i])); then printf '%d\n' "$((i + 1))"; picked=1; fi
+  done
+  ((picked)) || return 1
 }
 # ---- END ops-lib ----
 
@@ -120,19 +208,51 @@ run() {
   if [[ "$dry" != 1 ]]; then "$@"; fi
 }
 
+# hello 的項目：示範多選器與結果總表，換成腳本真正的選項。
+HELLO_ITEMS=(alpha beta gamma)
+
+# _hello_pick_lines 1,3：把 --pick 的值轉成一行一個編號；任何一個無效就 exit 2。
+_hello_pick_lines() {
+  local v vals=() n=${#HELLO_ITEMS[@]}
+  # 逗號切詞同樣不能讓 glob 展開；空值（含 `,`）一律當無效，不得靜默成功。
+  IFS=, read -ra vals <<<"$1" || true
+  ((${#vals[@]})) || usage_error "--pick 沒有值" "例：--pick 1,3"
+  for v in "${vals[@]}"; do
+    if [[ ! "$v" =~ ^[0-9]{1,6}$ ]] || ((10#$v < 1 || 10#$v > n)); then
+      usage_error "--pick 的值無效：$v" "請給 1 到 $n 之間的編號，逗號分隔（例：--pick 1,3）"
+    fi
+    printf '%d\n' "$((10#$v))"
+  done
+}
+
 cmd_hello() {
-  local dry=0 dir
+  local dry=0 pick="" has_pick=0 dir picks idx name
   while (($#)); do
     case "$1" in
       --dry-run) dry=1 ;;
+      --pick)
+        shift
+        [[ $# -gt 0 ]] || usage_error "--pick 缺少值" "例：--pick 1,3"
+        pick=$1; has_pick=1 ;;
       -h | --help) usage; return 0 ;;
-      *) usage_error "hello 不認得的參數：$1" "可用的選項：--dry-run" ;;
+      *) usage_error "hello 不認得的參數：$1" "可用的選項：--pick、--dry-run" ;;
     esac
     shift
   done
   dir="${HELLO_DIR:-./hello-out}"
-  run "$dry" mkdir -p -- "$dir"
-  if [[ "$dry" != 1 ]]; then printf '已建立 %s\n' "$dir"; fi
+  if ((has_pick)); then
+    picks=$(_hello_pick_lines "$pick") || exit $?
+  else
+    require_tty
+    picks=$(multiselect "要建立哪些目錄？" "${HELLO_ITEMS[@]}") || die "已取消" "沒有選任何項目，什麼都沒做"
+  fi
+  step "建立目錄"
+  for idx in $picks; do
+    name=${HELLO_ITEMS[idx - 1]}
+    # 失敗要記帳而不是中止：if 條件裡 set -e 不生效，結果交給 finish 決定結束碼。
+    if run "$dry" mkdir -p -- "$dir/$name"; then pass "建立 $name"; else fail "建立 $name"; fi
+  done
+  finish
 }
 
 main() {
