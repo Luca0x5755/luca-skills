@@ -1,6 +1,6 @@
 ---
 name: ops-script
-description: 寫或改留在 repo 裡、反覆執行的運維腳本（bash 或 PowerShell）時的規則與骨架。當要新增部署、備份、還原、檢查類腳本（含留在 repo 可重跑的安裝器、連結器，如 install.sh），要讓腳本同時有互動選單與子命令，要讓排程或 CI 呼叫腳本，或要修改既有運維腳本時使用。只跑一次就丟的引導流程不用它，那是 /wizard。
+description: 寫或改留在 repo 裡、反覆執行的運維腳本（bash 或 PowerShell）時的規則與骨架。當要新增部署、備份、還原、檢查類腳本（含留在 repo 可重跑的安裝器、連結器，如 manage.sh），要讓腳本同時有互動選單與子命令，要讓排程或 CI 呼叫腳本，或要修改既有運維腳本時使用。只跑一次就丟的引導流程不用它，那是 /wizard。
 ---
 
 # Ops Script
