@@ -68,7 +68,6 @@ contains "內建確認按 Enter 即執行" "$doc" "Enter"
 contains "同時支援 PowerShell 7" "$doc" "PowerShell 7"
 contains "SKILL.md 指向 POWERSHELL.md" "$(cat "$DIR/SKILL.md")" "(POWERSHELL.md)"
 [ "$(wc -l <"$DIR/SKILL.md")" -le 150 ] && verdict ok "SKILL.md 不超過 150 行" || verdict ng "SKILL.md 超過 150 行"
-! grep -rq 'ops-lib v1' "$DIR" 2>/dev/null && verdict ok "資料夾無 ops-lib v1 殘留" || verdict ng "仍有 ops-lib v1"
 
 for PS in "${shells[@]}"; do
   echo

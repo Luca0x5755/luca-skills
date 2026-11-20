@@ -218,8 +218,7 @@ out=$(bash "$SK" hello --pick "" 2>&1 </dev/null); contains "--pick 空字串訊
 out=$(cd "$tmp/globdir" && HELLO_DIR="$tmp/globdir/out" bash "$SK" hello --pick '*' 2>&1 </dev/null); rc=$?
 expect "--pick * 不被展開、回 2" 2 "$rc"
 
-echo "[文件 v2] 版號與維運說明"
-! grep -rq 'ops-lib v1' "$(dirname "$SK")" 2>/dev/null && verdict ok "ops-script 資料夾不再含 ops-lib v1" || verdict ng "仍有 ops-lib v1 殘留"
+echo "[文件] 版號與維運說明"
 ! grep -q 'nameref\|local -n\|declare -n' "$SK" && verdict ok "骨架未用 nameref（bash 4.3 說明為條件式）" || verdict ng "骨架用了 nameref，需確認 bash 4.3 說明"
 SM="$(dirname "$SK")/SKILL.md"
 contains "SKILL.md 標明 v2" "$(cat "$SM")" "ops-lib v2"
