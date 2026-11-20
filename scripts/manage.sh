@@ -390,6 +390,8 @@ parse_agent_args() {
 
 print_install_hint() {
   case " ${AGENTS[*]} " in *" claude "*) echo "Claude Code：重開後輸入 /ask-luca 確認。" ;; esac
+  # $ask-luca 是要原樣印給使用者的技能呼叫語法，不是要展開的變數
+  # shellcheck disable=SC2016
   case " ${AGENTS[*]} " in *" codex "*) echo 'Codex：重開後輸入 /skills 查看，並用 $ask-luca 明確呼叫技能。' ;; esac
   case " ${AGENTS[*]} " in
     *" copilot "*)
