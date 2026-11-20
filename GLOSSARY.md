@@ -65,6 +65,10 @@ _Avoid_: 多來源、多子題（那是覆蓋率）、廣度優先（research �
 專案在 Penpot 上的那一個設計檔；mockup 的版面以它為準，可以領先 `main`。其中只有被 `05` 頁面章節列名的 board 算數。
 _Avoid_: 快照（repo 裡的 `.penpot`，可能落後正本）、mockup 檔（repo 內不再有一頁一檔的設計檔）、已上線的 UI（那以 `main` 上的 `05` 為準）
 
+**Board 匯出圖**：
+`/frontend-spec` 的畫圖子代理在一頁畫完或修正後，把該頁每個 board 匯出成的 PNG，存在 `$(git rev-parse --git-common-dir)/board-exports/<board 名稱>.png`，同名覆蓋、不進 git、所有 worktree 共用。本機議題的票附上它的路徑，作為發佈時凍結的參考；與 board 不一致時以 board 為準。
+_Avoid_: 快照（那是 repo 裡的 `.penpot`）、設計稿正本（匯出圖只是正本某一刻的圖，可能落後）、驗收依據（驗收看票的 Done when，不做截圖比對）
+
 **承諾**：
 規格對下游許下、可以測試的一項行為，帶一個發出後永不重發的 ID，內文只住在 capability 檔的 `## Promises`（`<ID> — <行為>`，行首 `- ` 可有可無）；合訂本與其他文件只引用 ID。只改措辭沿用原 ID；意思改了 — 既有測試的任一斷言需要跟著改 — 就發新 ID，舊行改為 `<ID> — retired：由 <新 ID> 取代`。
 _Avoid_: 需求、驗收項、打勾清單（合訂本裡的 `- [ ]` 是重述承諾）
