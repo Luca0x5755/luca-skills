@@ -307,6 +307,8 @@ list_owned_links() {
   local link
   [ -d "$1" ] || return 0
   while IFS= read -r -d '' link; do
+    # 名稱含換行的連結不可能是技能資料夾名；下游逐行讀取會把它拆成兩個路徑去 rm，所以直接略過。
+    case "$link" in *$'\n'*) continue ;; esac
     if is_managed_skill_link "$link"; then printf '%s\n' "$link"; fi
   done < <(find "$1" -mindepth 1 -maxdepth 1 -type l -print0)
 }

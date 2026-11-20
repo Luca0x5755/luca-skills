@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 $repo = Split-Path -Parent $PSScriptRoot
 $manage = Join-Path $PSScriptRoot 'manage.ps1'
@@ -313,6 +313,45 @@ try {
     Write-Host 'status from the menu reads only'
     $result = Invoke-Manage -Tty -StandardInput "3`n2"
     Assert-That ($result.ExitCode -eq 1) 'status of an uninstalled agent should exit 1'
+  }
+
+  Write-Host 'ops-lib is copied verbatim from the skeleton'
+  function Get-OpsLib {
+    param([string]$Path)
+    $text = [System.IO.File]::ReadAllText($Path).TrimStart([char]0xFEFF) -replace "`r`n", "`n"
+    $m = [regex]::Match($text, '(?ms)^# ---- BEGIN ops-lib.*?^# ---- END ops-lib[^
+]*')
+    Assert-That $m.Success "找不到 ops-lib 區段：$Path"
+    $m.Value
+  }
+  $skeletonPs1 = Join-Path $repo 'skills\draft\ops-script\skeleton.ps1'
+  Assert-That ((Get-OpsLib $manage) -ceq (Get-OpsLib $skeletonPs1)) 'manage.ps1 的 ops-lib 區段與骨架不一致'
+
+  Write-Host 'ValidateSet equals the subcommand table plus the agent names'
+  $manageText = [System.IO.File]::ReadAllText($manage) -replace "`r`n", "`n"
+  $setMatch = [regex]::Match($manageText, '\[ValidateSet\(([^)]*)\)\]\s*\[string\]\s*\$Command')
+  Assert-That $setMatch.Success '找不到 $Command 的 ValidateSet'
+  $setValues = @([regex]::Matches($setMatch.Groups[1].Value, "'([^']+)'") | ForEach-Object { $_.Groups[1].Value })
+  $tableBlock = [regex]::Match($manageText, '(?ms)^\$SubCommands = \[ordered\]@\{.*?^\}').Value
+  $tableKeys = @([regex]::Matches($tableBlock, '(?m)^\s{4}(\w+)\s+= @\{') | ForEach-Object { $_.Groups[1].Value })
+  $expected = @($tableKeys) + @('claude', 'copilot', 'codex')
+  Assert-That (($setValues -join ',') -ceq ($expected -join ',')) "ValidateSet [$($setValues -join ',')] 與子命令表 [$($expected -join ',')] 不一致"
+
+  Write-Host 'PSScriptAnalyzer reports nothing (skipped when not installed)'
+  # ops-lib 區段是骨架逐字複製的，骨架自己有 3 類警告（PSUseShouldProcess…、PSUseSingularNouns、
+  # PSShouldProcess），要修得改骨架、升版號再同步，不在這支腳本裡動；故只掃區段以外的行。
+  # 另排除兩條對本腳本是誤報的規則：參數經腳本範圍的 $Command／$Yes／$Help 讀取（PSReviewUnusedParameter）；
+  # 移除類函式的呼叫端已在 ShouldProcess 之內（PSUseShouldProcessForStateChangingFunctions）。
+  if (Get-Module -ListAvailable -Name PSScriptAnalyzer) {
+    $lines = [System.IO.File]::ReadAllText($manage) -split "`r?`n"
+    $libStart = 1 + [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -like '# ---- BEGIN ops-lib*' })
+    $libEnd = 1 + [array]::FindIndex($lines, [Predicate[string]]{ param($l) $l -like '# ---- END ops-lib*' })
+    $findings = @(Invoke-ScriptAnalyzer -Path $manage -Severity Warning, Error `
+        -ExcludeRule PSReviewUnusedParameter, PSUseShouldProcessForStateChangingFunctions |
+        Where-Object { $_.Line -lt $libStart -or $_.Line -gt $libEnd })
+    Assert-That ($findings.Count -eq 0) "PSScriptAnalyzer：$(($findings | ForEach-Object { "$($_.RuleName):$($_.Line)" }) -join ' ')"
+  } else {
+    Write-Host '  - PSScriptAnalyzer 未安裝，略過'
   }
 
   # <<SLICE>>

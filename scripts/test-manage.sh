@@ -120,6 +120,39 @@ m install codex
 check eq "$rc" 0 'install 拒絕了自己的斷鏈'
 check test -f "$(skill_path codex)/SKILL.md" '斷鏈沒有改指向 core'
 
+echo 'a dangling link that is not ours counts as a conflict and stays untouched'
+reset_home
+mkdir -p "$test_home/.agents/skills"
+ln -s "$test_home/no-such-target" "$(skill_path codex)"
+m install codex
+check eq "$rc" 1 'install 把外來的斷鏈當成可以覆寫'
+check eq "$(readlink "$(skill_path codex)")" "$test_home/no-such-target" '外來斷鏈被改動'
+
+echo 'a skills directory that points into this repo is refused'
+reset_home
+mkdir -p "$test_home/.agents"
+ln -s "$repo/docs" "$test_home/.agents/skills"
+m install codex --dry-run
+check eq "$rc" 1 'install 沒擋下指回本 repo 的技能目錄'
+m uninstall codex --dry-run
+check eq "$rc" 1 'uninstall 沒擋下指回本 repo 的技能目錄'
+
+echo 'a link whose name contains a newline is never split into two removals'
+reset_home
+skills_dir="$test_home/.claude/skills"
+mkdir -p "$skills_dir" "$test_home/cwd"
+ln -s "$test_home/mine-target" "$skills_dir/mine"
+printf 'x' >"$skills_dir/userfile"
+printf 'x' >"$test_home/cwd/sentinel"
+ln -s "$repo/skills/core/ask-luca" "$skills_dir/mine
+sentinel"
+(cd "$test_home/cwd" && HOME="$test_home" bash "$script" uninstall claude -y </dev/null >/dev/null 2>&1) || true
+[ -L "$skills_dir/mine" ] && [ -f "$skills_dir/userfile" ] && [ -f "$test_home/cwd/sentinel" ] ||
+  { echo '✗ 換行名稱的連結讓 uninstall 刪到無關的東西' >&2; exit 1; }
+(cd "$test_home/cwd" && HOME="$test_home" bash "$script" install claude </dev/null >/dev/null 2>&1) || true
+[ -L "$skills_dir/mine" ] && [ -f "$skills_dir/userfile" ] && [ -f "$test_home/cwd/sentinel" ] ||
+  { echo '✗ 換行名稱的連結讓 install 的過期清理刪到無關的東西' >&2; exit 1; }
+
 echo 'install prunes stale repo links but leaves everything else'
 reset_home
 skills_dir="$test_home/.agents/skills"
@@ -273,5 +306,18 @@ echo 'ops-lib is copied verbatim from the skeleton'
 diff <(sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$script") \
   <(sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$repo/skills/draft/ops-script/skeleton.sh") >/dev/null ||
   { echo '✗ manage.sh 的 ops-lib 區段與骨架不一致' >&2; exit 1; }
+
+echo 'bash and PowerShell expose the same subcommands'
+bash_subs=$(sed -n 's/^#\/   \([a-z][a-z-]*\) .*/\1/p' "$script" | tr '\n' ' ')
+ps_subs=$(sed -n 's/^    \([a-z]*\) *= @{ Desc.*/\1/p' "$repo/scripts/manage.ps1" | tr '\n' ' ')
+[[ -n "$bash_subs" && "$bash_subs" == "$ps_subs" ]] ||
+  { echo "✗ manage.sh [$bash_subs] 與 manage.ps1 [$ps_subs] 的子命令不一致" >&2; exit 1; }
+
+echo 'shellcheck reports nothing (skipped when not installed)'
+if command -v shellcheck >/dev/null 2>&1; then
+  shellcheck "$script" || { echo '✗ manage.sh 有 shellcheck 警告' >&2; exit 1; }
+else
+  echo '  - shellcheck 未安裝，略過'
+fi
 
 echo 'all manage.sh tests passed'
