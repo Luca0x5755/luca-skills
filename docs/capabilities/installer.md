@@ -6,9 +6,9 @@
 ## Promises
 
 PR-INSTALL-01 — 兩支腳本無參數且有終端機時，先選動作（install、uninstall、status），再以相同的代理順序選代理：1 claude、2 copilot、3 codex。
-PR-INSTALL-02 — 接受空白分隔的多個編號，例如 1 3；重複編號只處理一次。
+PR-INSTALL-02 — 選代理用 ops-lib 的多選器：輸入編號切換勾選（`1 3`、`5-7`；`a` 全選、`n` 全不選），Enter 確定；結果依代理順序，每個代理只處理一次。
 PR-INSTALL-03 — install 選定後顯示所選代理並直接安裝，不再要求 y 確認。
-PR-INSTALL-04 — 空白輸入、逗號輸入及越界等無效編號提示錯誤後重問；Ctrl+C 或輸入結束取消，結束碼 1。
+PR-INSTALL-04 — 越界編號與不認得的記號忽略；什麼都沒選就確定、Ctrl+C 或輸入結束都取消，結束碼 1。
 PR-INSTALL-05 — 保留代理名稱參數直接安裝，供自動化使用：`manage <代理>` 等同 `manage install <代理>`。
 PR-INSTALL-06 — 保留外來同名技能保護、代理間獨立安裝與 Git Bash/MSYS 防護；MSYS 防護涵蓋 install、uninstall、status，只放行 --help。
 PR-INSTALL-07 — uninstall 只移除本 repo 建立的連結（含斷鏈與過期連結）；外來同名技能與非連結的資料夾不動，並列為略過；技能目錄本身保留。

@@ -3,15 +3,13 @@
 運維腳本骨架（PowerShell）：不帶參數且有終端機時進入選單；帶子命令時直接執行。
 
 .DESCRIPTION
-複製後改名，替換 hello 示範，其餘照結構擴充。
-  - 子命令表是下方的 $SubCommands；ValidateSet 必須是字面值，所以要與它同步（測試會比對）。
-  - ops-lib 區段逐字複製、不准手改；要改就改本骨架並升版號，再同步回各腳本。
-  - 測試接縫：環境變數 SKELETON_LIB=1，只定義函式、不跑主流程。複製後把變數名改成 <腳本名>_LIB，三處一起改。
-  - 本檔必須存成 UTF-8 with BOM：沒有 BOM 的非 ASCII 腳本在 Windows PowerShell 5.1 的 ANSI 碼頁上會解析失敗。
-  - 結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤。未知的子命令由參數繫結器擋下（-File 下結束碼為 1）。
+帶子命令時可供排程與其他腳本呼叫；缺值又沒有終端機時，以結束碼 2 結束並說明要補哪個參數。
+
+結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤。未知的子命令由參數繫結器擋下（-File 下結束碼為 1）。
 
 .PARAMETER Command
 子命令。不給且有終端機時進入選單；不給且沒有終端機時印用法並結束碼 2。
+  hello：支援 -WhatIf，只印將執行的指令，什麼都不改。
 
 .PARAMETER Pick
 hello 的挑選：-Pick alpha,gamma 依名稱免互動。
@@ -27,6 +25,15 @@ hello 的挑選：-Pick alpha,gamma 依名稱免互動。
 ./skeleton.ps1 hello -Pick beta -WhatIf
 只印將執行的指令，什麼都不改。
 #>
+
+# 運維腳本骨架。上方說明區塊給操作者（-Help 印它），維護者筆記寫在這裡的註解。
+# 與 #> 之間要空一行：緊接的註解會被 Get-Help 併進最後一個 .EXAMPLE。
+# 複製後改名，替換 hello 示範，其餘照結構擴充。
+#   - 子命令表是下方的 $SubCommands；ValidateSet 必須是字面值，所以要與它同步（測試會比對）。
+#   - ops-lib 區段逐字複製、不准手改；要改就改本骨架並升版號，再同步回各腳本。
+#   - 測試接縫：環境變數 SKELETON_LIB=1，只定義函式、不跑主流程。複製後把變數名改成 <腳本名>_LIB，三處一起改。
+#   - 本檔必須存成 UTF-8 with BOM：沒有 BOM 的非 ASCII 腳本在 Windows PowerShell 5.1 的 ANSI 碼頁上會解析失敗。
+
 # Write-Host 是操作者介面：資料走管線（函式回傳值），畫面走 host。PSAvoidUsingWriteHost 針對的是
 # 「該回傳資料卻印出去」，這裡不是，故抑制並註明理由。
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '',
@@ -53,7 +60,7 @@ if ($MyInvocation.InvocationName -eq '.' -and $env:SKELETON_LIB -ne '1') {
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
-# ---- BEGIN ops-lib v4 ----
+# ---- BEGIN ops-lib v7 ----
 # Write-Host 是操作者介面（選單、提示、步驟、結果）：資料走管線，畫面走 host，兩條路不混。
 # 本檔頂端的 SuppressMessage 抑制 PSAvoidUsingWriteHost，理由寫在那裡。
 
@@ -99,10 +106,12 @@ function Confirm-Ops {
     return ($null -ne $ans) -and ($ans -match '^(y|yes)$')
 }
 
-# Assert-OpsTty：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就結束碼 2。
+# Assert-OpsTty [-Fix]：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就結束碼 2。
+# 修法由呼叫端給（點名該補的參數）；不給才用通用句。
 function Assert-OpsTty {
+    param([string[]]$Fix = @('改用選項或參數傳入所需的值，或在終端機中執行'))
     if (-not (Test-OpsTty -Stream In)) {
-        Stop-OpsScript -Code 2 -Title '需要終端機' -Fix '改用旗標或參數傳入所需的值，或在終端機中執行'
+        Stop-OpsScript -Code 2 -Title '需要終端機' -Fix $Fix
     }
 }
 
@@ -178,19 +187,40 @@ function Select-OpsMulti {
     $sel = New-Object 'int[]' $Items.Count
     $w = "$($Items.Count)".Length
     while ($true) {
-        Write-Host $Title
+        Write-Host "$Title（例：1 3 5-7；a 全選、n 全不選、Enter 確定）"
         # 編號在前、標記在後，編號欄寬依項目數；與選單的 `N) 名稱` 對齊。
         for ($i = 0; $i -lt $Items.Count; $i++) {
             $mark = if ($sel[$i]) { 'x' } else { ' ' }
             Write-Host ('  {0}) [{1}] {2}' -f "$($i + 1)".PadLeft($w), $mark, $Items[$i])
         }
-        Write-Host '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' -NoNewline
+        Write-Host '輸入編號：' -NoNewline
         $line = [Console]::In.ReadLine()
         if ($null -eq $line) { return }
         if (-not $line.Trim()) { break }
         Update-OpsSelection $sel $line
     }
     for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
+}
+
+# ---- 單選器 ----
+# Select-OpsOne -Title -Items：畫面與提示走 host；輸入有效編號即選定，管線輸出該編號（1 起算）。
+# Enter、q 或讀到 EOF 什麼都不輸出；越界或看不懂的輸入說明後重問（只讀一個值，忽略它等於沒反應）。
+function Select-OpsOne {
+    param([Parameter(Mandatory)][string]$Title, [Parameter(Mandatory)][string[]]$Items)
+    $w = "$($Items.Count)".Length
+    while ($true) {
+        Write-Host "$Title（q 取消）"
+        for ($i = 0; $i -lt $Items.Count; $i++) {
+            Write-Host ('  {0}) {1}' -f "$($i + 1)".PadLeft($w), $Items[$i])
+        }
+        Write-Host '輸入編號：' -NoNewline
+        $line = [Console]::In.ReadLine()
+        if ($null -eq $line) { return }
+        $line = $line.Trim()
+        if ($line -eq '' -or $line -eq 'q') { return }  # -eq 不分大小寫，Q 也算
+        if ($line -match '^[0-9]{1,6}$' -and [int]$line -ge 1 -and [int]$line -le $Items.Count) { return [int]$line }
+        Write-Host "無效的選項：$line"
+    }
 }
 
 # Resolve-OpsPick -Flag -Raw -Items：無人值守時的挑選。Raw 是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
@@ -214,6 +244,16 @@ function Resolve-OpsPick {
     }
     for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
 }
+
+# Resolve-OpsPickOne -Flag -Raw -Items：Resolve-OpsPick 的單選版，Select-OpsOne 的無人值守路徑；給了不只一個名稱就以結束碼 2 結束。
+function Resolve-OpsPickOne {
+    param([Parameter(Mandatory)][string]$Flag, [string[]]$Raw, [Parameter(Mandatory)][string[]]$Items)
+    $picks = @(Resolve-OpsPick -Flag $Flag -Raw $Raw -Items $Items)
+    if ($picks.Count -gt 1) {
+        Stop-OpsScript -Code 2 -Title "$Flag 只能選一個：$($Raw -join ',')" -Fix '只給一個名稱，不要用逗號列出多個'
+    }
+    $picks
+}
 # ---- END ops-lib ----
 
 $SelfPath = $PSCommandPath
@@ -221,10 +261,11 @@ $ScriptName = Split-Path -Leaf $SelfPath
 
 # 子命令表：選單與分派都讀它。Fn 是處理函式；新增子命令 = 加一列 + 一個函式 + ValidateSet 補一個值。
 $SubCommands = [ordered]@{
-    hello = @{ Desc = '示範：用多選器挑要建立的目錄（-Pick alpha,gamma 依名稱免互動；支援 -WhatIf）'; Fn = 'Invoke-Hello' }
+    hello = @{ Desc = '示範：挑選並建立目錄'; Fn = 'Invoke-Hello' }
 }
 
-function Write-Usage { Write-Host ((Get-Help $SelfPath -Full | Out-String).TrimEnd()) }
+# -Detailed：參數說明與範例都印，但不印每個參數的 Required／Position 等欄位
+function Write-Usage { Write-Host ((Get-Help $SelfPath -Detailed | Out-String).TrimEnd()) }
 
 # 用法錯誤：先印用法，再以結束碼 2 收尾。
 function Stop-OpsUsage {
@@ -239,25 +280,27 @@ function Invoke-OpsCommand {
     & $SubCommands[$Name].Fn
 }
 
-# 選單：選了就先印等價指令再執行；取消結束碼 1。
+# 需確認欄：Confirm 為真的列印 $ConfirmMark；任一列有時其餘列補同寬空白，全表都沒有就不留欄。
+$ConfirmMark = '[需確認] '
+$ConfirmPad = ' ' * 9  # 與 $ConfirmMark 同寬：中文一字 2 欄
+
+function Format-OpsMenuDesc {
+    param([hashtable]$Row, [string]$Pad)
+    # 用索引不用 .Confirm：StrictMode 下沒有這個鍵的列存取屬性會丟錯，索引則回 $null
+    if ($Row['Confirm']) { return $ConfirmMark + $Row.Desc }
+    $Pad + $Row.Desc
+}
+
+# 選單：子命令選單就是一次 Select-OpsOne；選了就先印等價指令再執行，取消結束碼 1。
 function Invoke-OpsMenu {
     $names = @($SubCommands.Keys)
-    $w = "$($names.Count)".Length
-    while ($true) {
-        for ($i = 0; $i -lt $names.Count; $i++) {
-            Write-Host ('  {0}) {1,-10} {2}' -f "$($i + 1)".PadLeft($w), $names[$i], $SubCommands[$names[$i]].Desc)
-        }
-        Write-Host '選擇編號（q 取消）：' -NoNewline
-        $choice = [Console]::In.ReadLine()
-        if ($null -eq $choice -or $choice -eq '' -or $choice -eq 'q') { exit 1 }
-        if ($choice -match '^[1-9][0-9]*$' -and [int]$choice -le $names.Count) {
-            $name = $names[[int]$choice - 1]
-            Write-Host "-> $ScriptName $name"
-            Invoke-OpsCommand $name
-            return
-        }
-        Write-Host "無效的選項：$choice"
-    }
+    $pad = if (@($SubCommands.Values | Where-Object { $_['Confirm'] }).Count) { $ConfirmPad } else { '' }
+    $items = @($names | ForEach-Object { '{0,-10} {1}' -f $_, (Format-OpsMenuDesc $SubCommands[$_] $pad) })
+    $idx = @(Select-OpsOne -Title '要做什麼？' -Items $items)
+    if ($idx.Count -eq 0) { exit 1 }
+    $name = $names[$idx[0] - 1]
+    Write-Host "-> $ScriptName $name"
+    Invoke-OpsCommand $name
 }
 
 # hello 的項目：示範多選器與結果總表，換成腳本真正的選項。
@@ -272,7 +315,7 @@ function Invoke-Hello {
     if ($script:HasPick) {
         $picks = @(Resolve-OpsPick -Flag '-Pick' -Raw $script:BoundPick -Items $HelloItems)
     } else {
-        Assert-OpsTty
+        Assert-OpsTty -Fix '改用 -Pick 指定名稱（例：-Pick alpha,gamma），或在終端機中執行'
         $picks = @(Select-OpsMulti -Title '要建立哪些目錄？' -Items $HelloItems)
         if ($picks.Count -eq 0) { Stop-OpsScript -Title '已取消' -Fix '沒有選任何項目，什麼都沒做' }
     }

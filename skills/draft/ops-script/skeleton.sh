@@ -3,10 +3,16 @@
 #/ 不帶參數且有終端機時進入選單；帶子命令時直接執行（可供排程與其他腳本呼叫）。
 #/
 #/ 子命令：
-#/   hello   示範：用多選器挑要建立的目錄（--pick alpha,gamma 依名稱免互動；支援 --dry-run，只印將執行的指令）
+#/   hello   示範：挑選並建立目錄
+#/
+#/ hello：沒有終端機時要 --pick。
+#/   --pick 名稱[,名稱...]   依名稱挑選、免互動（例：--pick alpha,gamma）
+#/   --dry-run               只印將執行的指令，什麼都不改
 #/
 #/ 選項：
 #/   -h, --help   顯示這份說明
+#/
+#/ 結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤
 #
 # 運維腳本骨架。複製後改名，替換 hello 示範，其餘照結構擴充。
 #   - 子命令表就是上方的 `#/` 行：--help 逐字印出它們，選單與分派解析同一批行。
@@ -24,7 +30,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v4 ----
+# ---- BEGIN ops-lib v7 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -56,9 +62,11 @@ confirm() {
   case "$ans" in [yY] | [yY][eE][sS]) return 0 ;; *) return 1 ;; esac
 }
 
-# require_tty：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# require_tty [怎麼修...]：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# 修法由呼叫端給（點名該補的選項）；不給才用通用句。
 require_tty() {
-  _is_tty 0 || die_with 2 "需要終端機" "改用旗標或參數傳入所需的值，或在終端機中執行"
+  (($#)) || set -- "改用選項或參數傳入所需的值，或在終端機中執行"
+  _is_tty 0 || die_with 2 "需要終端機" "$@"
 }
 
 # ---- 結果回報 ----
@@ -135,12 +143,12 @@ multiselect() {
   MS_SEL=()
   for ((i = 0; i < n; i++)); do MS_SEL+=(0); done
   while true; do
-    printf '%s\n' "$title" >&2
+    printf '%s（例：1 3 5-7；a 全選、n 全不選、Enter 確定）\n' "$title" >&2
     # 編號在前、標記在後，編號欄寬依項目數；與選單的 `N) 名稱` 對齊。
     for ((i = 0; i < n; i++)); do
       printf '  %*d) [%s] %s\n' "$w" "$((i + 1))" "$( ((MS_SEL[i])) && echo x || echo ' ')" "${items[i]}" >&2
     done
-    printf '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' >&2
+    printf '輸入編號：' >&2
     IFS= read -r line || return 1
     if [[ -z "${line//[[:space:]]/}" ]]; then break; fi
     _ms_apply "$line"
@@ -149,6 +157,30 @@ multiselect() {
     if ((MS_SEL[i])); then printf '%d\n' "$((i + 1))"; picked=1; fi
   done
   ((picked)) || return 1
+}
+
+# ---- 單選器 ----
+# select_one 標題 項目...：畫面與提示走 stderr；輸入有效編號即選定，stdout 印該編號（1 起算）、回傳 0。
+# Enter、q 或讀到 EOF 回傳 1、stdout 無輸出；越界或看不懂的輸入說明後重問（只讀一個值，忽略它等於沒反應）。
+select_one() {
+  local title=$1 line="" i n w
+  shift
+  local items=("$@")
+  n=${#items[@]}
+  w=${#n}
+  while true; do
+    printf '%s（q 取消）\n' "$title" >&2
+    for ((i = 0; i < n; i++)); do printf '  %*d) %s\n' "$w" "$((i + 1))" "${items[i]}" >&2; done
+    printf '輸入編號：' >&2
+    # 不設 IFS=：讓 read 去掉前後空白，「 3 」照樣選得到。
+    read -r line || return 1
+    case "$line" in "" | [qQ]) return 1 ;; esac
+    if [[ "$line" =~ ^[0-9]{1,6}$ ]] && ((10#$line >= 1 && 10#$line <= n)); then
+      printf '%d\n' "$((10#$line))"
+      return 0
+    fi
+    printf '無效的選項：%s\n' "$line" >&2
+  done
 }
 
 # pick_by_name 旗標 值 項目...：無人值守時的挑選。值是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
@@ -176,6 +208,14 @@ pick_by_name() {
     if ((sel[i])); then printf '%d\n' "$((i + 1))"; fi
   done
 }
+
+# pick_one_by_name 旗標 值 項目...：pick_by_name 的單選版，select_one 的無人值守路徑；給了不只一個名稱就以結束碼 2 結束。
+pick_one_by_name() {
+  local flag=$1 picks
+  picks=$(pick_by_name "$@") || exit "$?"
+  [[ "$picks" != *$'\n'* ]] || die_with 2 "$flag 只能選一個：$2" "只給一個名稱，不要用逗號列出多個"
+  printf '%s\n' "$picks"
+}
 # ---- END ops-lib ----
 
 # 絕對路徑：腳本中途 cd 之後，--help、選單與分派仍讀得到自己。
@@ -190,35 +230,41 @@ usage_error() { usage >&2; die_with 2 "$@"; }
 table_rows() { sed -n 's/^#\/   \([a-z][a-z0-9-]*\)[[:space:]].*$/\1/p' "$SELF"; }
 table_desc() { sed -n "s/^#\/   $1[[:space:]]\{1,\}//p" "$SELF"; }
 
-print_menu() {
-  local i=0 name w
-  w=$(table_rows | wc -l | tr -d " ")
-  w=${#w}
+# 需確認欄：描述以 CONFIRM_MARK 開頭的列會停下來確認。table_desc 吃掉名稱後的所有空白，
+# 所以任一列有需確認時，由選單替其餘列補同寬的 CONFIRM_PAD；全表都沒有就不留這一欄。
+CONFIRM_MARK='[需確認] '
+CONFIRM_PAD='         ' # 與 CONFIRM_MARK 同寬：中文一字 2 欄
+confirm_pad() {
+  local name
   while IFS= read -r name; do
-    i=$((i + 1))
-    printf '  %*d) %-10s %s\n' "$w" "$i" "$name" "$(table_desc "$name")"
+    if [[ "$(table_desc "$name")" == "$CONFIRM_MARK"* ]]; then
+      printf '%s' "$CONFIRM_PAD"
+      return 0
+    fi
   done < <(table_rows)
 }
 
-# run_menu [轉交給子命令的參數...]：選了就先印等價指令再執行；取消 exit 1。
+# menu_items：選單的項目，每列「名稱 需確認欄 描述」，依子命令表順序；編號由 select_one 加上。
+menu_items() {
+  local name desc pad
+  pad=$(confirm_pad)
+  while IFS= read -r name; do
+    desc=$(table_desc "$name")
+    [[ "$desc" == "$CONFIRM_MARK"* ]] || desc="$pad$desc"
+    printf '%-10s %s\n' "$name" "$desc"
+  done < <(table_rows)
+}
+
+# run_menu [轉交給子命令的參數...]：子命令選單就是一次 select_one；選了就先印等價指令再執行，取消 exit 1。
 # 取消直接 exit、呼叫端不以 `||` 接它：函式在 `||` 左側時 errexit 失效，子命令失敗會被吞掉。
 # shellcheck disable=SC2120 # 轉交參數是選配：主流程不帶，測試與擴充才帶
 run_menu() {
-  local choice name
-  while true; do
-    print_menu
-    printf '選擇編號（q 取消）：' >&2
-    read -r choice || exit 1
-    case "$choice" in "" | q) exit 1 ;; esac
-    name=""
-    [[ "$choice" =~ ^[1-9][0-9]*$ ]] && name=$(table_rows | sed -n "${choice}p")
-    if [[ -n "$name" ]]; then
-      printf '→ %s %s%s\n' "$SCRIPT_NAME" "$name" "${*:+ $*}"
-      run_command "$name" "$@"
-      return
-    fi
-    printf '無效的選項：%s\n' "$choice" >&2
-  done
+  local idx name items=()
+  mapfile -t items < <(menu_items)
+  idx=$(select_one "要做什麼？" "${items[@]}") || exit 1
+  name=$(table_rows | sed -n "${idx}p")
+  printf '→ %s %s%s\n' "$SCRIPT_NAME" "$name" "${*:+ $*}"
+  run_command "$name" "$@"
 }
 
 run_command() {
@@ -252,7 +298,7 @@ cmd_hello() {
         [[ $# -gt 0 ]] || usage_error "--pick 缺少值" "例：--pick alpha,gamma"
         pick=$1; has_pick=1 ;;
       -h | --help) usage; return 0 ;;
-      *) usage_error "hello 不認得的參數：$1" "可用的選項：--pick、--dry-run" ;;
+      *) usage_error "hello 未知的參數：$1" "可用的選項：--pick、--dry-run" ;;
     esac
     shift
   done
@@ -260,7 +306,7 @@ cmd_hello() {
   if ((has_pick)); then
     picks=$(pick_by_name --pick "$pick" "${HELLO_ITEMS[@]}") || exit $?
   else
-    require_tty
+    require_tty "改用 --pick 指定名稱（例：--pick alpha,gamma），或在終端機中執行"
     picks=$(multiselect "要建立哪些目錄？" "${HELLO_ITEMS[@]}") || die "已取消" "沒有選任何項目，什麼都沒做"
   fi
   step "建立目錄"

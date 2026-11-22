@@ -72,6 +72,55 @@ m install --help
 check eq "$rc" 0 'install --help 應結束碼 0'
 [ ! -e "$test_home/.agents" ] || { echo '✗ help 與用法錯誤不應建立目錄' >&2; exit 1; }
 
+echo 'menu rows say what and whether it asks; flag details stay in --help'
+# disp_width 字串：顯示寬度近似值 — 多位元組字元算 2 欄（CJK 與全形標點皆為 3 位元組）
+disp_width() {
+  local c b
+  c=$(LC_ALL=C.UTF-8 bash -c 'printf %s "${#1}"' _ "$1")
+  b=$(LC_ALL=C bash -c 'printf %s "${#1}"' _ "$1")
+  echo $((c + (b - c) / 2))
+}
+# 選單畫面：run_menu 立刻讀到 EOF 取消；清單列用 awk 挑（grep 沒對上回 1，pipefail 會中止）
+screen="$(MANAGE_LIB=1 bash -c 'source "$1"; run_menu' _ "$script" </dev/null 2>&1 || true)"
+out="$(awk '/^ +[0-9]+\) /' <<<"$screen")"
+check eq "$(printf '%s\n' "$out" | awk 'END { print NR }')" 3 '選單應恰有 3 列'
+# 全形字不放進方括號：C locale 按位元組比對，（ 與 ： 共用前兩個位元組，會互相誤中
+FLAG_RE='(^|[[:space:]]|（|\(|、|，|；|：|「|/)--?[A-Za-z]'
+no_flag() { ! [[ "$1" =~ $FLAG_RE ]]; }
+fits_80() { (($(disp_width "$1") <= 80)); }
+has() { [[ "$1" == *"$2"* ]]; }
+check has "$screen" '要做什麼？（q 取消）' '選單應有標題行「要做什麼？（q 取消）」'
+check has "$screen" '輸入編號：' '選單的輸入行應是「輸入編號：」'
+check eq "$(awk '/選擇編號/' <<<"$screen")" "" '選單不該再印「選擇編號」'
+# 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
+ROW_RE='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$'
+BRACKET_RE='（|\(|\['
+no_bracket() { ! [[ "$1" =~ $BRACKET_RE ]]; }
+row_parses() { [[ "$1" =~ $ROW_RE ]]; }
+starts=""
+while IFS= read -r line; do
+  check no_flag "$line" "選單行不該含旗標：$line"
+  check fits_80 "$line" "選單行超過 80 欄：$line"
+  # 單獨一行 =~ 沒對上時 errexit 會無聲中止，所以走 check 印出是哪一列
+  check row_parses "$line" "選單行無法解析：$line"
+  [[ "$line" =~ $ROW_RE ]]
+  # 先存起來：後面的 =~ 會覆寫 BASH_REMATCH
+  prefix="${BASH_REMATCH[1]}${BASH_REMATCH[2]}" desc="${BASH_REMATCH[3]}"
+  check no_bracket "$desc" "描述欄不該有括號：$line"
+  starts+="$(disp_width "$prefix")"$'\n'
+done <<<"$out"
+check eq "$(printf '%s' "$starts" | sort -u | awk 'END { print NR }')" 1 "各列描述起始欄位應相同，實得 ${starts//$'\n'/ }"
+# 要確認的子命令集合由下方行為測試證明：uninstall 無終端機沒帶 -y 結束碼 2、install 不問
+# 用 awk 不用 grep：沒有任何一列帶標記時 grep 回 1，pipefail 會讓整支測試無聲中止
+marked="$(printf '%s\n' "$out" | awk 'index($0, "[需確認]") { print $2 }' | paste -sd, -)"
+check eq "$marked" uninstall "標 [需確認] 的子命令應恰為 uninstall，實得「$marked」"
+m --help
+check has "$out" '--dry-run    只印將移除的連結' '--help 應仍說明 uninstall 的 --dry-run'
+check has "$out" '-y, --yes    免互動確認' '--help 應仍說明 uninstall 的 -y'
+check has "$out" '結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤' '--help 應寫出結束碼'
+m install --bogus
+check has "$out" 'install 未知的參數：--bogus' '未知參數的訊息應用「未知」'
+
 echo 'install codex links only Codex'
 m install codex
 check eq "$rc" 0 'install codex 失敗'
@@ -256,7 +305,7 @@ check eq "$rc" 1 '輸入錯誤後讀到 EOF 應結束碼 1'
 [ ! -e "$test_home/.claude/skills" ] || { echo '✗ 取消後仍安裝了技能' >&2; exit 1; }
 
 echo 'interactive: the menu picks the action, then installs only the chosen agent without confirmation'
-t '1\n3\n'
+t '1\n3\n\n'
 check eq "$rc" 0 '選單安裝失敗'
 check linked codex '選單安裝沒有連結 Codex'
 [ ! -e "$test_home/.claude/skills" ] || { echo '✗ 選單安裝了沒選的代理' >&2; exit 1; }
@@ -266,46 +315,58 @@ for line in '  1) install ' '  2) uninstall ' '  3) status '; do
   check grep -qF -- "$line" <<<"$out" "選單缺少：$line"
 done
 
-echo 'interactive: space-separated selection installs each agent once'
+echo 'interactive: the agent prompt is the ops-lib multiselect, picks come back in list order'
 reset_home
-t '1\n  3  1\t3  \n'
+t '1\n3 1\n\n'
 check eq "$rc" 0 '多選失敗'
 check linked codex '多選沒有裝 Codex'
 check linked claude '多選沒有裝 Claude'
 [ ! -e "$test_home/.copilot/skills" ] || { echo '✗ 多選裝了沒選的代理' >&2; exit 1; }
-check eq "$(count_lines '^== codex')" 1 '重複編號讓 Codex 裝了兩次'
-check eq "$(count_lines '即將安裝：codex, claude$')" 1 '選定摘要不符'
-for line in '  1) claude' '  2) copilot' '  3) codex'; do
+check eq "$(count_lines '即將安裝：claude, codex$')" 1 '選定摘要不符（應依清單順序）'
+check eq "$(count_lines '要安裝哪些代理？（例：1 3 5-7；a 全選、n 全不選、Enter 確定）$')" 2 '代理選單不是 ops-lib 的多選器'
+for line in '  1) [x] claude' '  2) [ ] copilot' '  3) [x] codex'; do
   check grep -qxF -- "$line" <<<"$out" "代理選單缺少：$line"
 done
 
-echo 'interactive: invalid selections retry without partial installs'
+echo 'interactive: toggling twice unpicks, out-of-range and junk are ignored'
 reset_home
-t '1\n\n   \n1,3\n0\n4\n-1\n1 x\n13\n999999999999999999999999999999\n2\n'
-check eq "$rc" 0 '錯誤後的有效輸入應成功'
-check linked copilot '有效輸入沒有裝 Copilot'
-check eq "$(count_lines '請輸入一個或多個有效編號')" 9 '無效輸入沒有全部重問'
-[ ! -e "$test_home/.claude/skills" ] && [ ! -e "$test_home/.agents/skills" ] || { echo '✗ 無效輸入造成部分安裝' >&2; exit 1; }
+t '1\n1 1 0 4 x 2\n\n'
+check eq "$rc" 0 '忽略無效記號後應成功'
+check linked copilot '有效編號沒有裝 Copilot'
+[ ! -e "$test_home/.claude/skills" ] && [ ! -e "$test_home/.agents/skills" ] || { echo '✗ 無效記號造成多餘安裝' >&2; exit 1; }
+
+echo 'interactive: confirming with nothing picked cancels'
+reset_home
+t '1\n\n'
+check eq "$rc" 1 '什麼都沒選就確定應結束碼 1'
+[ ! -e "$test_home/.claude/skills" ] || { echo '✗ 沒選卻安裝了技能' >&2; exit 1; }
 
 echo 'interactive: uninstall asks once, default No'
-t '2\n2\n\n'
+reset_home
+m install copilot
+t '2\n2\n\n\n'
 check eq "$rc" 1 '空答案應取消 uninstall'
 check linked copilot '空答案後連結不見了'
-t '2\n2\nn\n'
+t '2\n2\n\nn\n'
 check eq "$rc" 1 '回答 n 應取消 uninstall'
 check linked copilot '回答 n 後連結不見了'
-t '2\n2\ny\n'
+t '2\n2\n\ny\n'
 check eq "$rc" 0 '回答 y 應執行 uninstall'
 [ ! -L "$(skill_path copilot)" ] || { echo '✗ 回答 y 後連結還在' >&2; exit 1; }
 
 echo 'interactive: status from the menu is read only'
-t '3\n2\n'
+t '3\n2\n\n'
 check eq "$rc" 1 '沒裝的代理 status 應結束碼 1'
 
 echo 'ops-lib is copied verbatim from the skeleton'
 diff <(sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$script") \
   <(sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$repo/skills/draft/ops-script/skeleton.sh") >/dev/null ||
   { echo '✗ manage.sh 的 ops-lib 區段與骨架不一致' >&2; exit 1; }
+
+echo 'pickers live only in ops-lib: no hand-rolled number prompt outside the block'
+# 自製選擇器曾與 ops-lib 並存而不自知；挑選一律走 ops-lib，區段外不得有自己的編號提示
+outside=$(sed '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/d' "$script" | grep -c '輸入編號' || true)
+check eq "$outside" 0 'manage.sh 在 ops-lib 區段外自己畫了編號提示，改用 multiselect 或 select_one'
 
 echo 'bash and PowerShell expose the same subcommands'
 bash_subs=$(sed -n 's/^#\/   \([a-z][a-z-]*\) .*/\1/p' "$script" | tr '\n' ' ')

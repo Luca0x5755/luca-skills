@@ -2,7 +2,7 @@
 
 The PowerShell half of `/ops-script`. The bash rules in [SKILL.md](SKILL.md) hold here too (one script two ways in, exit codes, `--dry-run` as `-WhatIf`, ops-lib copied verbatim); this file carries only what differs.
 
-Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v4 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
+Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v7 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
 
 ## Rules
 
@@ -27,11 +27,11 @@ Colour uses `-ForegroundColor`, never ANSI escapes (5.1's console may not render
 
 **Exit codes match bash (`0` done, `1` failed or cancelled, `2` usage), with one gap.** An unknown subcommand is rejected by the `ValidateSet` binder before the script runs, so under `-File` it exits `1`, not `2`. Keep `ValidateSet` (it gives tab completion and `Get-Help` the list) and keep the `$SubCommands` table equal to it — a test compares them. Every usage error the script detects itself exits `2`.
 
-**Help is comment-based.** `Get-Help ./script.ps1` reads the header block; `-Help` prints it. Keep `.SYNOPSIS`, `.DESCRIPTION`, one `.PARAMETER` per parameter and an `.EXAMPLE`.
+**Help is comment-based, and for the operator.** `Get-Help ./script.ps1` reads the header block; `-Help` prints it with `Get-Help -Detailed` (parameters and examples, without the per-parameter Required/Position table). Keep `.SYNOPSIS`, `.DESCRIPTION` (behaviour and exit codes), one `.PARAMETER` per parameter and an `.EXAMPLE`. Notes for whoever edits the script (the ops-lib sync rule, the test seam, the BOM) go in plain `#` comments after `#>`, separated from it by a blank line: comment lines directly under `#>` are folded into the last `.EXAMPLE`. The tests check `-Help` shows none of them.
 
 ## Function map
 
-| bash v4 | PowerShell v4 |
+| bash | PowerShell |
 | --- | --- |
 | `_is_tty` | `Test-OpsTty -Stream In\|Out` |
 | `color_init` | `Test-OpsColor` |
@@ -42,7 +42,10 @@ Colour uses `-ForegroundColor`, never ANSI escapes (5.1's console may not render
 | `print_summary`, `finish` | `Write-OpsSummary`, `Complete-OpsRun` |
 | `multiselect` | `Select-OpsMulti` (cancel = no output; test with `@(...).Count`) |
 | `pick_by_name` | `Resolve-OpsPick -Flag -Raw -Items` (ordinal, case-sensitive: `[Array]::IndexOf`, never `-eq` or `-contains`) |
+| `select_one` | `Select-OpsOne` (cancel = no output; test with `@(...).Count`) |
+| `pick_one_by_name` | `Resolve-OpsPickOne -Flag -Raw -Items` |
 | `run` | `Invoke-OpsRun -Display -Action` (throws on failure; the caller records it with `try`/`catch`) |
+| `CONFIRM_MARK`, `CONFIRM_PAD`, `[需確認]` opening a `#/` description | `$ConfirmMark`, `$ConfirmPad`, `Confirm = $true` on the `$SubCommands` row (read it as `$row['Confirm']`: under StrictMode `.Confirm` throws on rows without the key) |
 
 ## Verifying what you wrote
 

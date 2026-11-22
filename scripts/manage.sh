@@ -4,17 +4,24 @@
 #/ 不帶參數且有終端機時先選動作、再選代理；帶子命令時直接執行（可供排程與其他腳本呼叫）。
 #/
 #/ 子命令：
-#/   install     把技能連進代理的技能目錄；順手清掉已封存或改名的過期連結（支援 --dry-run）
-#/   uninstall   移除本 repo 建立的連結，不碰外來技能（支援 --dry-run；沒有終端機要 -y）
-#/   status      唯讀檢查連結狀態；有缺漏、斷鏈、過期或同名衝突時結束碼 1
+#/   install              把技能連進代理目錄
+#/   uninstall   [需確認] 移除本 repo 建的連結
+#/   status               唯讀檢查連結狀態
+#/
+#/ install：順手清掉已封存或改名的過期連結。
+#/   --dry-run    只印將執行的指令，什麼都不改
+#/ uninstall：只移除本 repo 建立的連結，不碰外來技能。
+#/   --dry-run    只印將移除的連結，什麼都不改
+#/   -y, --yes    免互動確認（沒有終端機時必須給）
+#/ status：有缺漏、斷鏈、過期或同名衝突時結束碼 1。
 #/
 #/ 代理：claude、copilot、codex，可多個；省略時有終端機就詢問、沒有就結束碼 2。
 #/ 代理名稱單獨當子命令，等同 install 該代理（bash scripts/manage.sh claude）。
 #/
 #/ 選項：
-#/   --dry-run    只印將執行的指令，什麼都不改
-#/   -y, --yes    uninstall 免互動確認
 #/   -h, --help   顯示這份說明
+#/
+#/ 結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤
 #
 # draft 也連 —— 桶的分界是「對外發佈與否」，不是「本機能不能用」。
 # 沒辦法在本機叫起來的 draft，等於沒辦法被試用，等於永遠畢不了業。archive 不連。
@@ -36,7 +43,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v4 ----
+# ---- BEGIN ops-lib v7 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -68,9 +75,11 @@ confirm() {
   case "$ans" in [yY] | [yY][eE][sS]) return 0 ;; *) return 1 ;; esac
 }
 
-# require_tty：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# require_tty [怎麼修...]：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# 修法由呼叫端給（點名該補的選項）；不給才用通用句。
 require_tty() {
-  _is_tty 0 || die_with 2 "需要終端機" "改用旗標或參數傳入所需的值，或在終端機中執行"
+  (($#)) || set -- "改用選項或參數傳入所需的值，或在終端機中執行"
+  _is_tty 0 || die_with 2 "需要終端機" "$@"
 }
 
 # ---- 結果回報 ----
@@ -147,12 +156,12 @@ multiselect() {
   MS_SEL=()
   for ((i = 0; i < n; i++)); do MS_SEL+=(0); done
   while true; do
-    printf '%s\n' "$title" >&2
+    printf '%s（例：1 3 5-7；a 全選、n 全不選、Enter 確定）\n' "$title" >&2
     # 編號在前、標記在後，編號欄寬依項目數；與選單的 `N) 名稱` 對齊。
     for ((i = 0; i < n; i++)); do
       printf '  %*d) [%s] %s\n' "$w" "$((i + 1))" "$( ((MS_SEL[i])) && echo x || echo ' ')" "${items[i]}" >&2
     done
-    printf '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' >&2
+    printf '輸入編號：' >&2
     IFS= read -r line || return 1
     if [[ -z "${line//[[:space:]]/}" ]]; then break; fi
     _ms_apply "$line"
@@ -161,6 +170,30 @@ multiselect() {
     if ((MS_SEL[i])); then printf '%d\n' "$((i + 1))"; picked=1; fi
   done
   ((picked)) || return 1
+}
+
+# ---- 單選器 ----
+# select_one 標題 項目...：畫面與提示走 stderr；輸入有效編號即選定，stdout 印該編號（1 起算）、回傳 0。
+# Enter、q 或讀到 EOF 回傳 1、stdout 無輸出；越界或看不懂的輸入說明後重問（只讀一個值，忽略它等於沒反應）。
+select_one() {
+  local title=$1 line="" i n w
+  shift
+  local items=("$@")
+  n=${#items[@]}
+  w=${#n}
+  while true; do
+    printf '%s（q 取消）\n' "$title" >&2
+    for ((i = 0; i < n; i++)); do printf '  %*d) %s\n' "$w" "$((i + 1))" "${items[i]}" >&2; done
+    printf '輸入編號：' >&2
+    # 不設 IFS=：讓 read 去掉前後空白，「 3 」照樣選得到。
+    read -r line || return 1
+    case "$line" in "" | [qQ]) return 1 ;; esac
+    if [[ "$line" =~ ^[0-9]{1,6}$ ]] && ((10#$line >= 1 && 10#$line <= n)); then
+      printf '%d\n' "$((10#$line))"
+      return 0
+    fi
+    printf '無效的選項：%s\n' "$line" >&2
+  done
 }
 
 # pick_by_name 旗標 值 項目...：無人值守時的挑選。值是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
@@ -188,6 +221,14 @@ pick_by_name() {
     if ((sel[i])); then printf '%d\n' "$((i + 1))"; fi
   done
 }
+
+# pick_one_by_name 旗標 值 項目...：pick_by_name 的單選版，select_one 的無人值守路徑；給了不只一個名稱就以結束碼 2 結束。
+pick_one_by_name() {
+  local flag=$1 picks
+  picks=$(pick_by_name "$@") || exit "$?"
+  [[ "$picks" != *$'\n'* ]] || die_with 2 "$flag 只能選一個：$2" "只給一個名稱，不要用逗號列出多個"
+  printf '%s\n' "$picks"
+}
 # ---- END ops-lib ----
 
 # 絕對路徑：腳本中途 cd 之後，--help、選單與分派仍讀得到自己。
@@ -203,34 +244,39 @@ usage_error() { usage >&2; die_with 2 "$@"; }
 table_rows() { sed -n 's/^#\/   \([a-z][a-z0-9-]*\)[[:space:]].*$/\1/p' "$SELF"; }
 table_desc() { sed -n "s/^#\/   $1[[:space:]]\{1,\}//p" "$SELF"; }
 
-print_menu() {
-  local i=0 name w
-  w=$(table_rows | wc -l | tr -d " ")
-  w=${#w}
+# 需確認欄：描述以 CONFIRM_MARK 開頭的列會停下來確認。table_desc 吃掉名稱後的所有空白，
+# 所以任一列有需確認時，由選單替其餘列補同寬的 CONFIRM_PAD；全表都沒有就不留這一欄。
+CONFIRM_MARK='[需確認] '
+CONFIRM_PAD='         ' # 與 CONFIRM_MARK 同寬：中文一字 2 欄
+confirm_pad() {
+  local name
   while IFS= read -r name; do
-    i=$((i + 1))
-    printf '  %*d) %-10s %s\n' "$w" "$i" "$name" "$(table_desc "$name")"
+    if [[ "$(table_desc "$name")" == "$CONFIRM_MARK"* ]]; then
+      printf '%s' "$CONFIRM_PAD"
+      return 0
+    fi
   done < <(table_rows)
 }
 
-# run_menu：先選動作；代理在動作裡再選，等價指令在選完代理後印（FROM_MENU）。取消 exit 1。
+# menu_items：選單的項目，每列「名稱 需確認欄 描述」，依子命令表順序；編號由 select_one 加上。
+menu_items() {
+  local name desc pad
+  pad=$(confirm_pad)
+  while IFS= read -r name; do
+    desc=$(table_desc "$name")
+    [[ "$desc" == "$CONFIRM_MARK"* ]] || desc="$pad$desc"
+    printf '%-10s %s\n' "$name" "$desc"
+  done < <(table_rows)
+}
+
+# run_menu：先選動作（一次 select_one）；代理在動作裡再選，等價指令在選完代理後印（FROM_MENU）。取消 exit 1。
 # 取消直接 exit、呼叫端不以 `||` 接它：函式在 `||` 左側時 errexit 失效，子命令失敗會被吞掉。
 run_menu() {
-  local choice name
+  local idx items=()
   FROM_MENU=1
-  while true; do
-    print_menu
-    printf '選擇編號（q 取消）：' >&2
-    read -r choice || exit 1
-    case "$choice" in "" | q) exit 1 ;; esac
-    name=""
-    [[ "$choice" =~ ^[1-9][0-9]*$ ]] && name=$(table_rows | sed -n "${choice}p")
-    if [[ -n "$name" ]]; then
-      run_command "$name"
-      return
-    fi
-    printf '無效的選項：%s\n' "$choice" >&2
-  done
+  mapfile -t items < <(menu_items)
+  idx=$(select_one "要做什麼？" "${items[@]}") || exit 1
+  run_command "$(table_rows | sed -n "${idx}p")"
 }
 
 run_command() {
@@ -352,8 +398,10 @@ list_stale_links() {
 }
 
 # ---- 選代理 ----
+# 逐一整串比對去重；不用空白拼接比對（見 ops-script 規則）。
 add_agent() {
-  case " ${AGENTS[*]-} " in *" $1 "*) return 0 ;; esac
+  local a
+  for a in ${AGENTS[@]+"${AGENTS[@]}"}; do [[ "$a" == "$1" ]] && return 0; done
   AGENTS+=("$1")
 }
 
@@ -363,32 +411,14 @@ join_agents() {
   printf '%s' "${out%, }"
 }
 
-# 互動選代理：輸入編號，空白分隔，可多選；選定後直接處理，不再確認。
-# 無效輸入提示後重問；讀到 EOF 取消（結束碼 1）。
+# 互動選代理：走 ops-lib 的多選器；選定後直接處理，不再確認。
+# 沒選就確定或讀到 EOF 取消（結束碼 1）。
 read_agents() {
-  local verb=$1 selected index i
-  local indexes=()
-  printf '選擇要%s的代理（可用空白多選）：\n' "$verb" >&2
-  for ((i = 0; i < ${#AGENT_NAMES[@]}; i++)); do printf '  %d) %s\n' "$((i + 1))" "${AGENT_NAMES[i]}" >&2; done
-  while true; do
-    printf '輸入編號（例如 1 3）：' >&2
-    IFS= read -r selected || die "已取消" "沒有選任何代理，什麼都沒做"
-    IFS=$' \t\r' read -r -a indexes <<<"$selected" || true
-    AGENTS=()
-    # 空陣列提供空字串，兼容舊版 Bash 的 nounset，交由下方視為無效輸入。
-    for index in ${indexes[@]+"${indexes[@]}"}; do
-      case "$index" in
-        1 | 2 | 3) add_agent "${AGENT_NAMES[index - 1]}" ;;
-        *) AGENTS=(); break ;;
-      esac
-    done
-    if ((${#AGENTS[@]} == 0)); then
-      printf '請輸入一個或多個有效編號，以空白分隔，例如 1 3。\n' >&2
-      continue
-    fi
-    printf '即將%s：%s\n' "$verb" "$(join_agents)" >&2
-    return 0
-  done
+  local verb=$1 picks idx
+  picks=$(multiselect "要${verb}哪些代理？" "${AGENT_NAMES[@]}") || die "已取消" "沒有選任何代理，什麼都沒做"
+  AGENTS=()
+  for idx in $picks; do AGENTS+=("${AGENT_NAMES[idx - 1]}"); done
+  printf '即將%s：%s\n' "$verb" "$(join_agents)" >&2
 }
 
 # 參數給了代理就沿用；沒給就詢問（需要終端機），不替操作者挑。
@@ -413,7 +443,7 @@ parse_agent_args() {
         case " $allowed " in *" dry "*) DRY=1 ;; *) usage_error "$name 不支援 --dry-run" "用 --help 查看用法" ;; esac ;;
       -y | --yes)
         case " $allowed " in *" yes "*) YES=1 ;; *) usage_error "$name 不支援 $arg" "用 --help 查看用法" ;; esac ;;
-      *) usage_error "$name 不認得的參數：$arg" "代理只能是 ${AGENT_NAMES[*]}；選項見 --help" ;;
+      *) usage_error "$name 未知的參數：$arg" "代理只能是 ${AGENT_NAMES[*]}；選項見 --help" ;;
     esac
   done
 }

@@ -262,6 +262,36 @@ try {
   $result = Invoke-Manage -Arguments @('bogus')
   Assert-That ($result.ExitCode -ne 0) 'an unknown subcommand was accepted'
 
+  Write-Host 'menu rows say what and whether it asks; flag details stay in -Help'
+  $screen = @((Invoke-Manage -Tty -StandardInput '').Output)
+  $menu = @($screen | Where-Object { $_ -match '^\s+\d+\) ' })
+  Assert-That (@($screen -like '*要做什麼？（q 取消）*').Count -eq 1) "the menu has no title line: $($screen -join ' | ')"
+  Assert-That (@($screen -like '*選擇編號*').Count -eq 0) 'the menu still prints its own number prompt'
+  Assert-That ($menu.Count -eq 3) "expected 3 menu rows, got $($menu.Count)"
+  # 顯示寬度近似值：非 ASCII 字元算 2 欄
+  function Get-DisplayWidth { param([string]$Text) [int]($Text.ToCharArray() | ForEach-Object { if ([int]$_ -gt 127) { 2 } else { 1 } } | Measure-Object -Sum).Sum }
+  $starts = @()
+  foreach ($line in $menu) {
+    Assert-That ($line -notmatch '(^|[\s（(、，；：「/])--?[A-Za-z]') "menu row carries a flag: $line"
+    Assert-That ((Get-DisplayWidth $line) -le 80) "menu row is wider than 80 columns: $line"
+    # 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
+    Assert-That ($line -match '^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$') "menu row does not parse: $line"
+    Assert-That ($Matches[3] -notmatch '[（(\[]') "menu description carries a bracket: $line"
+    $starts += Get-DisplayWidth ($Matches[1] + $Matches[2])
+  }
+  Assert-That (@($starts | Select-Object -Unique).Count -eq 1) "menu descriptions start at different columns: $($starts -join ', ')"
+  # 要確認的子命令集合由下方行為測試證明：uninstall 無終端機沒帶 -Yes 結束碼 2、install 不問
+  $marked = @($menu | Where-Object { $_ -like '*`[需確認`]*' } | ForEach-Object { ($_.Trim() -split '\s+')[1] }) -join ','
+  Assert-That ($marked -eq 'uninstall') "rows marked [需確認] should be exactly uninstall, got '$marked'"
+  $helpText = (Invoke-Manage -Arguments @('-Help')).Output -join "`n"
+  # 比對手寫的說明句：Get-Help 的語法段會自動產生 [-Yes] [-WhatIf]，只找旗標名會恆真
+  Assert-That ($helpText -match '支援 -WhatIf，無終端機時要 -Yes') '-Help no longer explains -WhatIf and -Yes for uninstall'
+  # -Help 只給操作者：維護者筆記（ops-lib 同步、測試接縫、BOM）留在 # 註解
+  foreach ($word in 'ops-lib', '_LIB', 'BOM') {
+    Assert-That (-not $helpText.Contains($word)) "-Help shows the maintainer note '$word'"
+  }
+  Assert-That ($helpText.Contains('結束碼：0 完成')) '-Help does not state the exit codes'
+
   Write-Host 'end of input cancels the menu and the agent prompt'
   Reset-Home
   $result = Invoke-Manage -Tty -StandardInput ''
@@ -275,7 +305,7 @@ try {
   if ($IsWindows) {
     Write-Host 'the menu picks the action first, then installs only the chosen agent without confirmation'
     Reset-Home
-    $result = Invoke-Manage -Tty -StandardInput "1`n3"
+    $result = Invoke-Manage -Tty -StandardInput "1`n3`n`n"
     Assert-That ($result.ExitCode -eq 0 -and (Test-Linked 'codex')) "menu install failed: $($result.Output -join [Environment]::NewLine)"
     Assert-That (-not (Test-Path (Join-Path $testHome '.claude\skills'))) 'menu selection installed an unselected agent'
     Assert-That (-not ($result.Output -match '確認繼續')) 'install still asked for confirmation'
@@ -284,34 +314,41 @@ try {
       Assert-That (@($result.Output | Where-Object { $_ -like "$line*" }).Count -eq 1) "menu is missing: $line"
     }
 
-    Write-Host 'space-separated selection installs each selected agent once, in the order given'
+    Write-Host 'the agent prompt is the ops-lib multiselect, picks come back in list order'
     Reset-Home
-    $result = Invoke-Manage -Tty -StandardInput "1`n  3  1`t3  "
+    $result = Invoke-Manage -Tty -StandardInput "1`n3 1`n`n"
     Assert-That ($result.ExitCode -eq 0 -and (Test-Linked 'codex') -and (Test-Linked 'claude')) 'multi-selection did not install both agents'
     Assert-That (-not (Test-Path (Join-Path $testHome '.copilot\skills'))) 'multi-selection installed an unselected agent'
-    Assert-That (@($result.Output -match '^== codex').Count -eq 1) 'duplicate selection installed Codex more than once'
-    Assert-That (@($result.Output -match '即將安裝：codex, claude$').Count -eq 1) 'selection summary does not match'
-    foreach ($line in '  1) claude', '  2) copilot', '  3) codex') {
+    Assert-That (@($result.Output -match '即將安裝：claude, codex$').Count -eq 1) 'selection summary should follow list order'
+    Assert-That (@($result.Output -match '要安裝哪些代理？（例：1 3 5-7；a 全選、n 全不選、Enter 確定）$').Count -eq 2) 'agent prompt is not the ops-lib multiselect'
+    foreach ($line in '  1) [x] claude', '  2) [ ] copilot', '  3) [x] codex') {
       Assert-That ($result.Output -contains $line) "agent prompt is missing: $line"
     }
 
-    Write-Host 'invalid selections retry without installing partially selected agents'
+    Write-Host 'toggling twice unpicks, out-of-range and junk are ignored'
     Reset-Home
-    $result = Invoke-Manage -Tty -StandardInput "1`n`n   `n1,3`n0`n4`n-1`n1 x`n13`n999999999999999999999999999999`n2"
-    Assert-That ($result.ExitCode -eq 0 -and (Test-Linked 'copilot')) "valid selection after errors failed: $($result.Output -join [Environment]::NewLine)"
-    Assert-That (@($result.Output -match '請輸入一個或多個有效編號').Count -eq 9) 'invalid selections were not all retried'
-    Assert-That (-not (Test-Path (Join-Path $testHome '.claude\skills')) -and -not (Test-Path (Join-Path $testHome '.agents\skills'))) 'invalid selection partially installed agents'
+    $result = Invoke-Manage -Tty -StandardInput "1`n1 1 0 4 x 2`n`n"
+    Assert-That ($result.ExitCode -eq 0 -and (Test-Linked 'copilot')) "valid pick among junk failed: $($result.Output -join [Environment]::NewLine)"
+    Assert-That (-not (Test-Path (Join-Path $testHome '.claude\skills')) -and -not (Test-Path (Join-Path $testHome '.agents\skills'))) 'junk tokens installed extra agents'
+
+    Write-Host 'confirming with nothing picked cancels'
+    Reset-Home
+    $result = Invoke-Manage -Tty -StandardInput "1`n`n"
+    Assert-That ($result.ExitCode -eq 1) 'confirming with nothing picked should exit 1'
+    Assert-That (-not (Test-Path (Join-Path $testHome '.claude\skills'))) 'nothing picked but skills were installed'
 
     Write-Host 'uninstall from the menu asks once, default No'
-    $result = Invoke-Manage -Tty -StandardInput "2`n2`n"
+    Reset-Home
+    $null = Invoke-Manage -Arguments @('install', 'copilot')
+    $result = Invoke-Manage -Tty -StandardInput "2`n2`n`n`n"
     Assert-That ($result.ExitCode -eq 1 -and (Test-Linked 'copilot')) 'an empty answer should cancel the uninstall and keep the links'
-    $result = Invoke-Manage -Tty -StandardInput "2`n2`nn"
+    $result = Invoke-Manage -Tty -StandardInput "2`n2`n`nn"
     Assert-That ($result.ExitCode -eq 1 -and (Test-Linked 'copilot')) 'answering n should cancel the uninstall'
-    $result = Invoke-Manage -Tty -StandardInput "2`n2`ny"
+    $result = Invoke-Manage -Tty -StandardInput "2`n2`n`ny"
     Assert-That ($result.ExitCode -eq 0 -and -not (Test-Linked 'copilot')) "answering y should uninstall: $($result.Output -join [Environment]::NewLine)"
 
     Write-Host 'status from the menu reads only'
-    $result = Invoke-Manage -Tty -StandardInput "3`n2"
+    $result = Invoke-Manage -Tty -StandardInput "3`n2`n`n"
     Assert-That ($result.ExitCode -eq 1) 'status of an uninstalled agent should exit 1'
   }
 
@@ -326,6 +363,12 @@ try {
   }
   $skeletonPs1 = Join-Path $repo 'skills\draft\ops-script\skeleton.ps1'
   Assert-That ((Get-OpsLib $manage) -ceq (Get-OpsLib $skeletonPs1)) 'manage.ps1 的 ops-lib 區段與骨架不一致'
+
+  Write-Host 'pickers live only in ops-lib: no hand-rolled number prompt outside the block'
+  # 自製選擇器曾與 ops-lib 並存而不自知；挑選一律走 ops-lib，區段外不得有自己的編號提示
+  $manageRaw = [System.IO.File]::ReadAllText($manage) -replace "`r`n", "`n"
+  $outsideLib = $manageRaw.Replace((Get-OpsLib $manage), '')
+  Assert-That (-not $outsideLib.Contains('輸入編號')) 'manage.ps1 在 ops-lib 區段外自己畫了編號提示，改用 Select-OpsMulti 或 Select-OpsOne'
 
   Write-Host 'ValidateSet equals the subcommand table plus the agent names'
   $manageText = [System.IO.File]::ReadAllText($manage) -replace "`r`n", "`n"

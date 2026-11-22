@@ -26,6 +26,12 @@ lib() {
   shift
   SKELETON_LIB=1 bash -c 'source "$1"; code=$2; shift 2; eval "$code"' _ "$SK" "$code" "$@"
 }
+# menu_rows [前置程式碼] [參數...]：跑 run_menu、立刻讀到 EOF，取畫面上的清單列（「  N) …」）
+menu_rows() {
+  local pre=${1:-:}
+  shift $(($# > 0 ? 1 : 0))
+  lib "$pre; run_menu" "$@" </dev/null 2>&1 | grep -E '^ +[0-9]+\) '
+}
 
 echo "[CLI] --help 與用法"
 out=$(bash "$SK" --help </dev/null 2>"$tmp/err"); rc=$?
@@ -41,7 +47,8 @@ expect "無參數時 stdout 為空" "" "$out"
 contains "無參數時 stderr 印用法" "$(cat "$tmp/err")" "用法"
 bash "$SK" --bogus >/dev/null 2>&1 </dev/null; expect "--bogus 回 2" 2 $?
 bash "$SK" nosuchcmd >/dev/null 2>&1 </dev/null; expect "未知子命令回 2" 2 $?
-bash "$SK" hello --bogus >/dev/null 2>&1 </dev/null; expect "hello --bogus 回 2" 2 $?
+out=$(bash "$SK" hello --bogus 2>&1 </dev/null); expect "hello --bogus 回 2" 2 $?
+contains "hello 的未知參數訊息用「未知」" "$out" "hello 未知的參數：--bogus"
 
 echo "[CLI] hello 與 --dry-run"
 d="$tmp/hello-out"
@@ -70,10 +77,10 @@ out=$(SKELETON_LIB=true bash -c 'source "$1"; echo "rc=$?"' _ "$SK" 2>&1 </dev/n
 contains "LIB=true 的 source 仍被擋" "$out" "rc=1"
 
 echo "[CLI] 檔案結構與語法"
-b=$(grep -n '^# ---- BEGIN ops-lib v4 ----$' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v7 ----$' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----$' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN 標記在 END 標記之前" || verdict ng "ops-lib 標記缺漏或順序錯"
-for fn in die confirm require_tty; do
+for fn in die confirm require_tty select_one pick_one_by_name; do
   l=$(grep -n "^$fn()" "$SK" | cut -d: -f1)
   [ -n "$l" ] && [ -n "$b" ] && [ -n "$e" ] && [ "$l" -gt "$b" ] && [ "$l" -lt "$e" ] \
     && verdict ok "$fn 定義在標記之間" || verdict ng "$fn 沒定義在 ops-lib 標記之間"
@@ -104,6 +111,13 @@ out=$(echo n | lib 'confirm "繼續？"' 2>&1); contains "提示含 [y/N]" "$out
 
 echo "[LIB] require_tty 只看 stdin"
 lib 'require_tty' </dev/null >/dev/null 2>&1; expect "stdin 非終端機回 2" 2 $?
+echo "[LIB v7] require_tty 收呼叫端的修法；不給就沿用通用句"
+out=$(lib 'require_tty "改用 --pick alpha"' </dev/null 2>&1); rc=$?
+expect "給修法時仍回 2" 2 "$rc"
+contains "給修法時印出那句修法" "$out" "    改用 --pick alpha"
+case "$out" in *改用選項或參數*) verdict ng "給了修法不該再印通用句" ;; *) verdict ok "給了修法就不印通用句" ;; esac
+out=$(lib 'require_tty' </dev/null 2>&1)
+contains "不給修法時印通用句" "$out" "改用選項或參數傳入所需的值，或在終端機中執行"
 
 echo "[LIB] 顏色開關（覆寫 _is_tty 模擬終端機）"
 esc=$(printf '\033')
@@ -116,14 +130,20 @@ case "$(colored NO_COLOR= TERM=dumb)" in *"$esc["*) verdict ng "TERM=dumb 應關
 out=$(bash -c 'SKELETON_LIB=1; source "$1"; _is_tty() { return 1; }; color_init; die x y' _ "$SK" 2>&1 >/dev/null </dev/null)
 case "$out" in *"$esc["*) verdict ng "stdout 非終端機應關閉色碼" ;; *) verdict ok "stdout 非終端機關閉色碼" ;; esac
 
-echo "[LIB] 一表三用：table_rows、print_menu、run_menu"
+echo "[LIB] 一表三用：table_rows、menu_items、run_menu"
 expect "table_rows 恰為 hello（說明行不算列）" hello "$(lib 'table_rows')"
 miss=0
 for n in $(lib 'table_rows'); do
   lib "declare -F cmd_${n//-/_} >/dev/null" || miss=1
 done
 expect "每個列都有對應的 cmd_ 函式" 0 "$miss"
-expect "print_menu 行數等於 table_rows" "$(lib 'table_rows' | wc -l | tr -d ' ')" "$(lib 'print_menu' | wc -l | tr -d ' ')"
+expect "menu_items 行數等於 table_rows" "$(lib 'table_rows' | wc -l | tr -d ' ')" "$(lib 'menu_items' | wc -l | tr -d ' ')"
+out=$(lib 'run_menu' </dev/null 2>&1)
+contains "選單有標題行「要做什麼？（q 取消）」" "$out" "要做什麼？（q 取消）"
+contains "選單的輸入行是「輸入編號：」" "$out" "輸入編號："
+case "$out" in *選擇編號*) verdict ng "選單不該再印「選擇編號」" ;; *) verdict ok "選單不再印「選擇編號」" ;; esac
+out=$(printf '9\n\n' | lib 'run_menu' 2>&1)
+contains "選單輸入越界編號說明後重問" "$out" "無效的選項：9"
 out=$(printf '1\n1\n\n' | HELLO_DIR="$tmp/menu-out" lib '_is_tty() { return 0; }; run_menu --dry-run' 2>&1); rc=$?
 expect "選單選 1 回 0" 0 "$rc"
 contains "執行前印出等價指令" "$out" "skeleton.sh hello"
@@ -179,11 +199,56 @@ contains "10 項時 9 號補一格空白" "$out" "   9) [ ] 項目9"
 contains "10 項時 10 號不補" "$out" "  10) [ ] 項目10"
 out=$(lib "multiselect 標題 a b c" <<<$'\n' 2>&1 >/dev/null)
 contains "少於 10 項時編號不補空白" "$out" "  1) [ ] a"
-out=$(lib 'table_rows() { printf "n%s\n" 1 2 3 4 5 6 7 8 9 10; }; print_menu')
+out=$(menu_rows 'table_rows() { printf "n%s\n" 1 2 3 4 5 6 7 8 9 10; }')
 contains "選單 10 列時 9 號補一格空白" "$out" "   9) n9"
 contains "選單 10 列時 10 號不補" "$out" "  10) n10"
-out=$(lib 'print_menu')
+out=$(menu_rows)
 contains "選單 1 列時編號不補空白" "$out" "  1) hello"
+
+echo "[LIB] 選單行只答「做什麼、要不要確認」：無旗標、80 欄內；旗標細節留在 --help"
+# disp_width <字串>：顯示寬度近似值 — 多位元組字元算 2 欄（CJK 與全形標點皆為 3 位元組）
+disp_width() {
+  local c b
+  c=$(LC_ALL=C.UTF-8 bash -c 'printf %s "${#1}"' _ "$1")
+  b=$(LC_ALL=C bash -c 'printf %s "${#1}"' _ "$1")
+  echo $((c + (b - c) / 2))
+}
+# check_menu_lines <選單輸出>：每行不含旗標、不超過 80 欄；空輸出算失敗
+check_menu_lines() {
+  # 全形字不放進方括號：C locale 按位元組比對，（ 與 ： 共用前兩個位元組，會互相誤中
+  local line flagged="" wide="" bracket="" starts="" prefix desc re='(^|[[:space:]]|（|\(|、|，|；|：|「|/)--?[A-Za-z]'
+  # 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
+  local row='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$' br='（|\(|\['
+  [ -n "$1" ] || { verdict ng "抓不到選單輸出"; return; }
+  while IFS= read -r line; do
+    [[ "$line" =~ $re ]] && flagged+="[$line]"
+    (($(disp_width "$line") > 80)) && wide+="[$line]"
+    [[ "$line" =~ $row ]] || { bracket+="[無法解析：$line]"; continue; }
+    prefix="${BASH_REMATCH[1]}${BASH_REMATCH[2]}" desc="${BASH_REMATCH[3]}"
+    [[ "$desc" =~ $br ]] && bracket+="[$line]"
+    starts+="$(disp_width "$prefix")"$'\n'
+  done <<<"$1"
+  expect "選單行不含旗標" "" "$flagged"
+  expect "選單行不超過 80 欄" "" "$wide"
+  expect "描述欄不含括號" "" "$bracket"
+  expect "各列描述起始欄位相同" 1 "$(printf '%s' "$starts" | sort -u | awk 'END { print NR }')"
+}
+check_menu_lines "$(menu_rows)"
+# 需確認欄：有任一列需確認時，其餘列補同寬空白；全表都沒有就不留欄（SELF 指向測試用的表）
+printf '#/   alpha   甲\n#/   beta    [需確認] 乙\n' >"$tmp/table-mark"
+printf '#/   alpha   甲\n' >"$tmp/table-plain"
+out=$(menu_rows 'SELF=$1' "$tmp/table-mark")
+contains "需確認列印出 [需確認]" "$out" "  2) beta       [需確認] 乙"
+contains "其餘列補同寬空白" "$out" "  1) alpha               甲"
+expect "全表沒有需確認時不留欄" "  1) alpha      甲" "$(menu_rows 'SELF=$1' "$tmp/table-plain")"
+case "$(menu_rows)" in *"[需確認]"*) verdict ng "hello 不需確認，不該標 [需確認]" ;; *) verdict ok "hello 沒有標 [需確認]" ;; esac
+out=$(bash "$SK" --help </dev/null 2>/dev/null)
+contains "--help 仍說明 --pick" "$out" "--pick"
+contains "--help 仍說明 --dry-run" "$out" "--dry-run"
+contains "--help 寫出結束碼" "$out" "結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤"
+contains "--help 的可重複值寫成 名稱[,名稱...]" "$out" "--pick 名稱[,名稱...]"
+case "$out" in *…*) verdict ng "--help 的省略號用 ASCII ..." ;; *) verdict ok "--help 沒有 Unicode 省略號" ;; esac
+case "$out" in *多選器*) verdict ng "--help 不該出現內部用語「多選器」" ;; *) verdict ok "--help 沒有內部用語「多選器」" ;; esac
 
 echo "[LIB v2] step 與結果計數"
 out=$(lib 'step 準備' 2>&1 >/dev/null); expect "step 在 stderr 印 == 標題" "== 準備" "$out"
@@ -213,7 +278,8 @@ contains "失敗行出現在 stderr" "$(cat "$tmp/err")" "fail"
 d3="$tmp/pick-dry"
 out=$(HELLO_DIR="$d3" bash "$SK" hello --pick beta --dry-run 2>&1 </dev/null)
 [ ! -e "$d3" ] && verdict ok "--pick 搭配 --dry-run 不建立" || verdict ng "--dry-run 不該建立目錄"
-bash "$SK" hello </dev/null >/dev/null 2>&1; expect "hello 無 --pick 且無終端機回 2" 2 $?
+out=$(bash "$SK" hello </dev/null 2>&1); expect "hello 無 --pick 且無終端機回 2" 2 $?
+contains "hello 無終端機時點名 --pick" "$out" "改用 --pick"
 bash "$SK" hello --pick delta </dev/null >/dev/null 2>&1; expect "--pick 不認得的名稱回 2" 2 $?
 echo "[LIB v2] hello 的選單路徑（覆寫 _is_tty 模擬終端機）"
 d4="$tmp/menu-pick"
@@ -262,10 +328,58 @@ for v in "alpha beta" "Alpha" "1" "alph" "alpha," $'alpha\nbeta'; do
 done
 pn 'delta'; contains "錯誤訊息列出可用的名稱" "$(cat "$tmp/pn.err")" "alpha"
 
+echo "[LIB v6] select_one：輸入有效編號即選定；Enter、q、EOF 取消；無效輸入說明後重問"
+# so <輸入> [項目數]：設定 SO_OUT（stdout）、SO_ERR（畫面）與 SO_RC
+so() {
+  local n=${2:-3} items=() i
+  for ((i = 1; i <= n; i++)); do items+=("項目$i"); done
+  lib "select_one 標題 ${items[*]}" <<<"$1" >"$tmp/so.out" 2>"$tmp/so.err"; SO_RC=$?
+  SO_OUT=$(cat "$tmp/so.out") SO_ERR=$(cat "$tmp/so.err")
+}
+so $'2\n'; expect "輸入 2 選中 2" "2" "$SO_OUT"
+so $'2\n'; expect "選定回 0" 0 "$SO_RC"
+so $' 3 \n'; expect "前後空白不影響" "3" "$SO_OUT"
+so $'02\n'; expect "前導 0 照十進位算" "2" "$SO_OUT"
+for a in "" q Q; do
+  so "$a"$'\n'; expect "輸入「$a」取消回 1" 1 "$SO_RC"
+  expect "輸入「$a」取消時 stdout 為空" "" "$SO_OUT"
+done
+lib 'select_one 標題 a b' </dev/null >/dev/null 2>&1; expect "EOF 取消回 1" 1 $?
+so $'0\n2\n'; expect "越界之後重問、再選 2" "2" "$SO_OUT"
+contains "越界時說明" "$SO_ERR" "無效的選項：0"
+expect "重問時重畫標題" 2 "$(grep -c '標題（q 取消）' <<<"$SO_ERR" | tr -d ' ')"
+so $'4\n\n'; expect "超過項目數不選、Enter 取消回 1" 1 "$SO_RC"
+so $'1 2\n\n'; expect "一次給兩個編號不算選定" "" "$SO_OUT"
+contains "一次給兩個編號時說明" "$SO_ERR" "無效的選項：1 2"
+so $'x\n\n'; contains "看不懂的輸入說明" "$SO_ERR" "無效的選項：x"
+so $'\n'; contains "標題行帶取消說明" "$SO_ERR" "標題（q 取消）"
+contains "清單列沒有勾選框" "$SO_ERR" "  1) 項目1"
+contains "輸入行是「輸入編號：」" "$SO_ERR" "輸入編號："
+so $'\n' 10; contains "10 項時 9 號補一格空白" "$SO_ERR" "   9) 項目9"
+
+echo "[LIB v6] pick_one_by_name：pick_by_name 的單選版"
+# po <值>：設定 PO_OUT、PO_ERR 與 PO_RC
+po() {
+  lib 'pick_one_by_name --target "$1" alpha beta gamma' "$1" >"$tmp/po.out" 2>"$tmp/po.err"; PO_RC=$?
+  PO_OUT=$(cat "$tmp/po.out") PO_ERR=$(cat "$tmp/po.err")
+}
+po beta; expect "beta 選中 2" "2" "$PO_OUT"
+po beta; expect "單一名稱回 0" 0 "$PO_RC"
+po alpha,gamma; expect "兩個名稱回 2" 2 "$PO_RC"
+po alpha,gamma; expect "兩個名稱時 stdout 為空" "" "$PO_OUT"
+po alpha,gamma; contains "兩個名稱時說明只能選一個" "$PO_ERR" "--target 只能選一個"
+po delta; expect "不認得的名稱回 2" 2 "$PO_RC"
+po delta; contains "不認得的名稱列出可用的名稱" "$PO_ERR" "alpha,beta,gamma"
+po ''; expect "空值回 2" 2 "$PO_RC"
+
+echo "[結構 v6] ops-lib 以外不自己讀編號"
+outside=$(awk '/^# ---- BEGIN ops-lib/{f=1} !f{print} /^# ---- END ops-lib ----$/{f=0}' "$SK")
+expect "ops-lib 區段外沒有自製的編號提示" "" "$(grep -nE 'printf .*編號|^[[:space:]]*(IFS=[^ ]* )?read ' <<<"$outside")"
+
 echo "[文件] 版號與維運說明"
 ! grep -q 'nameref\|local -n\|declare -n' "$SK" && verdict ok "骨架未用 nameref（bash 4.3 說明為條件式）" || verdict ng "骨架用了 nameref，需確認 bash 4.3 說明"
 SM="$(dirname "$SK")/SKILL.md"
-contains "SKILL.md 標明 v4" "$(cat "$SM")" "ops-lib v4"
+contains "SKILL.md 標明 v7" "$(cat "$SM")" "ops-lib v7"
 doc=$(cat "$SM" "$(dirname "$SK")"/*.md 2>/dev/null)
 contains "維護規則：兩個版號即有一支沒同步" "$doc" "two different version numbers"
 contains "陷阱：read 讀到輸入結尾" "$doc" "read -r x ||"
@@ -275,6 +389,8 @@ contains "陷阱：local x=\$(cmd)" "$doc" 'local x=$(cmd)'
 contains "bash 4.3 條目" "$doc" "bash 4.3"
 contains "陷阱：空白拼接的成員檢查" "$doc" 'case " $list " in *" $x "*'
 contains "挑選旗標收名稱、走 pick_by_name" "$doc" "pick_by_name"
+contains "單選走 select_one" "$doc" "select_one"
+contains "單選的無人值守走 pick_one_by_name" "$doc" "pick_one_by_name"
 contains "ops-lib 放法：離不開 repo 才可 source 共用檔" "$doc" "scripts/lib/ops-lib.sh"
 contains "驗證：shellcheck 未安裝時的 uvx 備援" "$doc" "uvx --from shellcheck-py shellcheck"
 
