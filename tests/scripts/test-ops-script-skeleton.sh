@@ -70,7 +70,7 @@ out=$(SKELETON_LIB=true bash -c 'source "$1"; echo "rc=$?"' _ "$SK" 2>&1 </dev/n
 contains "LIB=true 的 source 仍被擋" "$out" "rc=1"
 
 echo "[CLI] 檔案結構與語法"
-b=$(grep -n '^# ---- BEGIN ops-lib v3 ----$' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v4 ----$' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----$' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN 標記在 END 標記之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in die confirm require_tty; do
@@ -169,6 +169,22 @@ ms $'1\nn\n\n'; expect "全部取消勾選後 Enter 回 1" 1 "$MS_RC"
 lib 'multiselect 標題 a b' </dev/null >/dev/null 2>&1; expect "EOF 取消回 1" 1 $?
 out=$(lib 'multiselect 標題 a b' <<<$'1\n' 2>&1 >/dev/null); contains "畫面走 stderr" "$out" "標題"
 
+echo "[LIB v4] 清單格式：編號在前、標記在後、編號依項目數補齊寬度"
+out=$(lib 'multiselect 標題 a b' <<<$'1\n\n' 2>&1 >/dev/null)
+contains "未選的列是「  1) [ ] a」" "$out" "  1) [ ] a"
+contains "選中的列是「  1) [x] a」" "$out" "  1) [x] a"
+items10=(); for ((i = 1; i <= 10; i++)); do items10+=("項目$i"); done
+out=$(lib "multiselect 標題 ${items10[*]}" <<<$'\n' 2>&1 >/dev/null)
+contains "10 項時 9 號補一格空白" "$out" "   9) [ ] 項目9"
+contains "10 項時 10 號不補" "$out" "  10) [ ] 項目10"
+out=$(lib "multiselect 標題 a b c" <<<$'\n' 2>&1 >/dev/null)
+contains "少於 10 項時編號不補空白" "$out" "  1) [ ] a"
+out=$(lib 'table_rows() { printf "n%s\n" 1 2 3 4 5 6 7 8 9 10; }; print_menu')
+contains "選單 10 列時 9 號補一格空白" "$out" "   9) n9"
+contains "選單 10 列時 10 號不補" "$out" "  10) n10"
+out=$(lib 'print_menu')
+contains "選單 1 列時編號不補空白" "$out" "  1) hello"
+
 echo "[LIB v2] step 與結果計數"
 out=$(lib 'step 準備' 2>&1 >/dev/null); expect "step 在 stderr 印 == 標題" "== 準備" "$out"
 out=$(lib 'step 準備' 2>/dev/null); expect "step 不碰 stdout" "" "$out"
@@ -249,7 +265,7 @@ pn 'delta'; contains "錯誤訊息列出可用的名稱" "$(cat "$tmp/pn.err")" 
 echo "[文件] 版號與維運說明"
 ! grep -q 'nameref\|local -n\|declare -n' "$SK" && verdict ok "骨架未用 nameref（bash 4.3 說明為條件式）" || verdict ng "骨架用了 nameref，需確認 bash 4.3 說明"
 SM="$(dirname "$SK")/SKILL.md"
-contains "SKILL.md 標明 v3" "$(cat "$SM")" "ops-lib v3"
+contains "SKILL.md 標明 v4" "$(cat "$SM")" "ops-lib v4"
 doc=$(cat "$SM" "$(dirname "$SK")"/*.md 2>/dev/null)
 contains "維護規則：兩個版號即有一支沒同步" "$doc" "two different version numbers"
 contains "陷阱：read 讀到輸入結尾" "$doc" "read -r x ||"

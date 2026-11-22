@@ -53,7 +53,7 @@ if ($MyInvocation.InvocationName -eq '.' -and $env:SKELETON_LIB -ne '1') {
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
-# ---- BEGIN ops-lib v3 ----
+# ---- BEGIN ops-lib v4 ----
 # Write-Host 是操作者介面（選單、提示、步驟、結果）：資料走管線，畫面走 host，兩條路不混。
 # 本檔頂端的 SuppressMessage 抑制 PSAvoidUsingWriteHost，理由寫在那裡。
 
@@ -176,11 +176,13 @@ function Update-OpsSelection {
 function Select-OpsMulti {
     param([Parameter(Mandatory)][string]$Title, [Parameter(Mandatory)][string[]]$Items)
     $sel = New-Object 'int[]' $Items.Count
+    $w = "$($Items.Count)".Length
     while ($true) {
         Write-Host $Title
+        # 編號在前、標記在後，編號欄寬依項目數；與選單的 `N) 名稱` 對齊。
         for ($i = 0; $i -lt $Items.Count; $i++) {
             $mark = if ($sel[$i]) { 'x' } else { ' ' }
-            Write-Host ('  [{0}] {1}) {2}' -f $mark, ($i + 1), $Items[$i])
+            Write-Host ('  {0}) [{1}] {2}' -f "$($i + 1)".PadLeft($w), $mark, $Items[$i])
         }
         Write-Host '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' -NoNewline
         $line = [Console]::In.ReadLine()
@@ -240,9 +242,10 @@ function Invoke-OpsCommand {
 # 選單：選了就先印等價指令再執行；取消結束碼 1。
 function Invoke-OpsMenu {
     $names = @($SubCommands.Keys)
+    $w = "$($names.Count)".Length
     while ($true) {
         for ($i = 0; $i -lt $names.Count; $i++) {
-            Write-Host ('  {0}) {1,-10} {2}' -f ($i + 1), $names[$i], $SubCommands[$names[$i]].Desc)
+            Write-Host ('  {0}) {1,-10} {2}' -f "$($i + 1)".PadLeft($w), $names[$i], $SubCommands[$names[$i]].Desc)
         }
         Write-Host '選擇編號（q 取消）：' -NoNewline
         $choice = [Console]::In.ReadLine()

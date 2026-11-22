@@ -275,7 +275,7 @@ check linked claude '多選沒有裝 Claude'
 [ ! -e "$test_home/.copilot/skills" ] || { echo '✗ 多選裝了沒選的代理' >&2; exit 1; }
 check eq "$(count_lines '^== codex')" 1 '重複編號讓 Codex 裝了兩次'
 check eq "$(count_lines '即將安裝：codex, claude$')" 1 '選定摘要不符'
-for line in '  1. claude' '  2. copilot' '  3. codex'; do
+for line in '  1) claude' '  2) copilot' '  3) codex'; do
   check grep -qxF -- "$line" <<<"$out" "代理選單缺少：$line"
 done
 

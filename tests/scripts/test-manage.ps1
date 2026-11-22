@@ -291,7 +291,7 @@ try {
     Assert-That (-not (Test-Path (Join-Path $testHome '.copilot\skills'))) 'multi-selection installed an unselected agent'
     Assert-That (@($result.Output -match '^== codex').Count -eq 1) 'duplicate selection installed Codex more than once'
     Assert-That (@($result.Output -match '即將安裝：codex, claude$').Count -eq 1) 'selection summary does not match'
-    foreach ($line in '  1. claude', '  2. copilot', '  3. codex') {
+    foreach ($line in '  1) claude', '  2) copilot', '  3) codex') {
       Assert-That ($result.Output -contains $line) "agent prompt is missing: $line"
     }
 
