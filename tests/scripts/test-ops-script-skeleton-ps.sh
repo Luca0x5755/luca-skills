@@ -36,9 +36,9 @@ if [ ${#shells[@]} -eq 0 ]; then echo "- 兩種 PowerShell 都沒有，整份略
 echo "[STATIC] 檔案本身（與 shell 無關）"
 [ -f "$SK" ] && verdict ok "skeleton.ps1 存在" || { verdict ng "skeleton.ps1 不存在"; exit 1; }
 expect "前 3 byte 為 EF BB BF" "efbbbf" "$(head -c 3 "$SK" | od -An -tx1 | tr -d ' \n')"
-b=$(grep -n '^# ---- BEGIN ops-lib v3 ----' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v4 ----' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----' "$SK" | cut -d: -f1)
-[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v3 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
+[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v4 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Write-OpsStep \
   Write-OpsPass Write-OpsFail Write-OpsWarn Write-OpsSkip Write-OpsSummary Complete-OpsRun \
   Select-OpsMulti Resolve-OpsPick Invoke-OpsRun; do
@@ -215,6 +215,19 @@ for PS in "${shells[@]}"; do
   contains "畫面（標題）出現在 host" "$out" "TITLEX"
   out=$(printf '1\n\n' | lib '$r = @(Select-OpsMulti -Title TITLEX -Items "a","b"); "COUNT=" + $r.Count')
   expect "標題不污染回傳值：選一項時 Count 為 1" "1" "$(sed -n 's/.*COUNT=//p' <<<"$out" | tail -1)"
+
+  echo "[LIB v4] 清單格式：編號在前、標記在後、編號依項目數補齊寬度"
+  out=$(printf '1\n\n' | lib '$r = @(Select-OpsMulti -Title T -Items "a","b")')
+  contains "未選的列是「  1) [ ] a」" "$out" "  1) [ ] a"
+  contains "選中的列是「  1) [x] a」" "$out" "  1) [x] a"
+  out=$(printf '\n' | lib '$r = @(Select-OpsMulti -Title T -Items (1..10 | ForEach-Object { "item$_" }))')
+  contains "10 項時 9 號補一格空白" "$out" "   9) [ ] item9"
+  contains "10 項時 10 號不補" "$out" "  10) [ ] item10"
+  out=$(printf 'q\n' | lib '$Script:SubCommands = [ordered]@{}; 1..10 | ForEach-Object { $Script:SubCommands["n$_"] = @{ Desc = "d"; Fn = "x" } }; Invoke-OpsMenu')
+  contains "選單 10 列時 9 號補一格空白" "$out" "   9) n9"
+  contains "選單 10 列時 10 號不補" "$out" "  10) n10"
+  out=$(printf 'q\n' | lib 'Invoke-OpsMenu')
+  contains "選單 1 列時編號不補空白" "$out" "  1) hello"
 
   echo "[LIB v3] Resolve-OpsPick（名稱整串精確比對，輸出與 Select-OpsMulti 同形）"
   rp() {  # rp <值>：RP_OUT 為回傳的編號（逗號串接）

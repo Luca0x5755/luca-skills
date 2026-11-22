@@ -36,7 +36,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v3 ----
+# ---- BEGIN ops-lib v4 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -139,16 +139,18 @@ _ms_apply() {
 # multiselect 標題 項目...（MS_SEL 為本區段保留的全域名）：畫面與提示走 stderr；確定後 stdout 每行一個選中的編號（1 起算、遞增）、回傳 0。
 # 取消（什麼都沒選就 Enter，或讀到 EOF）回傳 1、stdout 無輸出；用 return，由呼叫端決定怎麼收尾。
 multiselect() {
-  local title=$1 line="" i n picked=0
+  local title=$1 line="" i n w picked=0
   shift
   local items=("$@")
   n=${#items[@]}
+  w=${#n}
   MS_SEL=()
   for ((i = 0; i < n; i++)); do MS_SEL+=(0); done
   while true; do
     printf '%s\n' "$title" >&2
+    # 編號在前、標記在後，編號欄寬依項目數；與選單的 `N) 名稱` 對齊。
     for ((i = 0; i < n; i++)); do
-      printf '  [%s] %d) %s\n' "$( ((MS_SEL[i])) && echo x || echo ' ')" "$((i + 1))" "${items[i]}" >&2
+      printf '  %*d) [%s] %s\n' "$w" "$((i + 1))" "$( ((MS_SEL[i])) && echo x || echo ' ')" "${items[i]}" >&2
     done
     printf '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' >&2
     IFS= read -r line || return 1
@@ -202,10 +204,12 @@ table_rows() { sed -n 's/^#\/   \([a-z][a-z0-9-]*\)[[:space:]].*$/\1/p' "$SELF";
 table_desc() { sed -n "s/^#\/   $1[[:space:]]\{1,\}//p" "$SELF"; }
 
 print_menu() {
-  local i=0 name
+  local i=0 name w
+  w=$(table_rows | wc -l | tr -d " ")
+  w=${#w}
   while IFS= read -r name; do
     i=$((i + 1))
-    printf '  %d) %-10s %s\n' "$i" "$name" "$(table_desc "$name")"
+    printf '  %*d) %-10s %s\n' "$w" "$i" "$name" "$(table_desc "$name")"
   done < <(table_rows)
 }
 
@@ -365,7 +369,7 @@ read_agents() {
   local verb=$1 selected index i
   local indexes=()
   printf '選擇要%s的代理（可用空白多選）：\n' "$verb" >&2
-  for ((i = 0; i < ${#AGENT_NAMES[@]}; i++)); do printf '  %d. %s\n' "$((i + 1))" "${AGENT_NAMES[i]}" >&2; done
+  for ((i = 0; i < ${#AGENT_NAMES[@]}; i++)); do printf '  %d) %s\n' "$((i + 1))" "${AGENT_NAMES[i]}" >&2; done
   while true; do
     printf '輸入編號（例如 1 3）：' >&2
     IFS= read -r selected || die "已取消" "沒有選任何代理，什麼都沒做"
