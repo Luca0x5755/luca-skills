@@ -2,9 +2,9 @@
 # check-truth-map.sh 的回歸規格。每個案例在暫存目錄裡搭一個假專案（docs/ 與 capabilities），
 # 在其根目錄跑檢查，看 exit code，紅燈時再看輸出是否點名檔案、標題與原因。
 # 行為變更必須先改這份規格 — 沒有檢查的規則不是規則，是願望。
-# 執行：bash scripts/test-truth-map-check.sh（scripts/check.sh 會跑）
+# 執行：bash tests/scripts/test-truth-map-check.sh（tests/test-tooling.sh 會跑）
 set -u
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 REPO=$PWD
 CHECK="$REPO/skills/core/setup-skills/check-truth-map.sh"
 A=docs/03_architecture_design.md

@@ -1,7 +1,7 @@
 ﻿$ErrorActionPreference = 'Stop'
 
-$repo = Split-Path -Parent $PSScriptRoot
-$manage = Join-Path $PSScriptRoot 'manage.ps1'
+$repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$manage = Join-Path $repo 'scripts/manage.ps1'
 # 預設用跑測試的 pwsh 當子行程；MANAGE_TEST_SHELL=powershell.exe 可改驗 Windows PowerShell 5.1
 $pwsh = if ($env:MANAGE_TEST_SHELL) { $env:MANAGE_TEST_SHELL } else { (Get-Process -Id $PID).Path }
 $testHome = Join-Path ([System.IO.Path]::GetTempPath()) "luca-skills-manage-test-$PID"

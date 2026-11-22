@@ -20,5 +20,5 @@ PR-INSTALL-12 — 沒有子命令又沒有終端機、缺代理、未知代理�
 
 ## 驗證
 
-- `scripts/test-manage.sh`：Bash 入口、實際 symlink 與保護行為；互動入口靠測試接縫 `MANAGE_LIB=1` 覆寫 `_is_tty` 模擬終端機。Git Bash 依設計拒絕執行，要在 Linux／macOS／WSL 跑。
-- `scripts/test-manage.ps1`：PowerShell 入口；Windows 上驗證實際 Junction 與保護行為，`MANAGE_TEST_SHELL=powershell.exe` 改以 Windows PowerShell 5.1 驗證。
+- `tests/scripts/test-manage.sh`：Bash 入口、實際 symlink 與保護行為；互動入口靠測試接縫 `MANAGE_LIB=1` 覆寫 `_is_tty` 模擬終端機。Git Bash 依設計拒絕執行，要在 Linux／macOS／WSL 跑。
+- `tests/scripts/test-manage.ps1`：PowerShell 入口；Windows 上驗證實際 Junction 與保護行為，`MANAGE_TEST_SHELL=powershell.exe` 改以 Windows PowerShell 5.1 驗證。

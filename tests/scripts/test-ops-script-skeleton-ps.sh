@@ -3,10 +3,10 @@
 # CLI（powershell -File skeleton.ps1 <args> 的結束碼／輸出／副作用）、LIB（SKELETON_LIB=1 dot-source 後呼叫共用函式）。
 # Windows PowerShell 5.1（powershell.exe）與 PowerShell 7（pwsh）各跑一遍；找不到的就明說略過，不算通過。
 # 片段與輸出比對一律用 ASCII：5.1 對管線輸出用 OEM 碼頁，中文會走樣，不拿來斷言。
-# 執行：bash scripts/test-ops-script-skeleton-ps.sh（scripts/check.sh 會跑）
+# 執行：bash tests/scripts/test-ops-script-skeleton-ps.sh（tests/test-tooling.sh 會跑）
 set -u
 set -o pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 SK="$PWD/skills/draft/ops-script/skeleton.ps1"
 DIR="$PWD/skills/draft/ops-script"
 # 傳給 Windows 版 PowerShell 的路徑要是 Windows 格式

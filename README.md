@@ -186,4 +186,4 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 
 ## 維護
 
-一致性規則由 `bash scripts/check.sh` 強制、hook 與安裝器測試在 `bash scripts/test-tooling.sh`，CI 每次 PR 都跑；規則本身見 [CLAUDE.md](./CLAUDE.md)。
+一致性規則由 `bash scripts/check.sh` 強制、hook 與安裝器測試在 `bash tests/test-tooling.sh`，CI 每次 PR 都跑；規則本身見 [CLAUDE.md](./CLAUDE.md)。

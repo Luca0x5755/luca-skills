@@ -3,7 +3,7 @@
 # HOME 指向暫存目錄，不碰真實的技能目錄。互動入口靠測試接縫 MANAGE_LIB=1 載入後覆寫 _is_tty。
 set -euo pipefail
 
-repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 script="$repo/scripts/manage.sh"
 test_home="$(mktemp -d)"
 trap 'rm -rf "$test_home"' EXIT
