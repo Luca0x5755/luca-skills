@@ -5,12 +5,14 @@
 #/ 子命令：
 #/   hello   示範：挑選並建立目錄
 #/
-#/ hello：挑選用多選器；沒有終端機時要 --pick。
-#/   --pick 名稱,…   依名稱挑選、免互動（例：--pick alpha,gamma）
-#/   --dry-run       只印將執行的指令，什麼都不改
+#/ hello：沒有終端機時要 --pick。
+#/   --pick 名稱[,名稱...]   依名稱挑選、免互動（例：--pick alpha,gamma）
+#/   --dry-run               只印將執行的指令，什麼都不改
 #/
 #/ 選項：
 #/   -h, --help   顯示這份說明
+#/
+#/ 結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤
 #
 # 運維腳本骨架。複製後改名，替換 hello 示範，其餘照結構擴充。
 #   - 子命令表就是上方的 `#/` 行：--help 逐字印出它們，選單與分派解析同一批行。
@@ -28,7 +30,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v6 ----
+# ---- BEGIN ops-lib v7 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -60,9 +62,11 @@ confirm() {
   case "$ans" in [yY] | [yY][eE][sS]) return 0 ;; *) return 1 ;; esac
 }
 
-# require_tty：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# require_tty [怎麼修...]：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# 修法由呼叫端給（點名該補的選項）；不給才用通用句。
 require_tty() {
-  _is_tty 0 || die_with 2 "需要終端機" "改用旗標或參數傳入所需的值，或在終端機中執行"
+  (($#)) || set -- "改用選項或參數傳入所需的值，或在終端機中執行"
+  _is_tty 0 || die_with 2 "需要終端機" "$@"
 }
 
 # ---- 結果回報 ----
@@ -294,7 +298,7 @@ cmd_hello() {
         [[ $# -gt 0 ]] || usage_error "--pick 缺少值" "例：--pick alpha,gamma"
         pick=$1; has_pick=1 ;;
       -h | --help) usage; return 0 ;;
-      *) usage_error "hello 不認得的參數：$1" "可用的選項：--pick、--dry-run" ;;
+      *) usage_error "hello 未知的參數：$1" "可用的選項：--pick、--dry-run" ;;
     esac
     shift
   done
@@ -302,7 +306,7 @@ cmd_hello() {
   if ((has_pick)); then
     picks=$(pick_by_name --pick "$pick" "${HELLO_ITEMS[@]}") || exit $?
   else
-    require_tty
+    require_tty "改用 --pick 指定名稱（例：--pick alpha,gamma），或在終端機中執行"
     picks=$(multiselect "要建立哪些目錄？" "${HELLO_ITEMS[@]}") || die "已取消" "沒有選任何項目，什麼都沒做"
   fi
   step "建立目錄"

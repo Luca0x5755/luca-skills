@@ -117,6 +117,9 @@ check eq "$marked" uninstall "標 [需確認] 的子命令應恰為 uninstall，
 m --help
 check has "$out" '--dry-run    只印將移除的連結' '--help 應仍說明 uninstall 的 --dry-run'
 check has "$out" '-y, --yes    免互動確認' '--help 應仍說明 uninstall 的 -y'
+check has "$out" '結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤' '--help 應寫出結束碼'
+m install --bogus
+check has "$out" 'install 未知的參數：--bogus' '未知參數的訊息應用「未知」'
 
 echo 'install codex links only Codex'
 m install codex

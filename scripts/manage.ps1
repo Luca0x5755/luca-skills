@@ -13,9 +13,6 @@ draft 也連 —— 桶的分界是「對外發佈與否」，不是「本機能
 
   - 不帶參數且有終端機：先選動作（install／uninstall／status），再選代理。
   - 代理名稱（claude、copilot、codex）單獨當子命令，等同 install 該代理，供自動化沿用。
-  - ops-lib 區段逐字複製、不准手改；要改就改 skills/draft/ops-script/skeleton.ps1 並升版號。
-  - 測試接縫：環境變數 MANAGE_LIB=1，只定義函式、不跑主流程。
-  - 本檔必須存成 UTF-8 with BOM（Windows PowerShell 5.1 的 ANSI 碼頁會讀壞非 ASCII）。
   - 結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤。未知的子命令由參數繫結器擋下（-File 下結束碼為 1）。
 
 .PARAMETER Command
@@ -50,6 +47,12 @@ uninstall 免互動確認（無終端機時必須給）。
 檢查 Copilot 的連結狀態；有缺漏、斷鏈、過期或同名衝突時結束碼 1。
 #>
 
+# 上方說明區塊給操作者（-Help 印它），維護者筆記寫在這裡的註解；與 #> 之間的空行不能拿掉，
+# 緊接的註解會被 Get-Help 併進最後一個 .EXAMPLE。
+#   - ops-lib 區段逐字複製、不准手改；要改就改 skills/draft/ops-script/skeleton.ps1 並升版號。
+#   - 測試接縫：環境變數 MANAGE_LIB=1，只定義函式、不跑主流程。
+#   - 本檔必須存成 UTF-8 with BOM（Windows PowerShell 5.1 的 ANSI 碼頁會讀壞非 ASCII）。
+
 # Write-Host 是操作者介面：資料走管線（函式回傳值），畫面走 host。PSAvoidUsingWriteHost 針對的是
 # 「該回傳資料卻印出去」，這裡不是，故抑制並註明理由。
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '',
@@ -80,7 +83,7 @@ if ($MyInvocation.InvocationName -eq '.' -and $env:MANAGE_LIB -ne '1') {
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
-# ---- BEGIN ops-lib v6 ----
+# ---- BEGIN ops-lib v7 ----
 # Write-Host 是操作者介面（選單、提示、步驟、結果）：資料走管線，畫面走 host，兩條路不混。
 # 本檔頂端的 SuppressMessage 抑制 PSAvoidUsingWriteHost，理由寫在那裡。
 
@@ -126,10 +129,12 @@ function Confirm-Ops {
     return ($null -ne $ans) -and ($ans -match '^(y|yes)$')
 }
 
-# Assert-OpsTty：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就結束碼 2。
+# Assert-OpsTty [-Fix]：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就結束碼 2。
+# 修法由呼叫端給（點名該補的參數）；不給才用通用句。
 function Assert-OpsTty {
+    param([string[]]$Fix = @('改用選項或參數傳入所需的值，或在終端機中執行'))
     if (-not (Test-OpsTty -Stream In)) {
-        Stop-OpsScript -Code 2 -Title '需要終端機' -Fix '改用旗標或參數傳入所需的值，或在終端機中執行'
+        Stop-OpsScript -Code 2 -Title '需要終端機' -Fix $Fix
     }
 }
 
@@ -502,7 +507,8 @@ $SubCommands = [ordered]@{
     status    = @{ Desc = '唯讀檢查連結狀態'; Fn = 'Invoke-Status'; Verb = '檢查' }
 }
 
-function Write-Usage { Write-Host ((Get-Help $SelfPath -Full | Out-String).TrimEnd()) }
+# -Detailed：參數說明與範例都印，但不印每個參數的 Required／Position 等欄位
+function Write-Usage { Write-Host ((Get-Help $SelfPath -Detailed | Out-String).TrimEnd()) }
 
 # 用法錯誤：先印用法，再以結束碼 2 收尾。
 function Stop-OpsUsage {

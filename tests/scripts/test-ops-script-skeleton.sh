@@ -47,7 +47,8 @@ expect "無參數時 stdout 為空" "" "$out"
 contains "無參數時 stderr 印用法" "$(cat "$tmp/err")" "用法"
 bash "$SK" --bogus >/dev/null 2>&1 </dev/null; expect "--bogus 回 2" 2 $?
 bash "$SK" nosuchcmd >/dev/null 2>&1 </dev/null; expect "未知子命令回 2" 2 $?
-bash "$SK" hello --bogus >/dev/null 2>&1 </dev/null; expect "hello --bogus 回 2" 2 $?
+out=$(bash "$SK" hello --bogus 2>&1 </dev/null); expect "hello --bogus 回 2" 2 $?
+contains "hello 的未知參數訊息用「未知」" "$out" "hello 未知的參數：--bogus"
 
 echo "[CLI] hello 與 --dry-run"
 d="$tmp/hello-out"
@@ -76,7 +77,7 @@ out=$(SKELETON_LIB=true bash -c 'source "$1"; echo "rc=$?"' _ "$SK" 2>&1 </dev/n
 contains "LIB=true 的 source 仍被擋" "$out" "rc=1"
 
 echo "[CLI] 檔案結構與語法"
-b=$(grep -n '^# ---- BEGIN ops-lib v6 ----$' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v7 ----$' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----$' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN 標記在 END 標記之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in die confirm require_tty select_one pick_one_by_name; do
@@ -110,6 +111,13 @@ out=$(echo n | lib 'confirm "繼續？"' 2>&1); contains "提示含 [y/N]" "$out
 
 echo "[LIB] require_tty 只看 stdin"
 lib 'require_tty' </dev/null >/dev/null 2>&1; expect "stdin 非終端機回 2" 2 $?
+echo "[LIB v7] require_tty 收呼叫端的修法；不給就沿用通用句"
+out=$(lib 'require_tty "改用 --pick alpha"' </dev/null 2>&1); rc=$?
+expect "給修法時仍回 2" 2 "$rc"
+contains "給修法時印出那句修法" "$out" "    改用 --pick alpha"
+case "$out" in *改用選項或參數*) verdict ng "給了修法不該再印通用句" ;; *) verdict ok "給了修法就不印通用句" ;; esac
+out=$(lib 'require_tty' </dev/null 2>&1)
+contains "不給修法時印通用句" "$out" "改用選項或參數傳入所需的值，或在終端機中執行"
 
 echo "[LIB] 顏色開關（覆寫 _is_tty 模擬終端機）"
 esc=$(printf '\033')
@@ -237,6 +245,10 @@ case "$(menu_rows)" in *"[需確認]"*) verdict ng "hello 不需確認，不該�
 out=$(bash "$SK" --help </dev/null 2>/dev/null)
 contains "--help 仍說明 --pick" "$out" "--pick"
 contains "--help 仍說明 --dry-run" "$out" "--dry-run"
+contains "--help 寫出結束碼" "$out" "結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤"
+contains "--help 的可重複值寫成 名稱[,名稱...]" "$out" "--pick 名稱[,名稱...]"
+case "$out" in *…*) verdict ng "--help 的省略號用 ASCII ..." ;; *) verdict ok "--help 沒有 Unicode 省略號" ;; esac
+case "$out" in *多選器*) verdict ng "--help 不該出現內部用語「多選器」" ;; *) verdict ok "--help 沒有內部用語「多選器」" ;; esac
 
 echo "[LIB v2] step 與結果計數"
 out=$(lib 'step 準備' 2>&1 >/dev/null); expect "step 在 stderr 印 == 標題" "== 準備" "$out"
@@ -266,7 +278,8 @@ contains "失敗行出現在 stderr" "$(cat "$tmp/err")" "fail"
 d3="$tmp/pick-dry"
 out=$(HELLO_DIR="$d3" bash "$SK" hello --pick beta --dry-run 2>&1 </dev/null)
 [ ! -e "$d3" ] && verdict ok "--pick 搭配 --dry-run 不建立" || verdict ng "--dry-run 不該建立目錄"
-bash "$SK" hello </dev/null >/dev/null 2>&1; expect "hello 無 --pick 且無終端機回 2" 2 $?
+out=$(bash "$SK" hello </dev/null 2>&1); expect "hello 無 --pick 且無終端機回 2" 2 $?
+contains "hello 無終端機時點名 --pick" "$out" "改用 --pick"
 bash "$SK" hello --pick delta </dev/null >/dev/null 2>&1; expect "--pick 不認得的名稱回 2" 2 $?
 echo "[LIB v2] hello 的選單路徑（覆寫 _is_tty 模擬終端機）"
 d4="$tmp/menu-pick"
@@ -366,7 +379,7 @@ expect "ops-lib 區段外沒有自製的編號提示" "" "$(grep -nE 'printf .*�
 echo "[文件] 版號與維運說明"
 ! grep -q 'nameref\|local -n\|declare -n' "$SK" && verdict ok "骨架未用 nameref（bash 4.3 說明為條件式）" || verdict ng "骨架用了 nameref，需確認 bash 4.3 說明"
 SM="$(dirname "$SK")/SKILL.md"
-contains "SKILL.md 標明 v6" "$(cat "$SM")" "ops-lib v6"
+contains "SKILL.md 標明 v7" "$(cat "$SM")" "ops-lib v7"
 doc=$(cat "$SM" "$(dirname "$SK")"/*.md 2>/dev/null)
 contains "維護規則：兩個版號即有一支沒同步" "$doc" "two different version numbers"
 contains "陷阱：read 讀到輸入結尾" "$doc" "read -r x ||"

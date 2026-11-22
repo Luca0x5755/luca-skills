@@ -286,6 +286,11 @@ try {
   $helpText = (Invoke-Manage -Arguments @('-Help')).Output -join "`n"
   # 比對手寫的說明句：Get-Help 的語法段會自動產生 [-Yes] [-WhatIf]，只找旗標名會恆真
   Assert-That ($helpText -match '支援 -WhatIf，無終端機時要 -Yes') '-Help no longer explains -WhatIf and -Yes for uninstall'
+  # -Help 只給操作者：維護者筆記（ops-lib 同步、測試接縫、BOM）留在 # 註解
+  foreach ($word in 'ops-lib', '_LIB', 'BOM') {
+    Assert-That (-not $helpText.Contains($word)) "-Help shows the maintainer note '$word'"
+  }
+  Assert-That ($helpText.Contains('結束碼：0 完成')) '-Help does not state the exit codes'
 
   Write-Host 'end of input cancels the menu and the agent prompt'
   Reset-Home

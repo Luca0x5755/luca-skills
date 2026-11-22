@@ -20,6 +20,8 @@
 #/
 #/ 選項：
 #/   -h, --help   顯示這份說明
+#/
+#/ 結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤
 #
 # draft 也連 —— 桶的分界是「對外發佈與否」，不是「本機能不能用」。
 # 沒辦法在本機叫起來的 draft，等於沒辦法被試用，等於永遠畢不了業。archive 不連。
@@ -41,7 +43,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v6 ----
+# ---- BEGIN ops-lib v7 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -73,9 +75,11 @@ confirm() {
   case "$ans" in [yY] | [yY][eE][sS]) return 0 ;; *) return 1 ;; esac
 }
 
-# require_tty：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# require_tty [怎麼修...]：只看 stdin。缺值要詢問的路徑先過這關，沒有終端機就 exit 2。
+# 修法由呼叫端給（點名該補的選項）；不給才用通用句。
 require_tty() {
-  _is_tty 0 || die_with 2 "需要終端機" "改用旗標或參數傳入所需的值，或在終端機中執行"
+  (($#)) || set -- "改用選項或參數傳入所需的值，或在終端機中執行"
+  _is_tty 0 || die_with 2 "需要終端機" "$@"
 }
 
 # ---- 結果回報 ----
@@ -439,7 +443,7 @@ parse_agent_args() {
         case " $allowed " in *" dry "*) DRY=1 ;; *) usage_error "$name 不支援 --dry-run" "用 --help 查看用法" ;; esac ;;
       -y | --yes)
         case " $allowed " in *" yes "*) YES=1 ;; *) usage_error "$name 不支援 $arg" "用 --help 查看用法" ;; esac ;;
-      *) usage_error "$name 不認得的參數：$arg" "代理只能是 ${AGENT_NAMES[*]}；選項見 --help" ;;
+      *) usage_error "$name 未知的參數：$arg" "代理只能是 ${AGENT_NAMES[*]}；選項見 --help" ;;
     esac
   done
 }

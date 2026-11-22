@@ -9,7 +9,7 @@ An **ops script** stays in the repo and gets run again and again by an operator 
 
 Not this skill: a script run once and thrown away, walking a human through a manual procedure — that is `/wizard`.
 
-Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v6 ----` and `# ---- END ops-lib ----` is **one verbatim unit**, never hand-edited. Where it lives follows whether the script must run alone:
+Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v7 ----` and `# ---- END ops-lib ----` is **one verbatim unit**, never hand-edited. Where it lives follows whether the script must run alone:
 
 - **Must run alone** (single-file download, `scp`, a USB stick): the block sits inline in the script.
 - **Already needs repo files** (compose files, `.env`, migrations, the repo it links): the block may live as `scripts/lib/ops-lib.sh`, holding the block and nothing else, and each script sources it. Project-specific helpers go in a separate file. Check the file exists before sourcing and say what is missing.
@@ -40,7 +40,7 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 
 **Exit codes.** `0` done, `1` failed or the operator cancelled, `2` usage error (S). A cancel that returns `0` tells the calling script the action happened. Check-style subcommands report the check result through the exit code.
 
-**No terminal.** Look at stdin only (S, `require_tty`).
+**No terminal.** Look at stdin only (S, `require_tty`). Pass `require_tty` the fix that names the missing option (`require_tty "改用 --pick 指定名稱，或在終端機中執行"`); its generic sentence is a fallback, and an operator told only "pass a value" cannot act on it.
 
 - `--help` is never blocked by any check.
 - No subcommand and no terminal: print usage, exit `2` (S). A default is never run silently.
@@ -50,7 +50,9 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 **Arguments and help.**
 
 - An unknown argument exits `2` (S).
-- `--help` prints only the `#/` lines at the top of the file (S).
+- `--help` prints only the `#/` lines at the top of the file (S). It is for the operator; notes for whoever edits the script go in plain `#` comments. It ends with the exit codes (S).
+- Help syntax: `[ ]` marks optional, `...` (ASCII, never `…`) marks repeatable, as in `--pick 名稱[,名稱...]`; placeholders stay in the message language.
+- Message words: an option is an argument starting with `-`; an argument is anything on the command line, so a catch-all that also sees positional values says 參數. An unrecognised one is 未知, never 不認得. Operator messages do not say 旗標.
 - One table drives the menu, the `--help` list and the dispatch (S): the table is the `#/` subcommand rows, and a row `x-y` dispatches to `cmd_x_y`. Adding a subcommand is one row plus one function.
 - A menu row answers two questions only: what the subcommand does, as verb + object, and whether it stops to ask. Flags, caveats and exit-code meaning go to `--help` (S). In bash that is a per-subcommand group in the `#/` header: a `#/ <name>：caveat` line, then one `#/   -flag  meaning` line per flag — every indented line inside a group starts with `-`, because a `#/` line of three spaces and a lowercase word is a table row. In PowerShell it is `.PARAMETER`; a common parameter such as `-WhatIf` has no `.PARAMETER` of its own, so note it under `.PARAMETER Command` as `<name>：…`. Number, name and description fit in 80 columns, a CJK character counting as two. The operator scans the rows to pick one; every extra clause is read on every run.
 - A subcommand that goes through `confirm`, or needs `-y` unattended, carries the confirm marker (`[需確認]`, in the project's message language) between its name and its description; a subcommand without a confirmation never carries it. In bash the marker opens the `#/` description; in PowerShell the row gets `Confirm = $true`. When any row has the marker, the menu pads the others to the same width so descriptions line up, and a table with none gets no marker column (S, `CONFIRM_MARK`/`CONFIRM_PAD` — change both together when translating). Pad the `#/` rows by hand too, so `--help` lines up. The marker and the confirmation change together, and the script's tests pin the set of marked subcommands.

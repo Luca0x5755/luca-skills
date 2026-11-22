@@ -64,9 +64,9 @@ if [ ${#shells[@]} -eq 0 ]; then echo "- 兩種 PowerShell 都沒有，整份略
 echo "[STATIC] 檔案本身（與 shell 無關）"
 [ -f "$SK" ] && verdict ok "skeleton.ps1 存在" || { verdict ng "skeleton.ps1 不存在"; exit 1; }
 expect "前 3 byte 為 EF BB BF" "efbbbf" "$(head -c 3 "$SK" | od -An -tx1 | tr -d ' \n')"
-b=$(grep -n '^# ---- BEGIN ops-lib v6 ----' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v7 ----' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----' "$SK" | cut -d: -f1)
-[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v6 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
+[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v7 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Write-OpsStep \
   Write-OpsPass Write-OpsFail Write-OpsWarn Write-OpsSkip Write-OpsSummary Complete-OpsRun \
   Select-OpsMulti Resolve-OpsPick Select-OpsOne Resolve-OpsPickOne Invoke-OpsRun; do
@@ -135,6 +135,12 @@ for PS in "${shells[@]}"; do
   contains "-Help 印出說明" "$OUT" "hello"
   cli $nul bogus; [ "$RC" -ne 0 ] && verdict ok "未知子命令非 0（binder 擋下，退出碼 $RC）" || verdict ng "未知子命令不該回 0"
   cli $nul hello; expect "hello 無 -Pick 且無終端機回 2" 2 "$RC"
+  contains "hello 無終端機時點名 -Pick" "$OUT" "-Pick alpha,gamma"
+  # -Help 只給操作者：維護者筆記（ops-lib 同步、測試接縫、BOM）留在 # 註解
+  cli $nul -Help
+  for w in ops-lib _LIB BOM; do
+    case "$OUT" in *"$w"*) verdict ng "-Help 不該出現維護者筆記「$w」" ;; *) verdict ok "-Help 沒有維護者筆記「$w」" ;; esac
+  done
   for v in "," "" "1" "Alpha" "alph" "alpha beta" "alpha,x" "alpha,,beta" "alpha," "*"; do
     cli $nul hello -Pick "$v"; expect "-Pick「$v」回 2" 2 "$RC"
   done
@@ -304,6 +310,16 @@ for PS in "${shells[@]}"; do
   out=$(host_text '' '$env:RAW = "alpha,gamma"; Resolve-OpsPickOne -Flag "-Target" -Raw $env:RAW -Items "alpha","beta","gamma"')
   contains "兩個名稱時說明只能選一個" "$out" "-Target 只能選一個"
   RAW='delta' librc 'Resolve-OpsPickOne -Flag "-Target" -Raw $env:RAW -Items "alpha","beta","gamma"' </dev/null; expect "不認得的名稱結束碼 2" 2 $?
+
+  echo "[LIB v7] Assert-OpsTty 收呼叫端的修法；不給就沿用通用句"
+  librc 'Assert-OpsTty -Fix "FIXX"' </dev/null; expect "給修法時仍回 2" 2 $?
+  out=$(host_text '' 'Assert-OpsTty -Fix "改用 -Pick alpha"')
+  contains "給修法時印出那句修法" "$out" "    改用 -Pick alpha"
+  case "$out" in *改用選項或參數*) verdict ng "給了修法不該再印通用句" ;; *) verdict ok "給了修法就不印通用句" ;; esac
+  out=$(host_text '' 'Assert-OpsTty')
+  contains "不給修法時印通用句" "$out" "改用選項或參數傳入所需的值，或在終端機中執行"
+  out=$(host_text '' 'Write-Usage')
+  contains "-Help 寫出結束碼" "$out" "結束碼：0 完成、1 失敗或操作者取消、2 用法錯誤"
 
   echo "[LIB v6] 子命令選單就是一次 Select-OpsOne"
   out=$(host_text 'q\n' 'Invoke-OpsMenu')
