@@ -263,7 +263,10 @@ try {
   Assert-That ($result.ExitCode -ne 0) 'an unknown subcommand was accepted'
 
   Write-Host 'menu rows say what and whether it asks; flag details stay in -Help'
-  $menu = @((Invoke-Manage -Tty -StandardInput '').Output | Where-Object { $_ -match '^\s+\d+\) ' })
+  $screen = @((Invoke-Manage -Tty -StandardInput '').Output)
+  $menu = @($screen | Where-Object { $_ -match '^\s+\d+\) ' })
+  Assert-That (@($screen -like '*要做什麼？（q 取消）*').Count -eq 1) "the menu has no title line: $($screen -join ' | ')"
+  Assert-That (@($screen -like '*選擇編號*').Count -eq 0) 'the menu still prints its own number prompt'
   Assert-That ($menu.Count -eq 3) "expected 3 menu rows, got $($menu.Count)"
   # 顯示寬度近似值：非 ASCII 字元算 2 欄
   function Get-DisplayWidth { param([string]$Text) [int]($Text.ToCharArray() | ForEach-Object { if ([int]$_ -gt 127) { 2 } else { 1 } } | Measure-Object -Sum).Sum }

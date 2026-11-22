@@ -54,7 +54,7 @@ if ($MyInvocation.InvocationName -eq '.' -and $env:SKELETON_LIB -ne '1') {
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
-# ---- BEGIN ops-lib v5 ----
+# ---- BEGIN ops-lib v6 ----
 # Write-Host 是操作者介面（選單、提示、步驟、結果）：資料走管線，畫面走 host，兩條路不混。
 # 本檔頂端的 SuppressMessage 抑制 PSAvoidUsingWriteHost，理由寫在那裡。
 
@@ -194,6 +194,27 @@ function Select-OpsMulti {
     for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
 }
 
+# ---- 單選器 ----
+# Select-OpsOne -Title -Items：畫面與提示走 host；輸入有效編號即選定，管線輸出該編號（1 起算）。
+# Enter、q 或讀到 EOF 什麼都不輸出；越界或看不懂的輸入說明後重問（只讀一個值，忽略它等於沒反應）。
+function Select-OpsOne {
+    param([Parameter(Mandatory)][string]$Title, [Parameter(Mandatory)][string[]]$Items)
+    $w = "$($Items.Count)".Length
+    while ($true) {
+        Write-Host "$Title（q 取消）"
+        for ($i = 0; $i -lt $Items.Count; $i++) {
+            Write-Host ('  {0}) {1}' -f "$($i + 1)".PadLeft($w), $Items[$i])
+        }
+        Write-Host '輸入編號：' -NoNewline
+        $line = [Console]::In.ReadLine()
+        if ($null -eq $line) { return }
+        $line = $line.Trim()
+        if ($line -eq '' -or $line -eq 'q') { return }  # -eq 不分大小寫，Q 也算
+        if ($line -match '^[0-9]{1,6}$' -and [int]$line -ge 1 -and [int]$line -le $Items.Count) { return [int]$line }
+        Write-Host "無效的選項：$line"
+    }
+}
+
 # Resolve-OpsPick -Flag -Raw -Items：無人值守時的挑選。Raw 是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
 # 輸出與 Select-OpsMulti 相同（管線輸出每個編號、1 起算、遞增、不重複），呼叫端兩條路共用同一段收尾。
 # 收名稱不收編號：編號跟著清單順序走，清單一改，排程裡的編號就指到別的項目。
@@ -214,6 +235,16 @@ function Resolve-OpsPick {
         $sel[$i] = $true
     }
     for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
+}
+
+# Resolve-OpsPickOne -Flag -Raw -Items：Resolve-OpsPick 的單選版，Select-OpsOne 的無人值守路徑；給了不只一個名稱就以結束碼 2 結束。
+function Resolve-OpsPickOne {
+    param([Parameter(Mandatory)][string]$Flag, [string[]]$Raw, [Parameter(Mandatory)][string[]]$Items)
+    $picks = @(Resolve-OpsPick -Flag $Flag -Raw $Raw -Items $Items)
+    if ($picks.Count -gt 1) {
+        Stop-OpsScript -Code 2 -Title "$Flag 只能選一個：$($Raw -join ',')" -Fix '只給一個名稱，不要用逗號列出多個'
+    }
+    $picks
 }
 # ---- END ops-lib ----
 
@@ -251,27 +282,16 @@ function Format-OpsMenuDesc {
     $Pad + $Row.Desc
 }
 
-# 選單：選了就先印等價指令再執行；取消結束碼 1。
+# 選單：子命令選單就是一次 Select-OpsOne；選了就先印等價指令再執行，取消結束碼 1。
 function Invoke-OpsMenu {
     $names = @($SubCommands.Keys)
-    $w = "$($names.Count)".Length
     $pad = if (@($SubCommands.Values | Where-Object { $_['Confirm'] }).Count) { $ConfirmPad } else { '' }
-    while ($true) {
-        for ($i = 0; $i -lt $names.Count; $i++) {
-            $desc = Format-OpsMenuDesc $SubCommands[$names[$i]] $pad
-            Write-Host ('  {0}) {1,-10} {2}' -f "$($i + 1)".PadLeft($w), $names[$i], $desc)
-        }
-        Write-Host '選擇編號（q 取消）：' -NoNewline
-        $choice = [Console]::In.ReadLine()
-        if ($null -eq $choice -or $choice -eq '' -or $choice -eq 'q') { exit 1 }
-        if ($choice -match '^[1-9][0-9]*$' -and [int]$choice -le $names.Count) {
-            $name = $names[[int]$choice - 1]
-            Write-Host "-> $ScriptName $name"
-            Invoke-OpsCommand $name
-            return
-        }
-        Write-Host "無效的選項：$choice"
-    }
+    $items = @($names | ForEach-Object { '{0,-10} {1}' -f $_, (Format-OpsMenuDesc $SubCommands[$_] $pad) })
+    $idx = @(Select-OpsOne -Title '要做什麼？' -Items $items)
+    if ($idx.Count -eq 0) { exit 1 }
+    $name = $names[$idx[0] - 1]
+    Write-Host "-> $ScriptName $name"
+    Invoke-OpsCommand $name
 }
 
 # hello 的項目：示範多選器與結果總表，換成腳本真正的選項。

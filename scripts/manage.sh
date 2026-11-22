@@ -41,7 +41,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v5 ----
+# ---- BEGIN ops-lib v6 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -168,6 +168,30 @@ multiselect() {
   ((picked)) || return 1
 }
 
+# ---- 單選器 ----
+# select_one 標題 項目...：畫面與提示走 stderr；輸入有效編號即選定，stdout 印該編號（1 起算）、回傳 0。
+# Enter、q 或讀到 EOF 回傳 1、stdout 無輸出；越界或看不懂的輸入說明後重問（只讀一個值，忽略它等於沒反應）。
+select_one() {
+  local title=$1 line="" i n w
+  shift
+  local items=("$@")
+  n=${#items[@]}
+  w=${#n}
+  while true; do
+    printf '%s（q 取消）\n' "$title" >&2
+    for ((i = 0; i < n; i++)); do printf '  %*d) %s\n' "$w" "$((i + 1))" "${items[i]}" >&2; done
+    printf '輸入編號：' >&2
+    # 不設 IFS=：讓 read 去掉前後空白，「 3 」照樣選得到。
+    read -r line || return 1
+    case "$line" in "" | [qQ]) return 1 ;; esac
+    if [[ "$line" =~ ^[0-9]{1,6}$ ]] && ((10#$line >= 1 && 10#$line <= n)); then
+      printf '%d\n' "$((10#$line))"
+      return 0
+    fi
+    printf '無效的選項：%s\n' "$line" >&2
+  done
+}
+
 # pick_by_name 旗標 值 項目...：無人值守時的挑選。值是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
 # 輸出與 multiselect 相同（stdout 每行一個編號、1 起算、遞增、不重複），呼叫端兩條路共用同一段收尾。
 # 收名稱不收編號：編號跟著清單順序走，清單一改，排程裡的編號就指到別的項目。
@@ -192,6 +216,14 @@ pick_by_name() {
   for i in "${!items[@]}"; do
     if ((sel[i])); then printf '%d\n' "$((i + 1))"; fi
   done
+}
+
+# pick_one_by_name 旗標 值 項目...：pick_by_name 的單選版，select_one 的無人值守路徑；給了不只一個名稱就以結束碼 2 結束。
+pick_one_by_name() {
+  local flag=$1 picks
+  picks=$(pick_by_name "$@") || exit "$?"
+  [[ "$picks" != *$'\n'* ]] || die_with 2 "$flag 只能選一個：$2" "只給一個名稱，不要用逗號列出多個"
+  printf '%s\n' "$picks"
 }
 # ---- END ops-lib ----
 
@@ -222,37 +254,25 @@ confirm_pad() {
   done < <(table_rows)
 }
 
-print_menu() {
-  local i=0 name w desc pad
-  w=$(table_rows | wc -l | tr -d " ")
-  w=${#w}
+# menu_items：選單的項目，每列「名稱 需確認欄 描述」，依子命令表順序；編號由 select_one 加上。
+menu_items() {
+  local name desc pad
   pad=$(confirm_pad)
   while IFS= read -r name; do
-    i=$((i + 1))
     desc=$(table_desc "$name")
     [[ "$desc" == "$CONFIRM_MARK"* ]] || desc="$pad$desc"
-    printf '  %*d) %-10s %s\n' "$w" "$i" "$name" "$desc"
+    printf '%-10s %s\n' "$name" "$desc"
   done < <(table_rows)
 }
 
-# run_menu：先選動作；代理在動作裡再選，等價指令在選完代理後印（FROM_MENU）。取消 exit 1。
+# run_menu：先選動作（一次 select_one）；代理在動作裡再選，等價指令在選完代理後印（FROM_MENU）。取消 exit 1。
 # 取消直接 exit、呼叫端不以 `||` 接它：函式在 `||` 左側時 errexit 失效，子命令失敗會被吞掉。
 run_menu() {
-  local choice name
+  local idx items=()
   FROM_MENU=1
-  while true; do
-    print_menu
-    printf '選擇編號（q 取消）：' >&2
-    read -r choice || exit 1
-    case "$choice" in "" | q) exit 1 ;; esac
-    name=""
-    [[ "$choice" =~ ^[1-9][0-9]*$ ]] && name=$(table_rows | sed -n "${choice}p")
-    if [[ -n "$name" ]]; then
-      run_command "$name"
-      return
-    fi
-    printf '無效的選項：%s\n' "$choice" >&2
-  done
+  mapfile -t items < <(menu_items)
+  idx=$(select_one "要做什麼？" "${items[@]}") || exit 1
+  run_command "$(table_rows | sed -n "${idx}p")"
 }
 
 run_command() {

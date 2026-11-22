@@ -63,12 +63,12 @@ if [ ${#shells[@]} -eq 0 ]; then echo "- 兩種 PowerShell 都沒有，整份略
 echo "[STATIC] 檔案本身（與 shell 無關）"
 [ -f "$SK" ] && verdict ok "skeleton.ps1 存在" || { verdict ng "skeleton.ps1 不存在"; exit 1; }
 expect "前 3 byte 為 EF BB BF" "efbbbf" "$(head -c 3 "$SK" | od -An -tx1 | tr -d ' \n')"
-b=$(grep -n '^# ---- BEGIN ops-lib v5 ----' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v6 ----' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----' "$SK" | cut -d: -f1)
-[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v4 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
+[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v6 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Write-OpsStep \
   Write-OpsPass Write-OpsFail Write-OpsWarn Write-OpsSkip Write-OpsSummary Complete-OpsRun \
-  Select-OpsMulti Resolve-OpsPick Invoke-OpsRun; do
+  Select-OpsMulti Resolve-OpsPick Select-OpsOne Resolve-OpsPickOne Invoke-OpsRun; do
   l=$(grep -n "^function $fn " "$SK" | cut -d: -f1)
   [ -n "$l" ] && [ -n "$b" ] && [ -n "$e" ] && [ "$l" -gt "$b" ] && [ "$l" -lt "$e" ] \
     && verdict ok "$fn 定義在標記之間" || verdict ng "$fn 沒定義在 ops-lib 標記之間"
@@ -94,6 +94,8 @@ contains "預設 No 的理由" "$doc" "default No"
 contains "內建確認按 Enter 即執行" "$doc" "Enter"
 contains "同時支援 PowerShell 7" "$doc" "PowerShell 7"
 contains "SKILL.md 指向 POWERSHELL.md" "$(cat "$DIR/SKILL.md")" "(POWERSHELL.md)"
+contains "單選走 Select-OpsOne" "$doc" "Select-OpsOne"
+contains "單選的無人值守走 Resolve-OpsPickOne" "$doc" "Resolve-OpsPickOne"
 [ "$(wc -l <"$DIR/SKILL.md")" -le 150 ] && verdict ok "SKILL.md 不超過 150 行" || verdict ng "SKILL.md 超過 150 行"
 
 for PS in "${shells[@]}"; do
@@ -256,6 +258,60 @@ for PS in "${shells[@]}"; do
   out=$(printf 'q\n' | lib 'Invoke-OpsMenu')
   contains "選單 1 列時編號不補空白" "$out" "  1) hello"
 
+  # 中文經 5.1 管線會走樣：覆寫 Write-Host，把畫面以 UTF-8 寫進檔案再檢查（-NoNewline 的提示不換行）
+  hf="$tmp/host-$ver.txt"
+  # host_text <stdin 內容> <片段>：跑片段，印出抓到的 host 畫面
+  host_text() {
+    rm -f "$hf"
+    printf "$1" | HF="$TMPW/host-$ver.txt" lib "function Write-Host { param(\$Object, [switch]\$NoNewline) \$t = if (\$NoNewline) { \"\$Object\" } else { \"\$Object\`n\" }; [IO.File]::AppendAllText(\$env:HF, \$t, [Text.UTF8Encoding]::new(\$false)) }; $2" >/dev/null
+    cat "$hf" 2>/dev/null
+  }
+
+  echo "[LIB v6] Select-OpsOne（輸入有效編號即選定；Enter、q、EOF 取消；無效輸入說明後重問）"
+  so() {  # so <輸入>：SO_OUT 為選取結果
+    SO_OUT=$(printf '%b' "$1" | lib '"RESULT=" + ((@(Select-OpsOne -Title T -Items "item1","item2","item3")) -join ",")' | sed -n 's/.*RESULT=//p' | tail -1)
+  }
+  so '2\n'; expect "輸入 2 選中 2" "2" "$SO_OUT"
+  so ' 3 \n'; expect "前後空白不影響" "3" "$SO_OUT"
+  so '02\n'; expect "前導 0 照十進位算" "2" "$SO_OUT"
+  for a in "" q Q; do
+    so "$a\n"; expect "輸入「$a」取消：無輸出" "" "$SO_OUT"
+  done
+  so ''; expect "EOF 取消：無輸出" "" "$SO_OUT"
+  so '0\n2\n'; expect "越界之後重問、再選 2" "2" "$SO_OUT"
+  so '4\n\n'; expect "超過項目數不選、Enter 取消" "" "$SO_OUT"
+  so '1 2\n\n'; expect "一次給兩個編號不算選定" "" "$SO_OUT"
+  out=$(printf '1\n' | lib '$r = @(Select-OpsOne -Title TITLEX -Items "a","b"); "COUNT=" + $r.Count')
+  expect "標題不污染回傳值：Count 為 1" "1" "$(sed -n 's/.*COUNT=//p' <<<"$out" | tail -1)"
+  out=$(host_text '0\nx\n\n' '$r = @(Select-OpsOne -Title "標題" -Items "a","b")')
+  contains "標題行帶取消說明" "$out" "標題（q 取消）"
+  contains "清單列沒有勾選框" "$out" "  1) a"
+  contains "輸入行是「輸入編號：」" "$out" "輸入編號："
+  contains "越界時說明" "$out" "無效的選項：0"
+  contains "看不懂的輸入說明" "$out" "無效的選項：x"
+  expect "重問時重畫標題" 3 "$(grep -o '標題（q 取消）' <<<"$out" | wc -l | tr -d ' ')"
+  out=$(printf '\n' | lib '$r = @(Select-OpsOne -Title T -Items (1..10 | ForEach-Object { "item$_" }))')
+  contains "10 項時 9 號補一格空白" "$out" "   9) item9"
+
+  echo "[LIB v6] Resolve-OpsPickOne（Resolve-OpsPick 的單選版）"
+  rp1() {  # rp1 <值>：RP1_OUT 為回傳的編號
+    RP1_OUT=$(RAW="$1" lib '"RESULT=" + ((@(Resolve-OpsPickOne -Flag "-Target" -Raw $env:RAW -Items "alpha","beta","gamma")) -join ",")' </dev/null | sed -n 's/.*RESULT=//p' | tail -1)
+  }
+  rp1 beta; expect "beta 選中 2" "2" "$RP1_OUT"
+  RAW='alpha,gamma' librc 'Resolve-OpsPickOne -Flag "-Target" -Raw $env:RAW -Items "alpha","beta","gamma"' </dev/null; expect "兩個名稱結束碼 2" 2 $?
+  rp1 'alpha,gamma'; expect "兩個名稱時無輸出" "" "$RP1_OUT"
+  out=$(host_text '' '$env:RAW = "alpha,gamma"; Resolve-OpsPickOne -Flag "-Target" -Raw $env:RAW -Items "alpha","beta","gamma"')
+  contains "兩個名稱時說明只能選一個" "$out" "-Target 只能選一個"
+  RAW='delta' librc 'Resolve-OpsPickOne -Flag "-Target" -Raw $env:RAW -Items "alpha","beta","gamma"' </dev/null; expect "不認得的名稱結束碼 2" 2 $?
+
+  echo "[LIB v6] 子命令選單就是一次 Select-OpsOne"
+  out=$(host_text 'q\n' 'Invoke-OpsMenu')
+  contains "選單有標題行「要做什麼？（q 取消）」" "$out" "要做什麼？（q 取消）"
+  contains "選單的輸入行是「輸入編號：」" "$out" "輸入編號："
+  case "$out" in *選擇編號*) verdict ng "選單不該再印「選擇編號」" ;; *) verdict ok "選單不再印「選擇編號」" ;; esac
+  out=$(host_text '9\nq\n' 'Invoke-OpsMenu')
+  contains "選單輸入越界編號說明後重問" "$out" "無效的選項：9"
+
   echo "[LIB] 選單行只答「做什麼、要不要確認」：無旗標、80 欄內；旗標細節留在 -Help"
   # 中文經 5.1 管線會走樣：覆寫 Write-Host，把選單行以 UTF-8 寫進檔案再檢查
   mf="$tmp/menu-lines-$ver.txt"
@@ -263,7 +319,8 @@ for PS in "${shells[@]}"; do
   menu_lines() {
     rm -f "$mf"
     printf 'q\n' | MF="$TMPW/menu-lines-$ver.txt" lib "function Write-Host { param(\$Object, [switch]\$NoNewline) if (-not \$NoNewline) { [IO.File]::AppendAllText(\$env:MF, \"\$Object\`n\", [Text.UTF8Encoding]::new(\$false)) } }; ${1:-}; Invoke-OpsMenu" >/dev/null
-    cat "$mf" 2>/dev/null
+    # 只留清單列：標題行不是選單行
+    grep -E '^ +[0-9]+\) ' "$mf" 2>/dev/null
   }
   check_menu_lines "$(menu_lines)"
   case "$(menu_lines)" in *"[需確認]"*) verdict ng "hello 不需確認，不該標 [需確認]" ;; *) verdict ok "hello 沒有標 [需確認]" ;; esac
