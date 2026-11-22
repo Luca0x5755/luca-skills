@@ -14,17 +14,17 @@
 子命令。不給且有終端機時進入選單；不給且沒有終端機時印用法並結束碼 2。
 
 .PARAMETER Pick
-hello 的挑選：-Pick 1,3 免互動。
+hello 的挑選：-Pick alpha,gamma 依名稱免互動。
 
 .PARAMETER Help
 顯示這份說明。
 
 .EXAMPLE
-./skeleton.ps1 hello -Pick 1,3
-建立第 1、3 個目錄，免互動。
+./skeleton.ps1 hello -Pick alpha,gamma
+建立 alpha、gamma 兩個目錄，免互動。
 
 .EXAMPLE
-./skeleton.ps1 hello -Pick 2 -WhatIf
+./skeleton.ps1 hello -Pick beta -WhatIf
 只印將執行的指令，什麼都不改。
 #>
 # Write-Host 是操作者介面：資料走管線（函式回傳值），畫面走 host。PSAvoidUsingWriteHost 針對的是
@@ -53,7 +53,7 @@ if ($MyInvocation.InvocationName -eq '.' -and $env:SKELETON_LIB -ne '1') {
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
-# ---- BEGIN ops-lib v2 ----
+# ---- BEGIN ops-lib v3 ----
 # Write-Host 是操作者介面（選單、提示、步驟、結果）：資料走管線，畫面走 host，兩條路不混。
 # 本檔頂端的 SuppressMessage 抑制 PSAvoidUsingWriteHost，理由寫在那裡。
 
@@ -190,6 +190,28 @@ function Select-OpsMulti {
     }
     for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
 }
+
+# Resolve-OpsPick -Flag -Raw -Items：無人值守時的挑選。Raw 是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
+# 輸出與 Select-OpsMulti 相同（管線輸出每個編號、1 起算、遞增、不重複），呼叫端兩條路共用同一段收尾。
+# 收名稱不收編號：編號跟著清單順序走，清單一改，排程裡的編號就指到別的項目。
+# 空值或任何一個不認得的名稱都以結束碼 2 結束，訊息列出可用的名稱。
+function Resolve-OpsPick {
+    param([Parameter(Mandatory)][string]$Flag, [string[]]$Raw, [Parameter(Mandatory)][string[]]$Items)
+    $hint = "可用的名稱（逗號分隔）：$($Items -join ',')"
+    $vals = @($Raw | ForEach-Object { $_ -split ',' })
+    if ($vals.Count -eq 0) { Stop-OpsScript -Code 2 -Title "$Flag 沒有值" -Fix $hint }
+    $sel = New-Object 'bool[]' $Items.Count
+    foreach ($v in $vals) {
+        # IndexOf 用字串的 Equals：序數比對、分大小寫；-eq／-contains 不分大小寫，不能用。
+        $i = [Array]::IndexOf($Items, $v)
+        if ($i -lt 0) {
+            $shown = if ($v) { $v } else { '（空）' }
+            Stop-OpsScript -Code 2 -Title "$Flag 的值無效：$shown" -Fix $hint
+        }
+        $sel[$i] = $true
+    }
+    for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
+}
 # ---- END ops-lib ----
 
 $SelfPath = $PSCommandPath
@@ -197,7 +219,7 @@ $ScriptName = Split-Path -Leaf $SelfPath
 
 # 子命令表：選單與分派都讀它。Fn 是處理函式；新增子命令 = 加一列 + 一個函式 + ValidateSet 補一個值。
 $SubCommands = [ordered]@{
-    hello = @{ Desc = '示範：用多選器挑要建立的目錄（-Pick 1,3 免互動；支援 -WhatIf）'; Fn = 'Invoke-Hello' }
+    hello = @{ Desc = '示範：用多選器挑要建立的目錄（-Pick alpha,gamma 依名稱免互動；支援 -WhatIf）'; Fn = 'Invoke-Hello' }
 }
 
 function Write-Usage { Write-Host ((Get-Help $SelfPath -Full | Out-String).TrimEnd()) }
@@ -242,23 +264,10 @@ $HelloItems = @('alpha', 'beta', 'gamma')
 $script:HasPick = $false
 $script:BoundPick = @()
 
-# 把 -Pick 的值轉成編號陣列；任何一個無效就結束碼 2。逗號切詞，空值（含 ,）一律當無效。
-function Get-HelloPicks {
-    param([string[]]$Raw)
-    $vals = @($Raw | ForEach-Object { $_ -split ',' })
-    if ($vals.Count -eq 0) { Stop-OpsUsage '-Pick 沒有值' '例：-Pick 1,3' }
-    foreach ($v in $vals) {
-        if ($v -notmatch '^[0-9]{1,6}$' -or [int]$v -lt 1 -or [int]$v -gt $HelloItems.Count) {
-            Stop-OpsUsage "-Pick 的值無效：$v" "請給 1 到 $($HelloItems.Count) 之間的編號，逗號分隔（例：-Pick 1,3）"
-        }
-        [int]$v
-    }
-}
-
 function Invoke-Hello {
     $dir = if ($env:HELLO_DIR) { $env:HELLO_DIR } else { './hello-out' }
     if ($script:HasPick) {
-        $picks = @(Get-HelloPicks $script:BoundPick)
+        $picks = @(Resolve-OpsPick -Flag '-Pick' -Raw $script:BoundPick -Items $HelloItems)
     } else {
         Assert-OpsTty
         $picks = @(Select-OpsMulti -Title '要建立哪些目錄？' -Items $HelloItems)

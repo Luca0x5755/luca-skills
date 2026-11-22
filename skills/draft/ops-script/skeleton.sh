@@ -3,7 +3,7 @@
 #/ 不帶參數且有終端機時進入選單；帶子命令時直接執行（可供排程與其他腳本呼叫）。
 #/
 #/ 子命令：
-#/   hello   示範：用多選器挑要建立的目錄（--pick 1,3 免互動；支援 --dry-run，只印將執行的指令）
+#/   hello   示範：用多選器挑要建立的目錄（--pick alpha,gamma 依名稱免互動；支援 --dry-run，只印將執行的指令）
 #/
 #/ 選項：
 #/   -h, --help   顯示這份說明
@@ -24,7 +24,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v2 ----
+# ---- BEGIN ops-lib v3 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -148,6 +148,32 @@ multiselect() {
   done
   ((picked)) || return 1
 }
+
+# pick_by_name 旗標 值 項目...：無人值守時的挑選。值是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
+# 輸出與 multiselect 相同（stdout 每行一個編號、1 起算、遞增、不重複），呼叫端兩條路共用同一段收尾。
+# 收名稱不收編號：編號跟著清單順序走，清單一改，排程裡的編號就指到別的項目。
+# 空值或任何一個不認得的名稱都以結束碼 2 結束，訊息列出可用的名稱。
+pick_by_name() {
+  local flag=$1 raw=$2 v i hit hint vals=() sel=()
+  shift 2
+  local items=("$@")
+  hint="可用的名稱（逗號分隔）：$(IFS=,; printf '%s' "${items[*]}")"
+  for i in "${!items[@]}"; do sel+=(0); done
+  [[ -n "$raw" ]] || die_with 2 "$flag 沒有值" "$hint"
+  # -d '' 讀到輸入結尾：值裡的換行留在欄位內、比對失敗；預設的 read 只讀第一行，會讓「alpha\n其他」蒙混過關。
+  # 補一個逗號再切：read 會丟掉結尾的空欄位，補上之後「alpha,」的空名稱才留得下來、被擋。
+  IFS=, read -r -d '' -a vals < <(printf '%s,' "$raw") || true
+  for v in "${vals[@]}"; do
+    hit=0
+    for i in "${!items[@]}"; do
+      if [[ "$v" == "${items[i]}" ]]; then sel[i]=1; hit=1; fi
+    done
+    ((hit)) || die_with 2 "$flag 的值無效：${v:-（空）}" "$hint"
+  done
+  for i in "${!items[@]}"; do
+    if ((sel[i])); then printf '%d\n' "$((i + 1))"; fi
+  done
+}
 # ---- END ops-lib ----
 
 # 絕對路徑：腳本中途 cd 之後，--help、選單與分派仍讀得到自己。
@@ -212,20 +238,6 @@ run() {
 # hello 的項目：示範多選器與結果總表，換成腳本真正的選項。
 HELLO_ITEMS=(alpha beta gamma)
 
-# _hello_pick_lines 1,3：把 --pick 的值轉成一行一個編號；任何一個無效就 exit 2。
-_hello_pick_lines() {
-  local v vals=() n=${#HELLO_ITEMS[@]}
-  # 逗號切詞同樣不能讓 glob 展開；空值（含 `,`）一律當無效，不得靜默成功。
-  IFS=, read -ra vals <<<"$1" || true
-  ((${#vals[@]})) || usage_error "--pick 沒有值" "例：--pick 1,3"
-  for v in "${vals[@]}"; do
-    if [[ ! "$v" =~ ^[0-9]{1,6}$ ]] || ((10#$v < 1 || 10#$v > n)); then
-      usage_error "--pick 的值無效：$v" "請給 1 到 $n 之間的編號，逗號分隔（例：--pick 1,3）"
-    fi
-    printf '%d\n' "$((10#$v))"
-  done
-}
-
 cmd_hello() {
   local dry=0 pick="" has_pick=0 dir picks idx name
   while (($#)); do
@@ -233,7 +245,7 @@ cmd_hello() {
       --dry-run) dry=1 ;;
       --pick)
         shift
-        [[ $# -gt 0 ]] || usage_error "--pick 缺少值" "例：--pick 1,3"
+        [[ $# -gt 0 ]] || usage_error "--pick 缺少值" "例：--pick alpha,gamma"
         pick=$1; has_pick=1 ;;
       -h | --help) usage; return 0 ;;
       *) usage_error "hello 不認得的參數：$1" "可用的選項：--pick、--dry-run" ;;
@@ -242,7 +254,7 @@ cmd_hello() {
   done
   dir="${HELLO_DIR:-./hello-out}"
   if ((has_pick)); then
-    picks=$(_hello_pick_lines "$pick") || exit $?
+    picks=$(pick_by_name --pick "$pick" "${HELLO_ITEMS[@]}") || exit $?
   else
     require_tty
     picks=$(multiselect "要建立哪些目錄？" "${HELLO_ITEMS[@]}") || die "已取消" "沒有選任何項目，什麼都沒做"

@@ -36,12 +36,12 @@ if [ ${#shells[@]} -eq 0 ]; then echo "- 兩種 PowerShell 都沒有，整份略
 echo "[STATIC] 檔案本身（與 shell 無關）"
 [ -f "$SK" ] && verdict ok "skeleton.ps1 存在" || { verdict ng "skeleton.ps1 不存在"; exit 1; }
 expect "前 3 byte 為 EF BB BF" "efbbbf" "$(head -c 3 "$SK" | od -An -tx1 | tr -d ' \n')"
-b=$(grep -n '^# ---- BEGIN ops-lib v2 ----' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v3 ----' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----' "$SK" | cut -d: -f1)
-[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v2 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
+[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v3 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Write-OpsStep \
   Write-OpsPass Write-OpsFail Write-OpsWarn Write-OpsSkip Write-OpsSummary Complete-OpsRun \
-  Select-OpsMulti Invoke-OpsRun; do
+  Select-OpsMulti Resolve-OpsPick Invoke-OpsRun; do
   l=$(grep -n "^function $fn " "$SK" | cut -d: -f1)
   [ -n "$l" ] && [ -n "$b" ] && [ -n "$e" ] && [ "$l" -gt "$b" ] && [ "$l" -lt "$e" ] \
     && verdict ok "$fn 定義在標記之間" || verdict ng "$fn 沒定義在 ops-lib 標記之間"
@@ -105,27 +105,27 @@ for PS in "${shells[@]}"; do
   contains "-Help 印出說明" "$OUT" "hello"
   cli $nul bogus; [ "$RC" -ne 0 ] && verdict ok "未知子命令非 0（binder 擋下，退出碼 $RC）" || verdict ng "未知子命令不該回 0"
   cli $nul hello; expect "hello 無 -Pick 且無終端機回 2" 2 "$RC"
-  for v in "," "" "9" "0" "1,x" "*"; do
+  for v in "," "" "1" "Alpha" "alph" "alpha beta" "alpha,x" "alpha,,beta" "alpha," "*"; do
     cli $nul hello -Pick "$v"; expect "-Pick「$v」回 2" 2 "$RC"
   done
 
   echo "[CLI] hello、-WhatIf 與結果總表"
   d="$TMPW\\p-$ver"
-  HELLO_DIR="$d" cli $nul hello -Pick 1,3
-  expect "hello -Pick 1,3 回 0" 0 "$RC"
+  HELLO_DIR="$d" cli $nul hello -Pick alpha,gamma
+  expect "hello -Pick alpha,gamma 回 0" 0 "$RC"
   [ -d "$tmp/p-$ver/alpha" ] && [ -d "$tmp/p-$ver/gamma" ] && [ ! -e "$tmp/p-$ver/beta" ] \
     && verdict ok "恰建立 alpha、gamma" || verdict ng "建立的目錄不符"
   contains "總表 pass 2" "$OUT" "pass 2"
   contains "有 [PASS] 行" "$OUT" "[PASS]"
   dw="$TMPW\\w-$ver"
-  HELLO_DIR="$dw" cli $nul hello -Pick 2 -WhatIf
+  HELLO_DIR="$dw" cli $nul hello -Pick beta -WhatIf
   expect "-WhatIf 回 0" 0 "$RC"
   [ ! -e "$tmp/w-$ver" ] && verdict ok "-WhatIf 不做事" || verdict ng "-WhatIf 不該建立目錄"
   contains "-WhatIf 仍印出將執行的指令" "$OUT" "+ "
-  HELLO_DIR="$dw" cli $nul hello -Pick 2
-  [ -d "$tmp/w-$ver/beta" ] && verdict ok "成對對照：同一個 -Pick 2 真跑會建立 beta" || verdict ng "成對對照：真跑沒建立 beta"
+  HELLO_DIR="$dw" cli $nul hello -Pick beta
+  [ -d "$tmp/w-$ver/beta" ] && verdict ok "成對對照：同一個 -Pick beta 真跑會建立 beta" || verdict ng "成對對照：真跑沒建立 beta"
   : >"$tmp/afile"
-  HELLO_DIR="$TMPW\\afile\\x" cli $nul hello -Pick 1
+  HELLO_DIR="$TMPW\\afile\\x" cli $nul hello -Pick alpha
   expect "建立失敗回 1" 1 "$RC"
   contains "失敗行 [FAIL]" "$OUT" "[FAIL]"
 
@@ -215,6 +215,15 @@ for PS in "${shells[@]}"; do
   contains "畫面（標題）出現在 host" "$out" "TITLEX"
   out=$(printf '1\n\n' | lib '$r = @(Select-OpsMulti -Title TITLEX -Items "a","b"); "COUNT=" + $r.Count')
   expect "標題不污染回傳值：選一項時 Count 為 1" "1" "$(sed -n 's/.*COUNT=//p' <<<"$out" | tail -1)"
+
+  echo "[LIB v3] Resolve-OpsPick（名稱整串精確比對，輸出與 Select-OpsMulti 同形）"
+  rp() {  # rp <值>：RP_OUT 為回傳的編號（逗號串接）
+    RP_OUT=$(RAW="$1" lib '"RESULT=" + ((@(Resolve-OpsPick -Flag "-Pick" -Raw $env:RAW -Items "alpha","beta","gamma")) -join ",")' </dev/null | sed -n 's/.*RESULT=//p' | tail -1)
+  }
+  rp 'gamma,alpha'; expect "輸出遞增，不照輸入順序" "1,3" "$RP_OUT"
+  rp 'beta,beta'; expect "重複的名稱只出現一次" "2" "$RP_OUT"
+  out=$(RAW='alph' lib 'Resolve-OpsPick -Flag "-Pick" -Raw $env:RAW -Items "alpha","beta","gamma"' </dev/null)
+  contains "錯誤訊息列出可用的名稱（逗號串接）" "$out" "alpha,beta,gamma"
 
   echo "[LIB] Invoke-OpsRun 與 LASTEXITCODE"
   out=$(lib 'Invoke-OpsRun -Display "echo hi" -Action { Write-Host ran }; "done"' </dev/null)

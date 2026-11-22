@@ -20,7 +20,12 @@ contains() {  # contains <name> <haystack> <needle>
   case "$2" in *"$3"*) verdict ok "$1" ;; *) verdict ng "$1（找不到「$3」）" ;; esac
 }
 # lib <script>：以 LIB 模式 source 骨架後執行一段 shell；回傳其結束碼
-lib() { SKELETON_LIB=1 bash -c 'source "$1"; shift; eval "$1"' _ "$SK" "$1"; }
+# 片段之後的參數原樣成為片段裡的 $1、$2…，值不必拼進程式碼字串。
+lib() {
+  local code=$1
+  shift
+  SKELETON_LIB=1 bash -c 'source "$1"; code=$2; shift 2; eval "$code"' _ "$SK" "$code" "$@"
+}
 
 echo "[CLI] --help 與用法"
 out=$(bash "$SK" --help </dev/null 2>"$tmp/err"); rc=$?
@@ -40,11 +45,11 @@ bash "$SK" hello --bogus >/dev/null 2>&1 </dev/null; expect "hello --bogus 回 2
 
 echo "[CLI] hello 與 --dry-run"
 d="$tmp/hello-out"
-out=$(HELLO_DIR="$d" bash "$SK" hello --pick 1 --dry-run </dev/null 2>&1); rc=$?
+out=$(HELLO_DIR="$d" bash "$SK" hello --pick alpha --dry-run </dev/null 2>&1); rc=$?
 expect "hello --dry-run 回 0" 0 "$rc"
 contains "--dry-run 印出將執行的指令" "$out" "mkdir -p"
 [ ! -e "$d" ] && verdict ok "--dry-run 不做事" || verdict ng "--dry-run 不該建立目錄"
-HELLO_DIR="$d" bash "$SK" hello --pick 1 >/dev/null 2>&1 </dev/null; expect "hello 回 0" 0 $?
+HELLO_DIR="$d" bash "$SK" hello --pick alpha >/dev/null 2>&1 </dev/null; expect "hello 回 0" 0 $?
 [ -d "$d" ] && verdict ok "hello 真的建立目錄" || verdict ng "hello 沒建立目錄"
 
 echo "[CLI] 測試接縫 SKELETON_LIB 嚴格比對 \"1\""
@@ -65,7 +70,7 @@ out=$(SKELETON_LIB=true bash -c 'source "$1"; echo "rc=$?"' _ "$SK" 2>&1 </dev/n
 contains "LIB=true 的 source 仍被擋" "$out" "rc=1"
 
 echo "[CLI] 檔案結構與語法"
-b=$(grep -n '^# ---- BEGIN ops-lib v2 ----$' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v3 ----$' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----$' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN 標記在 END 標記之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in die confirm require_tty; do
@@ -183,17 +188,17 @@ lib 'finish' >/dev/null 2>&1; expect "零筆結果 finish 回 0" 0 $?
 
 echo "[CLI v2] hello 用多選器與結果總表"
 d2="$tmp/pick"
-out=$(HELLO_DIR="$d2" bash "$SK" hello --pick 1,3 2>&1 >/dev/null </dev/null); rc=$?
-expect "--pick 1,3 回 0" 0 "$rc"
+out=$(HELLO_DIR="$d2" bash "$SK" hello --pick alpha,gamma 2>&1 >/dev/null </dev/null); rc=$?
+expect "--pick alpha,gamma 回 0" 0 "$rc"
 [ -d "$d2/alpha" ] && [ -d "$d2/gamma" ] && [ ! -e "$d2/beta" ] && verdict ok "恰建立 alpha、gamma" || verdict ng "建立的目錄不符"
 contains "總表 pass 2" "$out" "pass 2"
-HELLO_DIR=/dev/null/x bash "$SK" hello --pick 1 >/dev/null 2>"$tmp/err" </dev/null; expect "建立失敗回 1" 1 $?
+HELLO_DIR=/dev/null/x bash "$SK" hello --pick alpha >/dev/null 2>"$tmp/err" </dev/null; expect "建立失敗回 1" 1 $?
 contains "失敗行出現在 stderr" "$(cat "$tmp/err")" "fail"
 d3="$tmp/pick-dry"
-out=$(HELLO_DIR="$d3" bash "$SK" hello --pick 2 --dry-run 2>&1 </dev/null)
+out=$(HELLO_DIR="$d3" bash "$SK" hello --pick beta --dry-run 2>&1 </dev/null)
 [ ! -e "$d3" ] && verdict ok "--pick 搭配 --dry-run 不建立" || verdict ng "--dry-run 不該建立目錄"
 bash "$SK" hello </dev/null >/dev/null 2>&1; expect "hello 無 --pick 且無終端機回 2" 2 $?
-bash "$SK" hello --pick 9 </dev/null >/dev/null 2>&1; expect "--pick 全越界回 2" 2 $?
+bash "$SK" hello --pick delta </dev/null >/dev/null 2>&1; expect "--pick 不認得的名稱回 2" 2 $?
 echo "[LIB v2] hello 的選單路徑（覆寫 _is_tty 模擬終端機）"
 d4="$tmp/menu-pick"
 out=$(HELLO_DIR="$d4" SKELETON_LIB=1 bash -c 'source "$1"; _is_tty() { return 0; }; cmd_hello' _ "$SK" 2>&1 >/dev/null <<<$'2\n\n'); rc=$?
@@ -218,10 +223,33 @@ out=$(bash "$SK" hello --pick "" 2>&1 </dev/null); contains "--pick 空字串訊
 out=$(cd "$tmp/globdir" && HELLO_DIR="$tmp/globdir/out" bash "$SK" hello --pick '*' 2>&1 </dev/null); rc=$?
 expect "--pick * 不被展開、回 2" 2 "$rc"
 
+echo "[LIB v3] pick_by_name：名稱整串精確比對，輸出與 multiselect 同形"
+# pn <值>：設定 PN_OUT（stdout 的編號，逗號串接）與 PN_RC
+pn() {
+  lib 'pick_by_name --pick "$1" alpha beta gamma' "$1" >"$tmp/pn.out" 2>"$tmp/pn.err"; PN_RC=$?
+  PN_OUT=$(paste -sd, "$tmp/pn.out")
+}
+pn 'gamma,alpha'; expect "輸出遞增，不照輸入順序" "1,3" "$PN_OUT"
+pn 'beta,beta'; expect "重複的名稱只出現一次" "2" "$PN_OUT"
+pn 'alpha beta'; expect "含空白的整串不得對上兩個項目（回 2）" 2 "$PN_RC"
+pn 'alpha beta'; expect "含空白的整串 stdout 為空" "" "$PN_OUT"
+pn 'Alpha'; expect "大小寫不同回 2" 2 "$PN_RC"
+pn '1'; expect "編號不再被接受（回 2）" 2 "$PN_RC"
+pn 'alph'; expect "前綴不算對上（回 2）" 2 "$PN_RC"
+pn $'alpha\nbeta gamma'; expect "值含換行不得只看第一行（回 2）" 2 "$PN_RC"
+pn 'alpha,,beta'; expect "中間的空名稱回 2" 2 "$PN_RC"
+pn 'alpha,'; expect "結尾的空名稱回 2（與 PowerShell 一致）" 2 "$PN_RC"
+pn 'alpha,,'; expect "結尾連續空名稱回 2" 2 "$PN_RC"
+pn 'delta'; contains "可用的名稱以逗號串接，和輸入格式一致" "$(cat "$tmp/pn.err")" "alpha,beta,gamma"
+for v in "alpha beta" "Alpha" "1" "alph" "alpha," $'alpha\nbeta'; do
+  bash "$SK" hello --pick "$v" >/dev/null 2>&1 </dev/null; expect "CLI --pick「${v//$'\n'/\\n}」回 2" 2 $?
+done
+pn 'delta'; contains "錯誤訊息列出可用的名稱" "$(cat "$tmp/pn.err")" "alpha"
+
 echo "[文件] 版號與維運說明"
 ! grep -q 'nameref\|local -n\|declare -n' "$SK" && verdict ok "骨架未用 nameref（bash 4.3 說明為條件式）" || verdict ng "骨架用了 nameref，需確認 bash 4.3 說明"
 SM="$(dirname "$SK")/SKILL.md"
-contains "SKILL.md 標明 v2" "$(cat "$SM")" "ops-lib v2"
+contains "SKILL.md 標明 v3" "$(cat "$SM")" "ops-lib v3"
 doc=$(cat "$SM" "$(dirname "$SK")"/*.md 2>/dev/null)
 contains "維護規則：兩個版號即有一支沒同步" "$doc" "two different version numbers"
 contains "陷阱：read 讀到輸入結尾" "$doc" "read -r x ||"
@@ -229,6 +257,10 @@ contains "陷阱：grep -q 與 pipefail" "$doc" "SIGPIPE"
 contains "陷阱：-u 下的空陣列" "$doc" '${arr[@]}'
 contains "陷阱：local x=\$(cmd)" "$doc" 'local x=$(cmd)'
 contains "bash 4.3 條目" "$doc" "bash 4.3"
+contains "陷阱：空白拼接的成員檢查" "$doc" 'case " $list " in *" $x "*'
+contains "挑選旗標收名稱、走 pick_by_name" "$doc" "pick_by_name"
+contains "ops-lib 放法：離不開 repo 才可 source 共用檔" "$doc" "scripts/lib/ops-lib.sh"
+contains "驗證：shellcheck 未安裝時的 uvx 備援" "$doc" "uvx --from shellcheck-py shellcheck"
 
 echo
 if [ $fail -eq 0 ]; then echo "ops-script 骨架測試全部通過。"; else echo "ops-script 骨架測試未通過。"; fi

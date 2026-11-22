@@ -77,7 +77,7 @@ if ($MyInvocation.InvocationName -eq '.' -and $env:MANAGE_LIB -ne '1') {
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
-# ---- BEGIN ops-lib v2 ----
+# ---- BEGIN ops-lib v3 ----
 # Write-Host 是操作者介面（選單、提示、步驟、結果）：資料走管線，畫面走 host，兩條路不混。
 # 本檔頂端的 SuppressMessage 抑制 PSAvoidUsingWriteHost，理由寫在那裡。
 
@@ -211,6 +211,28 @@ function Select-OpsMulti {
         if ($null -eq $line) { return }
         if (-not $line.Trim()) { break }
         Update-OpsSelection $sel $line
+    }
+    for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
+}
+
+# Resolve-OpsPick -Flag -Raw -Items：無人值守時的挑選。Raw 是逗號分隔的項目名稱，逐一與項目整串精確比對（分大小寫）；
+# 輸出與 Select-OpsMulti 相同（管線輸出每個編號、1 起算、遞增、不重複），呼叫端兩條路共用同一段收尾。
+# 收名稱不收編號：編號跟著清單順序走，清單一改，排程裡的編號就指到別的項目。
+# 空值或任何一個不認得的名稱都以結束碼 2 結束，訊息列出可用的名稱。
+function Resolve-OpsPick {
+    param([Parameter(Mandatory)][string]$Flag, [string[]]$Raw, [Parameter(Mandatory)][string[]]$Items)
+    $hint = "可用的名稱（逗號分隔）：$($Items -join ',')"
+    $vals = @($Raw | ForEach-Object { $_ -split ',' })
+    if ($vals.Count -eq 0) { Stop-OpsScript -Code 2 -Title "$Flag 沒有值" -Fix $hint }
+    $sel = New-Object 'bool[]' $Items.Count
+    foreach ($v in $vals) {
+        # IndexOf 用字串的 Equals：序數比對、分大小寫；-eq／-contains 不分大小寫，不能用。
+        $i = [Array]::IndexOf($Items, $v)
+        if ($i -lt 0) {
+            $shown = if ($v) { $v } else { '（空）' }
+            Stop-OpsScript -Code 2 -Title "$Flag 的值無效：$shown" -Fix $hint
+        }
+        $sel[$i] = $true
     }
     for ($i = 0; $i -lt $Items.Count; $i++) { if ($sel[$i]) { $i + 1 } }
 }
