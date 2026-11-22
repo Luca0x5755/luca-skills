@@ -36,9 +36,10 @@ disp_width() {
 }
 # check_menu_lines <選單輸出>：每行不含旗標、不超過 80 欄；空輸出算失敗
 check_menu_lines() {
-  local line flagged="" wide="" bracket="" starts="" prefix desc re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+  # 全形字不放進方括號：C locale 按位元組比對，（ 與 ： 共用前兩個位元組，會互相誤中
+  local line flagged="" wide="" bracket="" starts="" prefix desc re='(^|[[:space:]]|（|\(|、|，|；|：|「|/)--?[A-Za-z]'
   # 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
-  local row='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$' br='[（(\[]'
+  local row='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$' br='（|\(|\['
   [ -n "$1" ] || { verdict ng "抓不到選單輸出"; return; }
   while IFS= read -r line; do
     [[ "$line" =~ $re ]] && flagged+="[$line]"

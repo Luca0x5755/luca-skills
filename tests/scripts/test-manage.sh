@@ -84,7 +84,8 @@ disp_width() {
 screen="$(MANAGE_LIB=1 bash -c 'source "$1"; run_menu' _ "$script" </dev/null 2>&1 || true)"
 out="$(awk '/^ +[0-9]+\) /' <<<"$screen")"
 check eq "$(printf '%s\n' "$out" | awk 'END { print NR }')" 3 '選單應恰有 3 列'
-FLAG_RE='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+# 全形字不放進方括號：C locale 按位元組比對，（ 與 ： 共用前兩個位元組，會互相誤中
+FLAG_RE='(^|[[:space:]]|（|\(|、|，|；|：|「|/)--?[A-Za-z]'
 no_flag() { ! [[ "$1" =~ $FLAG_RE ]]; }
 fits_80() { (($(disp_width "$1") <= 80)); }
 has() { [[ "$1" == *"$2"* ]]; }
@@ -93,7 +94,7 @@ check has "$screen" '輸入編號：' '選單的輸入行應是「輸入編號�
 check eq "$(awk '/選擇編號/' <<<"$screen")" "" '選單不該再印「選擇編號」'
 # 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
 ROW_RE='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$'
-BRACKET_RE='[（(\[]'
+BRACKET_RE='（|\(|\['
 no_bracket() { ! [[ "$1" =~ $BRACKET_RE ]]; }
 row_parses() { [[ "$1" =~ $ROW_RE ]]; }
 starts=""
