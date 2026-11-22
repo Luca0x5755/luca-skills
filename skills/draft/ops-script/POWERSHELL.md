@@ -43,6 +43,7 @@ Colour uses `-ForegroundColor`, never ANSI escapes (5.1's console may not render
 | `multiselect` | `Select-OpsMulti` (cancel = no output; test with `@(...).Count`) |
 | `pick_by_name` | `Resolve-OpsPick -Flag -Raw -Items` (ordinal, case-sensitive: `[Array]::IndexOf`, never `-eq` or `-contains`) |
 | `run` | `Invoke-OpsRun -Display -Action` (throws on failure; the caller records it with `try`/`catch`) |
+| `CONFIRM_MARK`, `CONFIRM_PAD`, `[需確認]` opening a `#/` description | `$ConfirmMark`, `$ConfirmPad`, `Confirm = $true` on the `$SubCommands` row (read it as `$row['Confirm']`: under StrictMode `.Confirm` throws on rows without the key) |
 
 ## Verifying what you wrote
 

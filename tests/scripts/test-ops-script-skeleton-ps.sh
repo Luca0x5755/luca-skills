@@ -36,14 +36,22 @@ disp_width() {
 }
 # check_menu_lines <選單輸出>：每行不含旗標、不超過 80 欄；空輸出算失敗
 check_menu_lines() {
-  local line flagged="" wide="" re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+  local line flagged="" wide="" bracket="" starts="" prefix desc re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+  # 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
+  local row='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$' br='[（(\[]'
   [ -n "$1" ] || { verdict ng "抓不到選單輸出"; return; }
   while IFS= read -r line; do
     [[ "$line" =~ $re ]] && flagged+="[$line]"
     (($(disp_width "$line") > 80)) && wide+="[$line]"
+    [[ "$line" =~ $row ]] || { bracket+="[無法解析：$line]"; continue; }
+    prefix="${BASH_REMATCH[1]}${BASH_REMATCH[2]}" desc="${BASH_REMATCH[3]}"
+    [[ "$desc" =~ $br ]] && bracket+="[$line]"
+    starts+="$(disp_width "$prefix")"$'\n'
   done <<<"$1"
   expect "選單行不含旗標" "" "$flagged"
   expect "選單行不超過 80 欄" "" "$wide"
+  expect "描述欄不含括號" "" "$bracket"
+  expect "各列描述起始欄位相同" 1 "$(printf '%s' "$starts" | sort -u | awk 'END { print NR }')"
 }
 
 shells=()
@@ -251,9 +259,19 @@ for PS in "${shells[@]}"; do
   echo "[LIB] 選單行只答「做什麼、要不要確認」：無旗標、80 欄內；旗標細節留在 -Help"
   # 中文經 5.1 管線會走樣：覆寫 Write-Host，把選單行以 UTF-8 寫進檔案再檢查
   mf="$tmp/menu-lines-$ver.txt"
-  printf 'q\n' | MF="$TMPW/menu-lines-$ver.txt" lib 'function Write-Host { param($Object, [switch]$NoNewline) if (-not $NoNewline) { [IO.File]::AppendAllText($env:MF, "$Object`n", [Text.UTF8Encoding]::new($false)) } }; Invoke-OpsMenu' >/dev/null
-  check_menu_lines "$(cat "$mf" 2>/dev/null)"
-  case "$(cat "$mf" 2>/dev/null)" in *"[需確認]"*) verdict ng "hello 不需確認，不該標 [需確認]" ;; *) verdict ok "hello 沒有標 [需確認]" ;; esac
+  # menu_lines [前置片段]：跑選單（q 取消），印出抓到的選單行；前置片段可替換子命令表
+  menu_lines() {
+    rm -f "$mf"
+    printf 'q\n' | MF="$TMPW/menu-lines-$ver.txt" lib "function Write-Host { param(\$Object, [switch]\$NoNewline) if (-not \$NoNewline) { [IO.File]::AppendAllText(\$env:MF, \"\$Object\`n\", [Text.UTF8Encoding]::new(\$false)) } }; ${1:-}; Invoke-OpsMenu" >/dev/null
+    cat "$mf" 2>/dev/null
+  }
+  check_menu_lines "$(menu_lines)"
+  case "$(menu_lines)" in *"[需確認]"*) verdict ng "hello 不需確認，不該標 [需確認]" ;; *) verdict ok "hello 沒有標 [需確認]" ;; esac
+  # 需確認欄：Confirm 欄位決定；有任一列時其餘列補同寬空白，全表都沒有就不留欄
+  out=$(menu_lines '$Script:SubCommands = [ordered]@{ alpha = @{ Desc = "x"; Fn = "f" }; beta = @{ Desc = "y"; Fn = "f"; Confirm = $true } }')
+  contains "Confirm 列印出 [需確認]" "$out" "  2) beta       [需確認] y"
+  contains "其餘列補同寬空白" "$out" "  1) alpha               x"
+  expect "全表沒有 Confirm 時不留欄" "  1) alpha      x" "$(menu_lines '$Script:SubCommands = [ordered]@{ alpha = @{ Desc = "x"; Fn = "f" } }')"
   # 比對手寫的說明（ASCII 片段）：Get-Help 語法段會自動產生 [-Pick] [-WhatIf]，只找旗標名會恆真
   cli $nul -Help
   contains "-Help 仍說明 -Pick 的用法" "$OUT" "-Pick alpha,gamma"

@@ -195,16 +195,31 @@ disp_width() {
 }
 # check_menu_lines <選單輸出>：每行不含旗標、不超過 80 欄；空輸出算失敗
 check_menu_lines() {
-  local line flagged="" wide="" re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+  local line flagged="" wide="" bracket="" starts="" prefix desc re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+  # 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
+  local row='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$' br='[（(\[]'
   [ -n "$1" ] || { verdict ng "抓不到選單輸出"; return; }
   while IFS= read -r line; do
     [[ "$line" =~ $re ]] && flagged+="[$line]"
     (($(disp_width "$line") > 80)) && wide+="[$line]"
+    [[ "$line" =~ $row ]] || { bracket+="[無法解析：$line]"; continue; }
+    prefix="${BASH_REMATCH[1]}${BASH_REMATCH[2]}" desc="${BASH_REMATCH[3]}"
+    [[ "$desc" =~ $br ]] && bracket+="[$line]"
+    starts+="$(disp_width "$prefix")"$'\n'
   done <<<"$1"
   expect "選單行不含旗標" "" "$flagged"
   expect "選單行不超過 80 欄" "" "$wide"
+  expect "描述欄不含括號" "" "$bracket"
+  expect "各列描述起始欄位相同" 1 "$(printf '%s' "$starts" | sort -u | awk 'END { print NR }')"
 }
 check_menu_lines "$(lib 'print_menu')"
+# 需確認欄：有任一列需確認時，其餘列補同寬空白；全表都沒有就不留欄（SELF 指向測試用的表）
+printf '#/   alpha   甲\n#/   beta    [需確認] 乙\n' >"$tmp/table-mark"
+printf '#/   alpha   甲\n' >"$tmp/table-plain"
+out=$(lib 'SELF=$1; print_menu' "$tmp/table-mark")
+contains "需確認列印出 [需確認]" "$out" "  2) beta       [需確認] 乙"
+contains "其餘列補同寬空白" "$out" "  1) alpha               甲"
+expect "全表沒有需確認時不留欄" "  1) alpha      甲" "$(lib 'SELF=$1; print_menu' "$tmp/table-plain")"
 case "$(lib 'print_menu')" in *"[需確認]"*) verdict ng "hello 不需確認，不該標 [需確認]" ;; *) verdict ok "hello 沒有標 [需確認]" ;; esac
 out=$(bash "$SK" --help </dev/null 2>/dev/null)
 contains "--help 仍說明 --pick" "$out" "--pick"

@@ -194,13 +194,30 @@ usage_error() { usage >&2; die_with 2 "$@"; }
 table_rows() { sed -n 's/^#\/   \([a-z][a-z0-9-]*\)[[:space:]].*$/\1/p' "$SELF"; }
 table_desc() { sed -n "s/^#\/   $1[[:space:]]\{1,\}//p" "$SELF"; }
 
+# 需確認欄：描述以 CONFIRM_MARK 開頭的列會停下來確認。table_desc 吃掉名稱後的所有空白，
+# 所以任一列有需確認時，由選單替其餘列補同寬的 CONFIRM_PAD；全表都沒有就不留這一欄。
+CONFIRM_MARK='[需確認] '
+CONFIRM_PAD='         ' # 與 CONFIRM_MARK 同寬：中文一字 2 欄
+confirm_pad() {
+  local name
+  while IFS= read -r name; do
+    if [[ "$(table_desc "$name")" == "$CONFIRM_MARK"* ]]; then
+      printf '%s' "$CONFIRM_PAD"
+      return 0
+    fi
+  done < <(table_rows)
+}
+
 print_menu() {
-  local i=0 name w
+  local i=0 name w desc pad
   w=$(table_rows | wc -l | tr -d " ")
   w=${#w}
+  pad=$(confirm_pad)
   while IFS= read -r name; do
     i=$((i + 1))
-    printf '  %*d) %-10s %s\n' "$w" "$i" "$name" "$(table_desc "$name")"
+    desc=$(table_desc "$name")
+    [[ "$desc" == "$CONFIRM_MARK"* ]] || desc="$pad$desc"
+    printf '  %*d) %-10s %s\n' "$w" "$i" "$name" "$desc"
   done < <(table_rows)
 }
 

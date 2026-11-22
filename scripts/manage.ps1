@@ -467,8 +467,8 @@ function Invoke-Status {
 # 新增子命令 = 加一列 + 一個函式 + ValidateSet 補一個值。
 $SubCommands = [ordered]@{
     install   = @{ Desc = '把技能連進代理目錄'; Fn = 'Invoke-Install'; Verb = '安裝' }
-    uninstall = @{ Desc = '移除本 repo 建的連結  [需確認]'; Fn = 'Invoke-Uninstall'; Verb = '移除' }
-    status    = @{ Desc = '檢查連結狀態（唯讀）'; Fn = 'Invoke-Status'; Verb = '檢查' }
+    uninstall = @{ Desc = '移除本 repo 建的連結'; Fn = 'Invoke-Uninstall'; Verb = '移除'; Confirm = $true }
+    status    = @{ Desc = '唯讀檢查連結狀態'; Fn = 'Invoke-Status'; Verb = '檢查' }
 }
 
 function Write-Usage { Write-Host ((Get-Help $SelfPath -Full | Out-String).TrimEnd()) }
@@ -544,14 +544,27 @@ function Invoke-OpsCommand {
     & $SubCommands[$Name].Fn
 }
 
+# 需確認欄：Confirm 為真的列印 $ConfirmMark；任一列有時其餘列補同寬空白，全表都沒有就不留欄。
+$ConfirmMark = '[需確認] '
+$ConfirmPad = ' ' * 9  # 與 $ConfirmMark 同寬：中文一字 2 欄
+
+function Format-OpsMenuDesc {
+    param([hashtable]$Row, [string]$Pad)
+    # 用索引不用 .Confirm：StrictMode 下沒有這個鍵的列存取屬性會丟錯，索引則回 $null
+    if ($Row['Confirm']) { return $ConfirmMark + $Row.Desc }
+    $Pad + $Row.Desc
+}
+
 # 選單：選了動作就進該動作（再選代理）；取消結束碼 1。
 function Invoke-OpsMenu {
     $names = @($SubCommands.Keys)
     $w = "$($names.Count)".Length
+    $pad = if (@($SubCommands.Values | Where-Object { $_['Confirm'] }).Count) { $ConfirmPad } else { '' }
     $script:FromMenu = $true
     while ($true) {
         for ($i = 0; $i -lt $names.Count; $i++) {
-            Write-Host ('  {0}) {1,-10} {2}' -f "$($i + 1)".PadLeft($w), $names[$i], $SubCommands[$names[$i]].Desc)
+            $desc = Format-OpsMenuDesc $SubCommands[$names[$i]] $pad
+            Write-Host ('  {0}) {1,-10} {2}' -f "$($i + 1)".PadLeft($w), $names[$i], $desc)
         }
         Write-Host '選擇編號（q 取消）：' -NoNewline
         $choice = [Console]::In.ReadLine()

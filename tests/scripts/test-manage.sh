@@ -86,10 +86,24 @@ FLAG_RE='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
 no_flag() { ! [[ "$1" =~ $FLAG_RE ]]; }
 fits_80() { (($(disp_width "$1") <= 80)); }
 has() { [[ "$1" == *"$2"* ]]; }
+# 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
+ROW_RE='^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$'
+BRACKET_RE='[（(\[]'
+no_bracket() { ! [[ "$1" =~ $BRACKET_RE ]]; }
+row_parses() { [[ "$1" =~ $ROW_RE ]]; }
+starts=""
 while IFS= read -r line; do
   check no_flag "$line" "選單行不該含旗標：$line"
   check fits_80 "$line" "選單行超過 80 欄：$line"
+  # 單獨一行 =~ 沒對上時 errexit 會無聲中止，所以走 check 印出是哪一列
+  check row_parses "$line" "選單行無法解析：$line"
+  [[ "$line" =~ $ROW_RE ]]
+  # 先存起來：後面的 =~ 會覆寫 BASH_REMATCH
+  prefix="${BASH_REMATCH[1]}${BASH_REMATCH[2]}" desc="${BASH_REMATCH[3]}"
+  check no_bracket "$desc" "描述欄不該有括號：$line"
+  starts+="$(disp_width "$prefix")"$'\n'
 done <<<"$out"
+check eq "$(printf '%s' "$starts" | sort -u | awk 'END { print NR }')" 1 "各列描述起始欄位應相同，實得 ${starts//$'\n'/ }"
 # 要確認的子命令集合由下方行為測試證明：uninstall 無終端機沒帶 -y 結束碼 2、install 不問
 # 用 awk 不用 grep：沒有任何一列帶標記時 grep 回 1，pipefail 會讓整支測試無聲中止
 marked="$(printf '%s\n' "$out" | awk 'index($0, "[需確認]") { print $2 }' | paste -sd, -)"

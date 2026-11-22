@@ -265,12 +265,18 @@ try {
   Write-Host 'menu rows say what and whether it asks; flag details stay in -Help'
   $menu = @((Invoke-Manage -Tty -StandardInput '').Output | Where-Object { $_ -match '^\s+\d+\) ' })
   Assert-That ($menu.Count -eq 3) "expected 3 menu rows, got $($menu.Count)"
+  # 顯示寬度近似值：非 ASCII 字元算 2 欄
+  function Get-DisplayWidth { param([string]$Text) [int]($Text.ToCharArray() | ForEach-Object { if ([int]$_ -gt 127) { 2 } else { 1 } } | Measure-Object -Sum).Sum }
+  $starts = @()
   foreach ($line in $menu) {
     Assert-That ($line -notmatch '(^|[\s（(、，；：「/])--?[A-Za-z]') "menu row carries a flag: $line"
-    # 顯示寬度近似值：非 ASCII 字元算 2 欄
-    $width = ($line.ToCharArray() | ForEach-Object { if ([int]$_ -gt 127) { 2 } else { 1 } } | Measure-Object -Sum).Sum
-    Assert-That ($width -le 80) "menu row is wider than 80 columns ($width): $line"
+    Assert-That ((Get-DisplayWidth $line) -le 80) "menu row is wider than 80 columns: $line"
+    # 選單行＝「  N) 名稱<空白>」＋需確認欄（[需確認] 或同寬空白）＋描述
+    Assert-That ($line -match '^( *[0-9]+\) [a-z0-9-]+ +)(\[需確認\] )?(.*)$') "menu row does not parse: $line"
+    Assert-That ($Matches[3] -notmatch '[（(\[]') "menu description carries a bracket: $line"
+    $starts += Get-DisplayWidth ($Matches[1] + $Matches[2])
   }
+  Assert-That (@($starts | Select-Object -Unique).Count -eq 1) "menu descriptions start at different columns: $($starts -join ', ')"
   # 要確認的子命令集合由下方行為測試證明：uninstall 無終端機沒帶 -Yes 結束碼 2、install 不問
   $marked = @($menu | Where-Object { $_ -like '*`[需確認`]*' } | ForEach-Object { ($_.Trim() -split '\s+')[1] }) -join ','
   Assert-That ($marked -eq 'uninstall') "rows marked [需確認] should be exactly uninstall, got '$marked'"

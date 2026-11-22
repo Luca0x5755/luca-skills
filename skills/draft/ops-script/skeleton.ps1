@@ -240,13 +240,26 @@ function Invoke-OpsCommand {
     & $SubCommands[$Name].Fn
 }
 
+# 需確認欄：Confirm 為真的列印 $ConfirmMark；任一列有時其餘列補同寬空白，全表都沒有就不留欄。
+$ConfirmMark = '[需確認] '
+$ConfirmPad = ' ' * 9  # 與 $ConfirmMark 同寬：中文一字 2 欄
+
+function Format-OpsMenuDesc {
+    param([hashtable]$Row, [string]$Pad)
+    # 用索引不用 .Confirm：StrictMode 下沒有這個鍵的列存取屬性會丟錯，索引則回 $null
+    if ($Row['Confirm']) { return $ConfirmMark + $Row.Desc }
+    $Pad + $Row.Desc
+}
+
 # 選單：選了就先印等價指令再執行；取消結束碼 1。
 function Invoke-OpsMenu {
     $names = @($SubCommands.Keys)
     $w = "$($names.Count)".Length
+    $pad = if (@($SubCommands.Values | Where-Object { $_['Confirm'] }).Count) { $ConfirmPad } else { '' }
     while ($true) {
         for ($i = 0; $i -lt $names.Count; $i++) {
-            Write-Host ('  {0}) {1,-10} {2}' -f "$($i + 1)".PadLeft($w), $names[$i], $SubCommands[$names[$i]].Desc)
+            $desc = Format-OpsMenuDesc $SubCommands[$names[$i]] $pad
+            Write-Host ('  {0}) {1,-10} {2}' -f "$($i + 1)".PadLeft($w), $names[$i], $desc)
         }
         Write-Host '選擇編號（q 取消）：' -NoNewline
         $choice = [Console]::In.ReadLine()
