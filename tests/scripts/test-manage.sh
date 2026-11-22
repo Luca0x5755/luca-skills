@@ -82,17 +82,21 @@ disp_width() {
 }
 out="$(MANAGE_LIB=1 bash -c 'source "$1"; print_menu' _ "$script" 2>&1)"
 check eq "$(printf '%s\n' "$out" | awk 'END { print NR }')" 3 '選單應恰有 3 列'
-flag_re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+FLAG_RE='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+no_flag() { ! [[ "$1" =~ $FLAG_RE ]]; }
+fits_80() { (($(disp_width "$1") <= 80)); }
+has() { [[ "$1" == *"$2"* ]]; }
 while IFS= read -r line; do
-  check eval '! [[ "$line" =~ $flag_re ]]' "選單行不該含旗標：$line"
-  check eval '(($(disp_width "$line") <= 80))' "選單行超過 80 欄：$line"
+  check no_flag "$line" "選單行不該含旗標：$line"
+  check fits_80 "$line" "選單行超過 80 欄：$line"
 done <<<"$out"
 # 要確認的子命令集合由下方行為測試證明：uninstall 無終端機沒帶 -y 結束碼 2、install 不問
 # 用 awk 不用 grep：沒有任何一列帶標記時 grep 回 1，pipefail 會讓整支測試無聲中止
 marked="$(printf '%s\n' "$out" | awk 'index($0, "[需確認]") { print $2 }' | paste -sd, -)"
 check eq "$marked" uninstall "標 [需確認] 的子命令應恰為 uninstall，實得「$marked」"
 m --help
-check eval '[[ "$out" == *--dry-run* && "$out" == *"-y, --yes"* ]]' '--help 應仍說明 --dry-run 與 -y'
+check has "$out" '--dry-run    只印將移除的連結' '--help 應仍說明 uninstall 的 --dry-run'
+check has "$out" '-y, --yes    免互動確認' '--help 應仍說明 uninstall 的 -y'
 
 echo 'install codex links only Codex'
 m install codex
