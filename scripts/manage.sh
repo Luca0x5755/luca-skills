@@ -374,8 +374,10 @@ list_stale_links() {
 }
 
 # ---- 選代理 ----
+# 逐一整串比對去重；不用空白拼接比對（見 ops-script 規則）。
 add_agent() {
-  case " ${AGENTS[*]-} " in *" $1 "*) return 0 ;; esac
+  local a
+  for a in ${AGENTS[@]+"${AGENTS[@]}"}; do [[ "$a" == "$1" ]] && return 0; done
   AGENTS+=("$1")
 }
 
@@ -385,32 +387,14 @@ join_agents() {
   printf '%s' "${out%, }"
 }
 
-# 互動選代理：輸入編號，空白分隔，可多選；選定後直接處理，不再確認。
-# 無效輸入提示後重問；讀到 EOF 取消（結束碼 1）。
+# 互動選代理：走 ops-lib 的多選器；選定後直接處理，不再確認。
+# 沒選就確定或讀到 EOF 取消（結束碼 1）。
 read_agents() {
-  local verb=$1 selected index i
-  local indexes=()
-  printf '選擇要%s的代理（可用空白多選）：\n' "$verb" >&2
-  for ((i = 0; i < ${#AGENT_NAMES[@]}; i++)); do printf '  %d) %s\n' "$((i + 1))" "${AGENT_NAMES[i]}" >&2; done
-  while true; do
-    printf '輸入編號（例如 1 3）：' >&2
-    IFS= read -r selected || die "已取消" "沒有選任何代理，什麼都沒做"
-    IFS=$' \t\r' read -r -a indexes <<<"$selected" || true
-    AGENTS=()
-    # 空陣列提供空字串，兼容舊版 Bash 的 nounset，交由下方視為無效輸入。
-    for index in ${indexes[@]+"${indexes[@]}"}; do
-      case "$index" in
-        1 | 2 | 3) add_agent "${AGENT_NAMES[index - 1]}" ;;
-        *) AGENTS=(); break ;;
-      esac
-    done
-    if ((${#AGENTS[@]} == 0)); then
-      printf '請輸入一個或多個有效編號，以空白分隔，例如 1 3。\n' >&2
-      continue
-    fi
-    printf '即將%s：%s\n' "$verb" "$(join_agents)" >&2
-    return 0
-  done
+  local verb=$1 picks idx
+  picks=$(multiselect "要${verb}哪些代理？" "${AGENT_NAMES[@]}") || die "已取消" "沒有選任何代理，什麼都沒做"
+  AGENTS=()
+  for idx in $picks; do AGENTS+=("${AGENT_NAMES[idx - 1]}"); done
+  printf '即將%s：%s\n' "$verb" "$(join_agents)" >&2
 }
 
 # 參數給了代理就沿用；沒給就詢問（需要終端機），不替操作者挑。

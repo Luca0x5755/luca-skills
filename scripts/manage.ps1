@@ -480,26 +480,15 @@ function Stop-OpsUsage {
     Stop-OpsScript -Code 2 -Title $Title -Fix $Fix
 }
 
-# 互動選代理：輸入編號，空白分隔，可多選；選定後直接處理，不再確認。
-# 無效輸入提示後重問；讀到 EOF 取消（結束碼 1）。
+# 互動選代理：走 ops-lib 的多選器；選定後直接處理，不再確認。
+# 沒選就確定或讀到 EOF 取消（結束碼 1）。
 function Read-AgentSelection {
     param([string]$Verb)
-    Write-Host "選擇要${Verb}的代理（可用空白多選）："
-    for ($i = 0; $i -lt $AgentNames.Count; $i++) { Write-Host "  $($i + 1)) $($AgentNames[$i])" }
-    while ($true) {
-        Write-Host -NoNewline '輸入編號（例如 1 3）：'
-        $line = [Console]::In.ReadLine()
-        if ($null -eq $line) { Stop-OpsScript -Title '已取消' -Fix '沒有選任何代理，什麼都沒做' }
-        $tokens = @($line.Trim() -split '\s+')
-        $invalid = @($tokens | Where-Object { $_ -notmatch '^[1-3]$' })
-        if ($invalid.Count -gt 0) {
-            Write-Host '請輸入一個或多個有效編號，以空白分隔，例如 1 3。'
-            continue
-        }
-        $picked = @($tokens | ForEach-Object { $AgentNames[[int]$_ - 1] } | Select-Object -Unique)
-        Write-Host "即將${Verb}：$($picked -join ', ')"
-        return $picked
-    }
+    $picks = @(Select-OpsMulti -Title "要${Verb}哪些代理？" -Items $AgentNames)
+    if ($picks.Count -eq 0) { Stop-OpsScript -Title '已取消' -Fix '沒有選任何代理，什麼都沒做' }
+    $picked = @($picks | ForEach-Object { $AgentNames[$_ - 1] })
+    Write-Host "即將${Verb}：$($picked -join ', ')"
+    return $picked
 }
 
 # 參數給了代理就驗證後使用；沒給就詢問（需要終端機），不替操作者挑。

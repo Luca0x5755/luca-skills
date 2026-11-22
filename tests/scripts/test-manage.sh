@@ -296,7 +296,7 @@ check eq "$rc" 1 '輸入錯誤後讀到 EOF 應結束碼 1'
 [ ! -e "$test_home/.claude/skills" ] || { echo '✗ 取消後仍安裝了技能' >&2; exit 1; }
 
 echo 'interactive: the menu picks the action, then installs only the chosen agent without confirmation'
-t '1\n3\n'
+t '1\n3\n\n'
 check eq "$rc" 0 '選單安裝失敗'
 check linked codex '選單安裝沒有連結 Codex'
 [ ! -e "$test_home/.claude/skills" ] || { echo '✗ 選單安裝了沒選的代理' >&2; exit 1; }
@@ -306,46 +306,58 @@ for line in '  1) install ' '  2) uninstall ' '  3) status '; do
   check grep -qF -- "$line" <<<"$out" "選單缺少：$line"
 done
 
-echo 'interactive: space-separated selection installs each agent once'
+echo 'interactive: the agent prompt is the ops-lib multiselect, picks come back in list order'
 reset_home
-t '1\n  3  1\t3  \n'
+t '1\n3 1\n\n'
 check eq "$rc" 0 '多選失敗'
 check linked codex '多選沒有裝 Codex'
 check linked claude '多選沒有裝 Claude'
 [ ! -e "$test_home/.copilot/skills" ] || { echo '✗ 多選裝了沒選的代理' >&2; exit 1; }
-check eq "$(count_lines '^== codex')" 1 '重複編號讓 Codex 裝了兩次'
-check eq "$(count_lines '即將安裝：codex, claude$')" 1 '選定摘要不符'
-for line in '  1) claude' '  2) copilot' '  3) codex'; do
+check eq "$(count_lines '即將安裝：claude, codex$')" 1 '選定摘要不符（應依清單順序）'
+check eq "$(count_lines '要安裝哪些代理？（例：1 3 5-7；a 全選、n 全不選、Enter 確定）$')" 2 '代理選單不是 ops-lib 的多選器'
+for line in '  1) [x] claude' '  2) [ ] copilot' '  3) [x] codex'; do
   check grep -qxF -- "$line" <<<"$out" "代理選單缺少：$line"
 done
 
-echo 'interactive: invalid selections retry without partial installs'
+echo 'interactive: toggling twice unpicks, out-of-range and junk are ignored'
 reset_home
-t '1\n\n   \n1,3\n0\n4\n-1\n1 x\n13\n999999999999999999999999999999\n2\n'
-check eq "$rc" 0 '錯誤後的有效輸入應成功'
-check linked copilot '有效輸入沒有裝 Copilot'
-check eq "$(count_lines '請輸入一個或多個有效編號')" 9 '無效輸入沒有全部重問'
-[ ! -e "$test_home/.claude/skills" ] && [ ! -e "$test_home/.agents/skills" ] || { echo '✗ 無效輸入造成部分安裝' >&2; exit 1; }
+t '1\n1 1 0 4 x 2\n\n'
+check eq "$rc" 0 '忽略無效記號後應成功'
+check linked copilot '有效編號沒有裝 Copilot'
+[ ! -e "$test_home/.claude/skills" ] && [ ! -e "$test_home/.agents/skills" ] || { echo '✗ 無效記號造成多餘安裝' >&2; exit 1; }
+
+echo 'interactive: confirming with nothing picked cancels'
+reset_home
+t '1\n\n'
+check eq "$rc" 1 '什麼都沒選就確定應結束碼 1'
+[ ! -e "$test_home/.claude/skills" ] || { echo '✗ 沒選卻安裝了技能' >&2; exit 1; }
 
 echo 'interactive: uninstall asks once, default No'
-t '2\n2\n\n'
+reset_home
+m install copilot
+t '2\n2\n\n\n'
 check eq "$rc" 1 '空答案應取消 uninstall'
 check linked copilot '空答案後連結不見了'
-t '2\n2\nn\n'
+t '2\n2\n\nn\n'
 check eq "$rc" 1 '回答 n 應取消 uninstall'
 check linked copilot '回答 n 後連結不見了'
-t '2\n2\ny\n'
+t '2\n2\n\ny\n'
 check eq "$rc" 0 '回答 y 應執行 uninstall'
 [ ! -L "$(skill_path copilot)" ] || { echo '✗ 回答 y 後連結還在' >&2; exit 1; }
 
 echo 'interactive: status from the menu is read only'
-t '3\n2\n'
+t '3\n2\n\n'
 check eq "$rc" 1 '沒裝的代理 status 應結束碼 1'
 
 echo 'ops-lib is copied verbatim from the skeleton'
 diff <(sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$script") \
   <(sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$repo/skills/draft/ops-script/skeleton.sh") >/dev/null ||
   { echo '✗ manage.sh 的 ops-lib 區段與骨架不一致' >&2; exit 1; }
+
+echo 'pickers live only in ops-lib: no hand-rolled number prompt outside the block'
+# 自製選擇器曾與 multiselect 並存而不自知；挑選一律走 ops-lib，區段外不得有自己的編號提示
+outside=$(sed '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/d' "$script" | grep -c '輸入編號' || true)
+check eq "$outside" 0 'manage.sh 在 ops-lib 區段外自己畫了編號提示，改用 multiselect'
 
 echo 'bash and PowerShell expose the same subcommands'
 bash_subs=$(sed -n 's/^#\/   \([a-z][a-z-]*\) .*/\1/p' "$script" | tr '\n' ' ')
