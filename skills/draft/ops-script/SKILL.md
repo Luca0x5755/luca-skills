@@ -9,7 +9,12 @@ An **ops script** stays in the repo and gets run again and again by an operator 
 
 Not this skill: a script run once and thrown away, walking a human through a manual procedure — that is `/wizard`.
 
-Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v2 ----` and `# ---- END ops-lib ----` is **copied verbatim** into every script, never hand-edited — a script must run alone on a machine where the repo does not exist, so there is no shared file to `source`. To change the block, change the skeleton, bump the version, and sync it back into each script; two scripts in one project carrying two different version numbers means one was missed (`grep -rn "BEGIN ops-lib"` shows them all). Edit the skeleton only; a fix made inside one script is lost at the next sync.
+Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v3 ----` and `# ---- END ops-lib ----` is **one verbatim unit**, never hand-edited. Where it lives follows whether the script must run alone:
+
+- **Must run alone** (single-file download, `scp`, a USB stick): the block sits inline in the script.
+- **Already needs repo files** (compose files, `.env`, migrations, the repo it links): the block may live as `scripts/lib/ops-lib.sh`, holding the block and nothing else, and each script sources it. Project-specific helpers go in a separate file. Check the file exists before sourcing and say what is missing.
+
+To change the block, change the skeleton, bump the version, and sync every copy; two copies in one project carrying two different version numbers means one was missed (`grep -rn "BEGIN ops-lib"` shows them all). Edit the skeleton only; a fix made inside one copy is lost at the next sync.
 
 **PowerShell script?** Read [POWERSHELL.md](POWERSHELL.md) too: same structure from [skeleton.ps1](skeleton.ps1), plus the encoding (UTF-8 with BOM), 5.1-and-7, confirmation and `-WhatIf` rules that exist only there. The rules below are written in bash terms; the function map in that file translates them.
 
@@ -24,6 +29,7 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 - `-u` with an empty array: expand it as `${arr[@]+"${arr[@]}"}` (S, `print_summary`); a plain `"${arr[@]}"` aborts on older bash.
 - `local x=$(cmd)` swallows `cmd`'s failure, because `local` returns 0. Declare, then assign on the next line.
 - `set -e` is ignored inside `if`/`||` conditions, so a function on the left of `||` never aborts midway; `((n++))` returns 1 when `n` is 0 — count with `n=$((n + 1))` (S).
+- A membership test built by joining with spaces, `case " $list " in *" $x "*)`, passes `x="a b"` as one valid item; a later check that compares the whole string then sees a different value and skips its guard. Match a value from a fixed list with `pick_by_name` (S), which compares each name whole.
 
 **Messages and diagnostics.**
 
@@ -49,7 +55,7 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 - A menu choice prints the equivalent command line before running it (S).
 - Every subcommand that changes the system supports `--dry-run`: print the commands that would run, change nothing (S, `run`).
 
-**Results and picking (S).** `step` titles a phase; `pass`/`fail`/`warn`/`skip` record each outcome and `finish` prints the summary and exits `1` when any `fail` was recorded. A step that can fail is wrapped in `if cmd; then pass …; else fail …; fi` so it is counted, not aborted. `multiselect` takes a title and items: the operator types `1 3 5-7` to toggle, `a` all, `n` none, Enter to confirm (case-insensitive, out-of-range numbers ignored). Confirmed picks come back on stdout, one number per line; nothing picked, or end of input, returns `1` and the caller decides. An action that needs picks also accepts them as a flag (`--pick 1,3`) so it runs unattended.
+**Results and picking (S).** `step` titles a phase; `pass`/`fail`/`warn`/`skip` record each outcome and `finish` prints the summary and exits `1` when any `fail` was recorded. A step that can fail is wrapped in `if cmd; then pass …; else fail …; fi` so it is counted, not aborted. `multiselect` takes a title and items: the operator types `1 3 5-7` to toggle, `a` all, `n` none, Enter to confirm (case-insensitive, out-of-range numbers ignored). Confirmed picks come back on stdout, one number per line; nothing picked, or end of input, returns `1` and the caller decides. Every choice from a fixed list goes through these two functions: `multiselect` on a terminal, and a flag of item **names** (`--pick alpha,gamma`) passed to `pick_by_name` when unattended. It returns the same numbers on stdout, so both paths share the code after them, and exits `2` naming the valid items when any name is unknown. A flag takes names because numbers follow the list's order: add an item and a scheduled `--pick 2` silently points at another one. Item names are what the operator types, so keep them free of commas.
 
 **Bash version.** The skeleton runs on any bash 4 or newer and uses no nameref. A nameref (`local -n`) needs bash 4.3; if you add one, say so in the script's header.
 
@@ -68,6 +74,6 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 Done when each step below has run, or was skipped with a stated reason:
 
 1. `bash -n <script>` passes.
-2. `shellcheck <script>` shows zero findings on default rules. When it is not installed, skip it and say so; installing it is the user's call.
+2. `shellcheck <script>` shows zero findings on default rules. When it is not installed but `uv` is, run `uvx --from shellcheck-py shellcheck <script>` (a temporary download, not an install). With neither, skip it and say so; installing it is the user's call.
 3. Exercise it through `--dry-run` and the `<script-name>_LIB=1` seam. Running a changing subcommand for real is the user's call, not part of verification.
 4. `--help </dev/null` exits `0`; no arguments with `</dev/null` exits `2`; an unknown option and an unknown subcommand exit `2`.

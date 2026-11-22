@@ -2,7 +2,7 @@
 
 The PowerShell half of `/ops-script`. The bash rules in [SKILL.md](SKILL.md) hold here too (one script two ways in, exit codes, `--dry-run` as `-WhatIf`, ops-lib copied verbatim); this file carries only what differs.
 
-Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v2 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
+Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v3 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
 
 ## Rules
 
@@ -31,7 +31,7 @@ Colour uses `-ForegroundColor`, never ANSI escapes (5.1's console may not render
 
 ## Function map
 
-| bash v2 | PowerShell v2 |
+| bash v3 | PowerShell v3 |
 | --- | --- |
 | `_is_tty` | `Test-OpsTty -Stream In\|Out` |
 | `color_init` | `Test-OpsColor` |
@@ -41,6 +41,7 @@ Colour uses `-ForegroundColor`, never ANSI escapes (5.1's console may not render
 | `step`, `pass`, `fail`, `warn`, `skip` | `Write-OpsStep`, `Write-OpsPass`, `Write-OpsFail`, `Write-OpsWarn`, `Write-OpsSkip` |
 | `print_summary`, `finish` | `Write-OpsSummary`, `Complete-OpsRun` |
 | `multiselect` | `Select-OpsMulti` (cancel = no output; test with `@(...).Count`) |
+| `pick_by_name` | `Resolve-OpsPick -Flag -Raw -Items` (ordinal, case-sensitive: `[Array]::IndexOf`, never `-eq` or `-contains`) |
 | `run` | `Invoke-OpsRun -Display -Action` (throws on failure; the caller records it with `try`/`catch`) |
 
 ## Verifying what you wrote

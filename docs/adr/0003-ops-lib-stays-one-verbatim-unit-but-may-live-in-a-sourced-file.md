@@ -1,10 +1,10 @@
 # 0003：ops-lib 仍是一個逐字、帶版號的單位，但不需單獨執行的腳本可改放共用檔再 source
 
-Status: Proposed
+Status: Accepted
 
 日期：2026-11-22
 
-取代：0002（本 ADR 轉為 Accepted 時，0002 改為 `Superseded by 0003`）
+取代：0002
 
 ## 脈絡
 
