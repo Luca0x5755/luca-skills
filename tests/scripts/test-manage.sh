@@ -360,9 +360,9 @@ diff <(sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$script") \
   { echo '✗ manage.sh 的 ops-lib 區段與骨架不一致' >&2; exit 1; }
 
 echo 'pickers live only in ops-lib: no hand-rolled number prompt outside the block'
-# 自製選擇器曾與 multiselect 並存而不自知；挑選一律走 ops-lib，區段外不得有自己的編號提示
+# 自製選擇器曾與 ops-lib 並存而不自知；挑選一律走 ops-lib，區段外不得有自己的編號提示
 outside=$(sed '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/d' "$script" | grep -c '輸入編號' || true)
-check eq "$outside" 0 'manage.sh 在 ops-lib 區段外自己畫了編號提示，改用 multiselect'
+check eq "$outside" 0 'manage.sh 在 ops-lib 區段外自己畫了編號提示，改用 multiselect 或 select_one'
 
 echo 'bash and PowerShell expose the same subcommands'
 bash_subs=$(sed -n 's/^#\/   \([a-z][a-z-]*\) .*/\1/p' "$script" | tr '\n' ' ')

@@ -360,10 +360,10 @@ try {
   Assert-That ((Get-OpsLib $manage) -ceq (Get-OpsLib $skeletonPs1)) 'manage.ps1 的 ops-lib 區段與骨架不一致'
 
   Write-Host 'pickers live only in ops-lib: no hand-rolled number prompt outside the block'
-  # 自製選擇器曾與 Select-OpsMulti 並存而不自知；挑選一律走 ops-lib，區段外不得有自己的編號提示
+  # 自製選擇器曾與 ops-lib 並存而不自知；挑選一律走 ops-lib，區段外不得有自己的編號提示
   $manageRaw = [System.IO.File]::ReadAllText($manage) -replace "`r`n", "`n"
   $outsideLib = $manageRaw.Replace((Get-OpsLib $manage), '')
-  Assert-That (-not $outsideLib.Contains('輸入編號')) 'manage.ps1 在 ops-lib 區段外自己畫了編號提示，改用 Select-OpsMulti'
+  Assert-That (-not $outsideLib.Contains('輸入編號')) 'manage.ps1 在 ops-lib 區段外自己畫了編號提示，改用 Select-OpsMulti 或 Select-OpsOne'
 
   Write-Host 'ValidateSet equals the subcommand table plus the agent names'
   $manageText = [System.IO.File]::ReadAllText($manage) -replace "`r`n", "`n"
