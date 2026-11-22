@@ -185,6 +185,31 @@ contains "選單 10 列時 10 號不補" "$out" "  10) n10"
 out=$(lib 'print_menu')
 contains "選單 1 列時編號不補空白" "$out" "  1) hello"
 
+echo "[LIB] 選單行只答「做什麼、要不要確認」：無旗標、80 欄內；旗標細節留在 --help"
+# disp_width <字串>：顯示寬度近似值 — 多位元組字元算 2 欄（CJK 與全形標點皆為 3 位元組）
+disp_width() {
+  local c b
+  c=$(LC_ALL=C.UTF-8 bash -c 'printf %s "${#1}"' _ "$1")
+  b=$(LC_ALL=C bash -c 'printf %s "${#1}"' _ "$1")
+  echo $((c + (b - c) / 2))
+}
+# check_menu_lines <選單輸出>：每行不含旗標、不超過 80 欄；空輸出算失敗
+check_menu_lines() {
+  local line flagged="" wide="" re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+  [ -n "$1" ] || { verdict ng "抓不到選單輸出"; return; }
+  while IFS= read -r line; do
+    [[ "$line" =~ $re ]] && flagged+="[$line]"
+    (($(disp_width "$line") > 80)) && wide+="[$line]"
+  done <<<"$1"
+  expect "選單行不含旗標" "" "$flagged"
+  expect "選單行不超過 80 欄" "" "$wide"
+}
+check_menu_lines "$(lib 'print_menu')"
+case "$(lib 'print_menu')" in *"[需確認]"*) verdict ng "hello 不需確認，不該標 [需確認]" ;; *) verdict ok "hello 沒有標 [需確認]" ;; esac
+out=$(bash "$SK" --help </dev/null 2>/dev/null)
+contains "--help 仍說明 --pick" "$out" "--pick"
+contains "--help 仍說明 --dry-run" "$out" "--dry-run"
+
 echo "[LIB v2] step 與結果計數"
 out=$(lib 'step 準備' 2>&1 >/dev/null); expect "step 在 stderr 印 == 標題" "== 準備" "$out"
 out=$(lib 'step 準備' 2>/dev/null); expect "step 不碰 stdout" "" "$out"

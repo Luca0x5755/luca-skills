@@ -262,6 +262,22 @@ try {
   $result = Invoke-Manage -Arguments @('bogus')
   Assert-That ($result.ExitCode -ne 0) 'an unknown subcommand was accepted'
 
+  Write-Host 'menu rows say what and whether it asks; flag details stay in -Help'
+  $menu = @((Invoke-Manage -Tty -StandardInput '').Output | Where-Object { $_ -match '^\s+\d+\) ' })
+  Assert-That ($menu.Count -eq 3) "expected 3 menu rows, got $($menu.Count)"
+  foreach ($line in $menu) {
+    Assert-That ($line -notmatch '(^|[\s（(、，；：「/])--?[A-Za-z]') "menu row carries a flag: $line"
+    # 顯示寬度近似值：非 ASCII 字元算 2 欄
+    $width = ($line.ToCharArray() | ForEach-Object { if ([int]$_ -gt 127) { 2 } else { 1 } } | Measure-Object -Sum).Sum
+    Assert-That ($width -le 80) "menu row is wider than 80 columns ($width): $line"
+  }
+  # 要確認的子命令集合由下方行為測試證明：uninstall 無終端機沒帶 -Yes 結束碼 2、install 不問
+  $marked = @($menu | Where-Object { $_ -like '*`[需確認`]*' } | ForEach-Object { ($_.Trim() -split '\s+')[1] }) -join ','
+  Assert-That ($marked -eq 'uninstall') "rows marked [需確認] should be exactly uninstall, got '$marked'"
+  $helpText = (Invoke-Manage -Arguments @('-Help')).Output -join "`n"
+  # 比對手寫的說明句：Get-Help 的語法段會自動產生 [-Yes] [-WhatIf]，只找旗標名會恆真
+  Assert-That ($helpText -match '支援 -WhatIf，無終端機時要 -Yes') '-Help no longer explains -WhatIf and -Yes for uninstall'
+
   Write-Host 'end of input cancels the menu and the agent prompt'
   Reset-Home
   $result = Invoke-Manage -Tty -StandardInput ''

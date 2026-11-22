@@ -3,6 +3,7 @@
 # CLI（powershell -File skeleton.ps1 <args> 的結束碼／輸出／副作用）、LIB（SKELETON_LIB=1 dot-source 後呼叫共用函式）。
 # Windows PowerShell 5.1（powershell.exe）與 PowerShell 7（pwsh）各跑一遍；找不到的就明說略過，不算通過。
 # 片段與輸出比對一律用 ASCII：5.1 對管線輸出用 OEM 碼頁，中文會走樣，不拿來斷言。
+# 例外：選單行檢查覆寫 Write-Host、以 UTF-8 寫檔後再讀，不經管線，才能斷言中文。
 # 執行：bash tests/scripts/test-ops-script-skeleton-ps.sh（tests/test-tooling.sh 會跑）
 set -u
 set -o pipefail
@@ -25,6 +26,24 @@ expect() {  # expect <name> <want> <got>
 }
 contains() {  # contains <name> <haystack> <needle>
   case "$2" in *"$3"*) verdict ok "$1" ;; *) verdict ng "$1（找不到「$3」）" ;; esac
+}
+# disp_width <字串>：顯示寬度近似值 — 多位元組字元算 2 欄（CJK 與全形標點皆為 3 位元組）
+disp_width() {
+  local c b
+  c=$(LC_ALL=C.UTF-8 bash -c 'printf %s "${#1}"' _ "$1")
+  b=$(LC_ALL=C bash -c 'printf %s "${#1}"' _ "$1")
+  echo $((c + (b - c) / 2))
+}
+# check_menu_lines <選單輸出>：每行不含旗標、不超過 80 欄；空輸出算失敗
+check_menu_lines() {
+  local line flagged="" wide="" re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+  [ -n "$1" ] || { verdict ng "抓不到選單輸出"; return; }
+  while IFS= read -r line; do
+    [[ "$line" =~ $re ]] && flagged+="[$line]"
+    (($(disp_width "$line") > 80)) && wide+="[$line]"
+  done <<<"$1"
+  expect "選單行不含旗標" "" "$flagged"
+  expect "選單行不超過 80 欄" "" "$wide"
 }
 
 shells=()
@@ -228,6 +247,17 @@ for PS in "${shells[@]}"; do
   contains "選單 10 列時 10 號不補" "$out" "  10) n10"
   out=$(printf 'q\n' | lib 'Invoke-OpsMenu')
   contains "選單 1 列時編號不補空白" "$out" "  1) hello"
+
+  echo "[LIB] 選單行只答「做什麼、要不要確認」：無旗標、80 欄內；旗標細節留在 -Help"
+  # 中文經 5.1 管線會走樣：覆寫 Write-Host，把選單行以 UTF-8 寫進檔案再檢查
+  mf="$tmp/menu-lines-$ver.txt"
+  printf 'q\n' | MF="$TMPW/menu-lines-$ver.txt" lib 'function Write-Host { param($Object, [switch]$NoNewline) if (-not $NoNewline) { [IO.File]::AppendAllText($env:MF, "$Object`n", [Text.UTF8Encoding]::new($false)) } }; Invoke-OpsMenu' >/dev/null
+  check_menu_lines "$(cat "$mf" 2>/dev/null)"
+  case "$(cat "$mf" 2>/dev/null)" in *"[需確認]"*) verdict ng "hello 不需確認，不該標 [需確認]" ;; *) verdict ok "hello 沒有標 [需確認]" ;; esac
+  # 比對手寫的說明（ASCII 片段）：Get-Help 語法段會自動產生 [-Pick] [-WhatIf]，只找旗標名會恆真
+  cli $nul -Help
+  contains "-Help 仍說明 -Pick 的用法" "$OUT" "-Pick alpha,gamma"
+  contains "-Help 仍示範 hello 的 -WhatIf" "$OUT" "hello -Pick beta -WhatIf"
 
   echo "[LIB v3] Resolve-OpsPick（名稱整串精確比對，輸出與 Select-OpsMulti 同形）"
   rp() {  # rp <值>：RP_OUT 為回傳的編號（逗號串接）

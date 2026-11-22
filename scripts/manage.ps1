@@ -20,6 +20,9 @@ draft 也連 —— 桶的分界是「對外發佈與否」，不是「本機能
 
 .PARAMETER Command
 install、uninstall、status，或直接給代理名稱（claude、copilot、codex）。
+  install：順手清掉已封存或改名的過期連結；支援 -WhatIf。
+  uninstall：只移除本 repo 建立的連結，不碰外來技能；支援 -WhatIf，無終端機時要 -Yes。
+  status：唯讀；有缺漏、斷鏈、過期或同名衝突時結束碼 1。
 
 .PARAMETER Agent
 要處理的代理，可多個、可重複（重複只處理一次）。省略時有終端機就詢問，沒有終端機結束碼 2。
@@ -463,9 +466,9 @@ function Invoke-Status {
 # 子命令表：選單、用法與分派都讀它。Fn 是處理函式；Verb 是選代理時的動詞。
 # 新增子命令 = 加一列 + 一個函式 + ValidateSet 補一個值。
 $SubCommands = [ordered]@{
-    install   = @{ Desc = '把技能連進代理的技能目錄（支援 -WhatIf）'; Fn = 'Invoke-Install'; Verb = '安裝' }
-    uninstall = @{ Desc = '移除本 repo 建立的連結，不碰外來技能（支援 -WhatIf、-Yes）'; Fn = 'Invoke-Uninstall'; Verb = '移除' }
-    status    = @{ Desc = '唯讀檢查連結狀態；有缺漏、斷鏈、過期或衝突時結束碼 1'; Fn = 'Invoke-Status'; Verb = '檢查' }
+    install   = @{ Desc = '把技能連進代理目錄'; Fn = 'Invoke-Install'; Verb = '安裝' }
+    uninstall = @{ Desc = '移除本 repo 建的連結  [需確認]'; Fn = 'Invoke-Uninstall'; Verb = '移除' }
+    status    = @{ Desc = '檢查連結狀態（唯讀）'; Fn = 'Invoke-Status'; Verb = '檢查' }
 }
 
 function Write-Usage { Write-Host ((Get-Help $SelfPath -Full | Out-String).TrimEnd()) }

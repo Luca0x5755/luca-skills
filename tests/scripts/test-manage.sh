@@ -72,6 +72,28 @@ m install --help
 check eq "$rc" 0 'install --help 應結束碼 0'
 [ ! -e "$test_home/.agents" ] || { echo '✗ help 與用法錯誤不應建立目錄' >&2; exit 1; }
 
+echo 'menu rows say what and whether it asks; flag details stay in --help'
+# disp_width 字串：顯示寬度近似值 — 多位元組字元算 2 欄（CJK 與全形標點皆為 3 位元組）
+disp_width() {
+  local c b
+  c=$(LC_ALL=C.UTF-8 bash -c 'printf %s "${#1}"' _ "$1")
+  b=$(LC_ALL=C bash -c 'printf %s "${#1}"' _ "$1")
+  echo $((c + (b - c) / 2))
+}
+out="$(MANAGE_LIB=1 bash -c 'source "$1"; print_menu' _ "$script" 2>&1)"
+check eq "$(printf '%s\n' "$out" | awk 'END { print NR }')" 3 '選單應恰有 3 列'
+flag_re='(^|[[:space:]（(、，；：「/])--?[A-Za-z]'
+while IFS= read -r line; do
+  check eval '! [[ "$line" =~ $flag_re ]]' "選單行不該含旗標：$line"
+  check eval '(($(disp_width "$line") <= 80))' "選單行超過 80 欄：$line"
+done <<<"$out"
+# 要確認的子命令集合由下方行為測試證明：uninstall 無終端機沒帶 -y 結束碼 2、install 不問
+# 用 awk 不用 grep：沒有任何一列帶標記時 grep 回 1，pipefail 會讓整支測試無聲中止
+marked="$(printf '%s\n' "$out" | awk 'index($0, "[需確認]") { print $2 }' | paste -sd, -)"
+check eq "$marked" uninstall "標 [需確認] 的子命令應恰為 uninstall，實得「$marked」"
+m --help
+check eval '[[ "$out" == *--dry-run* && "$out" == *"-y, --yes"* ]]' '--help 應仍說明 --dry-run 與 -y'
+
 echo 'install codex links only Codex'
 m install codex
 check eq "$rc" 0 'install codex 失敗'

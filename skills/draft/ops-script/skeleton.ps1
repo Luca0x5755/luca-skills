@@ -12,6 +12,7 @@
 
 .PARAMETER Command
 子命令。不給且有終端機時進入選單；不給且沒有終端機時印用法並結束碼 2。
+  hello：支援 -WhatIf，只印將執行的指令，什麼都不改。
 
 .PARAMETER Pick
 hello 的挑選：-Pick alpha,gamma 依名稱免互動。
@@ -221,7 +222,7 @@ $ScriptName = Split-Path -Leaf $SelfPath
 
 # 子命令表：選單與分派都讀它。Fn 是處理函式；新增子命令 = 加一列 + 一個函式 + ValidateSet 補一個值。
 $SubCommands = [ordered]@{
-    hello = @{ Desc = '示範：用多選器挑要建立的目錄（-Pick alpha,gamma 依名稱免互動；支援 -WhatIf）'; Fn = 'Invoke-Hello' }
+    hello = @{ Desc = '示範：挑選並建立目錄'; Fn = 'Invoke-Hello' }
 }
 
 function Write-Usage { Write-Host ((Get-Help $SelfPath -Full | Out-String).TrimEnd()) }

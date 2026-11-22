@@ -52,6 +52,8 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 - An unknown argument exits `2` (S).
 - `--help` prints only the `#/` lines at the top of the file (S).
 - One table drives the menu, the `--help` list and the dispatch (S): the table is the `#/` subcommand rows, and a row `x-y` dispatches to `cmd_x_y`. Adding a subcommand is one row plus one function.
+- A menu row answers two questions only: what the subcommand does, as verb + object, and whether it stops to ask. Flags, caveats and exit-code meaning go to `--help` (S). In bash that is a per-subcommand group in the `#/` header: a `#/ <name>：caveat` line, then one `#/   -flag  meaning` line per flag — every indented line inside a group starts with `-`, because a `#/` line of three spaces and a lowercase word is a table row. In PowerShell it is `.PARAMETER`; a common parameter such as `-WhatIf` has no `.PARAMETER` of its own, so note it under `.PARAMETER Command` as `<name>：…`. Number, name and description fit in 80 columns, a CJK character counting as two. The operator scans the rows to pick one; every extra clause is read on every run.
+- A subcommand that goes through `confirm`, or needs `-y` unattended, ends its row with the confirm marker (`[需確認]`, in the project's message language); a subcommand without a confirmation never carries it. The kind of risk — deletion, real money — is written in the description itself, so the marker stays the only one. The marker and the confirmation change together, and the script's tests pin the set of marked subcommands.
 - A menu choice prints the equivalent command line before running it (S).
 - Every subcommand that changes the system supports `--dry-run`: print the commands that would run, change nothing (S, `run`).
 
