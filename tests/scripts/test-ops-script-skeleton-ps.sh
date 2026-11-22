@@ -63,7 +63,7 @@ if [ ${#shells[@]} -eq 0 ]; then echo "- 兩種 PowerShell 都沒有，整份略
 echo "[STATIC] 檔案本身（與 shell 無關）"
 [ -f "$SK" ] && verdict ok "skeleton.ps1 存在" || { verdict ng "skeleton.ps1 不存在"; exit 1; }
 expect "前 3 byte 為 EF BB BF" "efbbbf" "$(head -c 3 "$SK" | od -An -tx1 | tr -d ' \n')"
-b=$(grep -n '^# ---- BEGIN ops-lib v4 ----' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v5 ----' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v4 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Write-OpsStep \

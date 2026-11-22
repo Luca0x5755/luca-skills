@@ -28,7 +28,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v4 ----
+# ---- BEGIN ops-lib v5 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -139,12 +139,12 @@ multiselect() {
   MS_SEL=()
   for ((i = 0; i < n; i++)); do MS_SEL+=(0); done
   while true; do
-    printf '%s\n' "$title" >&2
+    printf '%s（例：1 3 5-7；a 全選、n 全不選、Enter 確定）\n' "$title" >&2
     # 編號在前、標記在後，編號欄寬依項目數；與選單的 `N) 名稱` 對齊。
     for ((i = 0; i < n; i++)); do
       printf '  %*d) [%s] %s\n' "$w" "$((i + 1))" "$( ((MS_SEL[i])) && echo x || echo ' ')" "${items[i]}" >&2
     done
-    printf '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' >&2
+    printf '輸入編號：' >&2
     IFS= read -r line || return 1
     if [[ -z "${line//[[:space:]]/}" ]]; then break; fi
     _ms_apply "$line"

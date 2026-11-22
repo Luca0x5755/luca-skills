@@ -54,7 +54,7 @@ if ($MyInvocation.InvocationName -eq '.' -and $env:SKELETON_LIB -ne '1') {
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 
-# ---- BEGIN ops-lib v4 ----
+# ---- BEGIN ops-lib v5 ----
 # Write-Host 是操作者介面（選單、提示、步驟、結果）：資料走管線，畫面走 host，兩條路不混。
 # 本檔頂端的 SuppressMessage 抑制 PSAvoidUsingWriteHost，理由寫在那裡。
 
@@ -179,13 +179,13 @@ function Select-OpsMulti {
     $sel = New-Object 'int[]' $Items.Count
     $w = "$($Items.Count)".Length
     while ($true) {
-        Write-Host $Title
+        Write-Host "$Title（例：1 3 5-7；a 全選、n 全不選、Enter 確定）"
         # 編號在前、標記在後，編號欄寬依項目數；與選單的 `N) 名稱` 對齊。
         for ($i = 0; $i -lt $Items.Count; $i++) {
             $mark = if ($sel[$i]) { 'x' } else { ' ' }
             Write-Host ('  {0}) [{1}] {2}' -f "$($i + 1)".PadLeft($w), $mark, $Items[$i])
         }
-        Write-Host '輸入編號切換（例：1 3 5-7；a 全選、n 全不選、Enter 確定）：' -NoNewline
+        Write-Host '輸入編號：' -NoNewline
         $line = [Console]::In.ReadLine()
         if ($null -eq $line) { return }
         if (-not $line.Trim()) { break }

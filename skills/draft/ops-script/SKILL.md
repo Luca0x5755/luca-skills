@@ -9,7 +9,7 @@ An **ops script** stays in the repo and gets run again and again by an operator 
 
 Not this skill: a script run once and thrown away, walking a human through a manual procedure — that is `/wizard`.
 
-Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v4 ----` and `# ---- END ops-lib ----` is **one verbatim unit**, never hand-edited. Where it lives follows whether the script must run alone:
+Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v5 ----` and `# ---- END ops-lib ----` is **one verbatim unit**, never hand-edited. Where it lives follows whether the script must run alone:
 
 - **Must run alone** (single-file download, `scp`, a USB stick): the block sits inline in the script.
 - **Already needs repo files** (compose files, `.env`, migrations, the repo it links): the block may live as `scripts/lib/ops-lib.sh`, holding the block and nothing else, and each script sources it. Project-specific helpers go in a separate file. Check the file exists before sourcing and say what is missing.

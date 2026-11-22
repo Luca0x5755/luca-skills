@@ -2,7 +2,7 @@
 
 The PowerShell half of `/ops-script`. The bash rules in [SKILL.md](SKILL.md) hold here too (one script two ways in, exit codes, `--dry-run` as `-WhatIf`, ops-lib copied verbatim); this file carries only what differs.
 
-Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v4 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
+Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v5 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
 
 ## Rules
 

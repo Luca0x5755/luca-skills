@@ -70,7 +70,7 @@ out=$(SKELETON_LIB=true bash -c 'source "$1"; echo "rc=$?"' _ "$SK" 2>&1 </dev/n
 contains "LIB=true 的 source 仍被擋" "$out" "rc=1"
 
 echo "[CLI] 檔案結構與語法"
-b=$(grep -n '^# ---- BEGIN ops-lib v4 ----$' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v5 ----$' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----$' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN 標記在 END 標記之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in die confirm require_tty; do
@@ -305,7 +305,7 @@ pn 'delta'; contains "錯誤訊息列出可用的名稱" "$(cat "$tmp/pn.err")" 
 echo "[文件] 版號與維運說明"
 ! grep -q 'nameref\|local -n\|declare -n' "$SK" && verdict ok "骨架未用 nameref（bash 4.3 說明為條件式）" || verdict ng "骨架用了 nameref，需確認 bash 4.3 說明"
 SM="$(dirname "$SK")/SKILL.md"
-contains "SKILL.md 標明 v4" "$(cat "$SM")" "ops-lib v4"
+contains "SKILL.md 標明 v5" "$(cat "$SM")" "ops-lib v5"
 doc=$(cat "$SM" "$(dirname "$SK")"/*.md 2>/dev/null)
 contains "維護規則：兩個版號即有一支沒同步" "$doc" "two different version numbers"
 contains "陷阱：read 讀到輸入結尾" "$doc" "read -r x ||"
