@@ -31,7 +31,7 @@ Colour uses `-ForegroundColor`, never ANSI escapes (5.1's console may not render
 
 ## Function map
 
-| bash v4 | PowerShell v4 |
+| bash | PowerShell |
 | --- | --- |
 | `_is_tty` | `Test-OpsTty -Stream In\|Out` |
 | `color_init` | `Test-OpsColor` |
