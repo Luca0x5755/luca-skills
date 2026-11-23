@@ -1,6 +1,6 @@
 # Parallel queue execution
 
-Reference for `run-queue` parallel mode. The coordinator owns the integration branch; workers own separate checkouts. At most two implementer workers run concurrently; seam reviewers and integration consume available agent slots too. Reserve capacity for review and integrate serially. Workers never invoke `run-queue` or `implement-spec`.
+Reference for `run-queue` parallel mode. The coordinator owns the integration branch; workers own separate checkouts. At most the requested limit of implementer workers (two, or three with `parallel=3`) run concurrently; seam reviewers and integration consume available agent slots too. Reserve capacity for review and integrate serially. Workers never invoke `run-queue` or `implement-spec`.
 
 ## Prepare and admit
 
