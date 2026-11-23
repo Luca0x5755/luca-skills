@@ -1,8 +1,8 @@
 ---
 name: run-queue
-description: 已核可的本機票佇列無人看管執行並開 PR；預設串行，可選最多兩個工作樹平行建置，卡票擱置，merge 歸使用者。
+description: 已核可的本機票佇列無人看管執行並開 PR；預設串行，可選最多三個工作樹平行建置，卡票擱置，merge 歸使用者。
 disable-model-invocation: true
-argument-hint: 預設串行；parallel 或 parallel=2 啟用兩個 worker
+argument-hint: 預設串行；parallel 或 parallel=2 啟用兩個 worker，parallel=3 啟用三個
 ---
 
 # Run Queue
@@ -15,7 +15,7 @@ This is the bounded local-queue flow. `/implement-spec` is the separate, steerab
 
 - Current branch is a feature branch; working tree clean; every spec and ticket in `docs/issues/` committed. Any miss: report and stop.
 - There are local tickets: 本機議題 files in `docs/issues/` with `## Done when` and `## Blocked by` (specs have neither). None → report and stop.
-- **Serial is the default**, retaining one fresh implementer context per ticket. An explicit `parallel` or `parallel=2` argument enables at most two implementer workers. Another limit: report that only 1 or 2 is supported.
+- **Serial is the default**, retaining one fresh implementer context per ticket. An explicit `parallel` or `parallel=2` argument enables at most two implementer workers; `parallel=3` enables at most three. Another limit: report that only 1, 2 or 3 is supported.
 - Parallel mode requires background agents, independent branches/worktrees and isolated test resources. If unavailable, report the limitation and use serial execution; do not claim concurrency.
 - Read [PARALLEL.md](PARALLEL.md) before creating any worktree or dispatching a parallel worker. It defines preparation, resource admission, integration, denial and cleanup.
 - Commands the coordinator itself runs (status, worktree checks, integration verification) follow *Running commands* in `implement/SKILL.md`, read from the parent of this skill's base directory.
@@ -29,7 +29,7 @@ Ready means every `Blocked by` ticket is done on the integration branch and the 
 Choose ready tickets in numeric order. Keep claimed/running ticket IDs, assigned worktrees, retry counts and resource reservations in session memory only; never dispatch an already claimed ticket. No separate persistent progress ledger. After a restart, inspect surviving branches, worktrees and commits before dispatching; an ambiguous active worker is a reason to stop and report.
 
 - Serial: select one ready ticket.
-- Parallel: admit up to two ready, unclaimed tickets whose resources can be isolated per [PARALLEL.md](PARALLEL.md).
+- Parallel: admit up to the requested worker limit of ready, unclaimed tickets whose resources can be isolated per [PARALLEL.md](PARALLEL.md).
 - No ready ticket but workers exist: wait for their outcomes; do not open the PR yet.
 - No ready ticket and no workers: classify remaining tickets, then §4. An unexplained remainder or graph error stops as an incomplete draft, never as all done.
 
