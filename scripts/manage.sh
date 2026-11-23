@@ -43,7 +43,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v7 ----
+# ---- BEGIN ops-lib v8 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -87,8 +87,76 @@ require_tty() {
 N_PASS=0; N_FAIL=0; N_WARN=0; N_SKIP=0
 ISSUES=()
 
-# step 標題：步驟標題，走 stderr。
-step() { printf '%s== %s%s\n' "$BOLD" "$*" "$RESET" >&2; }
+# ---- 繼續指令 ----
+# RESUME_CMD 子命令名、RESUME_ARGS 原參數（皆由 run_command 在區段外記下），之後接 resume_arg 補登的值。
+# 沒記下子命令（例如不走這種 run_command 的腳本）就不印，所以 -u 下也安全。
+RESUME_CMD=""; RESUME_ARGS=()
+
+# resume_arg 參數...：子命令在互動中問來一個值，就補登它的等價參數（例：resume_arg --pick alpha,gamma）。
+# 補了，重跑才不會再問一次；沒問過的值不必補，原參數已經在了。
+resume_arg() { RESUME_ARGS+=("$@"); }
+
+# print_resume：沒做完就停下時印一行繼續指令，走 stderr、寫法同選單的等價指令。
+# 逐步模式的 q 與 finish 有 fail 共用它；從不自動加 -y，互動按過的確認重跑時要再確認一次。
+# 單純字元原樣印，其餘用 %q 保住含空白的參數。
+print_resume() {
+  local w line
+  [[ -n "$RESUME_CMD" ]] || return 0
+  line="→ ${SCRIPT_NAME:-${0##*/}} $RESUME_CMD"
+  for w in ${RESUME_ARGS[@]+"${RESUME_ARGS[@]}"}; do
+    if [[ "$w" =~ ^[A-Za-z0-9_.,:/=@%+-]+$ ]]; then line+=" $w"; else line+=" $(printf '%q' "$w")"; fi
+  done
+  printf '%s\n' "$line" >&2
+}
+
+# ---- 逐步模式 ----
+# 全域狀態（本區段保留的名稱）：STEP_ON 開關、STEP_ALL 已按 a、STEP_N 目前步驟的流水號。
+STEP_ON=0; STEP_ALL=0; STEP_N=0
+
+# enable_step_mode：開啟逐步模式。停點讀 stdin，所以沒有終端機就 exit 2、什麼都還沒做。
+# 由子命令在解析完參數後呼叫；修法點名 --step，因為操作者只能拿掉它。
+enable_step_mode() {
+  require_tty "拿掉 --step，或在終端機中執行"
+  STEP_ON=1
+}
+
+# _step_gate 標題：停點。Enter 執行；a 執行並讓之後不再停；q 或 EOF 先印總表、點名停在哪一步之前，exit 1；
+# 其他輸入（含 y）重問。沒有跳過：跳過的步驟若記成 [PASS] 就是說謊。
+_step_gate() {
+  local ans=""
+  while true; do
+    printf '[Enter 執行、a 之後不再停、q 離開] ' >&2
+    # 最後一行沒有換行時 read 回非 0 但 ans 有值：有值就照常處理，只有真正的 EOF 才當 q。
+    read -r ans || [[ -n "$ans" ]] || ans=q
+    case "$ans" in
+      "") return 0 ;;
+      [aA]) STEP_ALL=1; return 0 ;;
+      [qQ])
+        printf '\n' >&2
+        print_summary
+        printf '停在步驟 %d「%s」之前\n' "$STEP_N" "$1" >&2
+        print_resume
+        exit 1
+        ;;
+    esac
+  done
+}
+
+# step 標題 [說明行...]：步驟標題，走 stderr。說明行（選填，1–3 行）只在逐步模式印；
+# 逐步模式下標題帶流水號並在執行前停一次（a 之後只印不停）。停點掛在 step、不掛在 run：
+# 掛在 run 會讓被跳過的步驟記成 [PASS]。
+step() {
+  local title=$1 line
+  shift
+  if ((!STEP_ON)); then
+    printf '%s== %s%s\n' "$BOLD" "$title" "$RESET" >&2
+    return 0
+  fi
+  STEP_N=$((STEP_N + 1))
+  printf '%s== 步驟 %d：%s%s\n' "$BOLD" "$STEP_N" "$title" "$RESET" >&2
+  for line in "$@"; do printf '   %s\n' "$line" >&2; done
+  if ((!STEP_ALL)); then _step_gate "$title"; fi
+}
 
 pass() { N_PASS=$((N_PASS + 1)); printf '[PASS] %s\n' "$*" >&2; }
 skip() { N_SKIP=$((N_SKIP + 1)); printf '[SKIP] %s\n' "$*" >&2; }
@@ -112,7 +180,7 @@ print_summary() {
 # finish：印總表後結束；有任何 fail 結束碼為 1，否則 0。
 finish() {
   print_summary
-  if ((N_FAIL > 0)); then exit 1; fi
+  if ((N_FAIL > 0)); then print_resume; exit 1; fi
   exit 0
 }
 

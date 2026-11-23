@@ -9,7 +9,7 @@ An **ops script** stays in the repo and gets run again and again by an operator 
 
 Not this skill: a script run once and thrown away, walking a human through a manual procedure — that is `/wizard`.
 
-Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v7 ----` and `# ---- END ops-lib ----` is **one verbatim unit**, never hand-edited. Where it lives follows whether the script must run alone:
+Start from [skeleton.sh](skeleton.sh): copy it, rename it, replace the `hello` demo. The block between `# ---- BEGIN ops-lib v8 ----` and `# ---- END ops-lib ----` is **one verbatim unit**, never hand-edited. Where it lives follows whether the script must run alone:
 
 - **Must run alone** (single-file download, `scp`, a USB stick): the block sits inline in the script.
 - **Already needs repo files** (compose files, `.env`, migrations, the repo it links): the block may live as `scripts/lib/ops-lib.sh`, holding the block and nothing else, and each script sources it. Project-specific helpers go in a separate file. Check the file exists before sourcing and say what is missing.
@@ -61,6 +61,14 @@ Hold every rule below; the skeleton already embodies the ones marked (S).
 - Every subcommand that changes the system supports `--dry-run`: print the commands that would run, change nothing (S, `run`).
 
 **Results and picking (S).** `step` titles a phase; `pass`/`fail`/`warn`/`skip` record each outcome and `finish` prints the summary and exits `1` when any `fail` was recorded. A step that can fail is wrapped in `if cmd; then pass …; else fail …; fi` so it is counted, not aborted. `multiselect` takes a title and items and draws each row as `N) [x] name` (number first, padded to the width of the item count, so it lines up with the menu's `N) name`): the operator types `1 3 5-7` to toggle, `a` all, `n` none, Enter to confirm (case-insensitive, out-of-range numbers ignored). Confirmed picks come back on stdout, one number per line; nothing picked, or end of input, returns `1` and the caller decides. `select_one` is the single pick: same title and items, rows drawn as `N) name`, the title line ending in （q 取消）. A valid number picks at once and comes back on stdout; Enter, `q` or end of input returns `1`; anything else is reported and asked again. Every choice from a fixed list goes through these functions — a hand-written number prompt outside ops-lib is a second picker that ops-lib fixes never reach. On a terminal: `multiselect` for any number of items, `select_one` for exactly one (never `multiselect` with a count check). Unattended: a flag of item **names** (`--pick alpha,gamma`) passed to `pick_by_name`, or a one-name flag (`--target beta`) passed to `pick_one_by_name`, which exits `2` when given more than one. Both return the same numbers on stdout as their terminal twin, so both paths share the code after them, and exit `2` naming the valid items when any name is unknown. A flag takes names because numbers follow the list's order: add an item and a scheduled `--pick 2` silently points at another one. Item names are what the operator types, so keep them free of commas.
+
+**Steps and resuming (S).** A subcommand that wants step mode accepts `--step` and calls `enable_step_mode`; `step "title" "line"...` then pauses before each step. A script that stops before it finishes prints a **continue command** to stderr: on `q` or end of input at a step-mode pause, and at `finish` whenever a `fail` was recorded. It is `→ <script> <subcommand> <original arguments> <registered arguments>`, never with `-y` added: a confirmation the operator answered interactively is asked again on the rerun. Resuming works because of three rules:
+
+- Every step must be rerunnable: a rerun converges on the same end state and never errors because the work already exists (`mkdir -p`, not `mkdir`).
+- A step that is slow or cannot be redone checks the system state first and calls `skip` when the work is already done.
+- The step description is optional, 1–3 lines, and answers three questions: what it changes, what a rerun does, and what state the system is in if the operator stops here.
+
+When a subcommand asks the operator for a value, call `resume_arg <argument>...` with the equivalent argument (`resume_arg --pick alpha,gamma` after the `multiselect`), so the continue command does not ask again. `run_command` records the original arguments; `resume_arg` only adds. Values that came from the command line are already recorded and are not registered again.
 
 **Bash version.** The skeleton runs on any bash 4 or newer and uses no nameref. A nameref (`local -n`) needs bash 4.3; if you add one, say so in the script's header.
 

@@ -2,7 +2,7 @@
 
 The PowerShell half of `/ops-script`. The bash rules in [SKILL.md](SKILL.md) hold here too (one script two ways in, exit codes, `--dry-run` as `-WhatIf`, ops-lib copied verbatim); this file carries only what differs.
 
-Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v7 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
+Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v8 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
 
 ## Rules
 
@@ -11,6 +11,10 @@ Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib
 **Runs on both Windows PowerShell 5.1 (`powershell.exe`) and PowerShell 7 (`pwsh`).** Stay inside the 5.1 language: no ternary, no `??`, no `&&`/`||` between pipelines, no `$PSStyle`. Verify on both — the parser (`[System.Management.Automation.Language.Parser]::ParseFile`), `-WhatIf`, and the no-terminal exit code.
 
 **Confirmation is hand-written, default No.** The built-in `-Confirm` prompt and `ShouldContinue` run on Enter; a destructive action must not. `Confirm-Ops` answers `$true` only for `y`/`yes`, and end of input is No. `SupportsShouldProcess` exists only to provide `-WhatIf`: `Invoke-OpsRun` prints the command, then asks `$PSCmdlet.ShouldProcess`. It also exposes `-Confirm`, which is that built-in prompt and not this project's confirmation path. `Invoke-OpsRun` discards the action's output (the screen shows the `+` line); an action whose output matters returns it through its own variable.
+
+**Step mode (`-Step`) is hand-written too.** `Write-OpsStep Title [note lines...]` prints the notes and stops only when `$script:StepMode` is set; the script body binds `-Step` into it at start-up, as it does `$script:HasPick`, because functions cannot see the script's `$PSBoundParameters`. The stop accepts Enter, `a` (run the rest without stopping, notes still printed) and `q` or end of input (summary, then exit `1`); anything else asks again, and there is no skip. Without a terminal `-Step` exits `2` before any step runs. It combines with `-WhatIf` and never replaces `Confirm-Ops`. Do not build the stop on `ShouldProcess`, `-Confirm` or `Set-PSDebug`: under `-NonInteractive` `ShouldProcess` throws at every step while the script still exits `0`, and `Set-PSDebug -Step` stops per line.
+
+**Every step is re-runnable; the resume command depends on it.** When a run stops half-way (`q`, end of input, or a `[FAIL]` at the end), `Write-OpsResume` prints `-> <script> <subcommand> <original args> <added args>` through `Write-OpsLine`, the same host channel as `[PASS]` and the summary, never the success stream. The operator re-runs that line, so each step must converge on the system state: a step that is slow or cannot be redone checks the state first and calls `Write-OpsSkip` when the work is already done. A step's note lines are optional, 1-3 lines: what it changes, what a re-run does, what state the system is in if the run stops there. `Set-OpsRunCommand` records the original args from the script-level `$PSBoundParameters` (`Invoke-OpsCommand` calls it; `Command` and `Help` are left out), and `-Yes` appears only if the operator typed it, because a confirmation answered interactively must be asked again on the re-run. A value the subcommand asked for interactively is added with `Add-OpsResumeArg -Flag '-Pick' -Value $names`, so the printed line re-runs without asking again (`hello` does this for its picker; add it only on the interactive path, never when the flag was already bound).
 
 **No terminal: look at stdin only, with `[Console]::IsInputRedirected`.** Never detect it by letting `Read-Host` fail — 5.1 and 7 fail differently. Read input with `[Console]::In.ReadLine()`; `$null` means end of input. No subcommand and no terminal: usage, exit `2`.
 
@@ -40,6 +44,7 @@ Colour uses `-ForegroundColor`, never ANSI escapes (5.1's console may not render
 | `require_tty` | `Assert-OpsTty` |
 | `step`, `pass`, `fail`, `warn`, `skip` | `Write-OpsStep`, `Write-OpsPass`, `Write-OpsFail`, `Write-OpsWarn`, `Write-OpsSkip` |
 | `print_summary`, `finish` | `Write-OpsSummary`, `Complete-OpsRun` |
+| `resume_arg` | `Add-OpsResumeArg -Flag -Value` (the rest of the resume command: `Set-OpsRunCommand`, `Write-OpsResume`) |
 | `multiselect` | `Select-OpsMulti` (cancel = no output; test with `@(...).Count`) |
 | `pick_by_name` | `Resolve-OpsPick -Flag -Raw -Items` (ordinal, case-sensitive: `[Array]::IndexOf`, never `-eq` or `-contains`) |
 | `select_one` | `Select-OpsOne` (cancel = no output; test with `@(...).Count`) |

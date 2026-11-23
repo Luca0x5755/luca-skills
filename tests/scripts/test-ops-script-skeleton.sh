@@ -77,7 +77,7 @@ out=$(SKELETON_LIB=true bash -c 'source "$1"; echo "rc=$?"' _ "$SK" 2>&1 </dev/n
 contains "LIB=true 的 source 仍被擋" "$out" "rc=1"
 
 echo "[CLI] 檔案結構與語法"
-b=$(grep -n '^# ---- BEGIN ops-lib v7 ----$' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v8 ----$' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----$' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN 標記在 END 標記之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in die confirm require_tty select_one pick_one_by_name; do
@@ -376,11 +376,149 @@ echo "[結構 v6] ops-lib 以外不自己讀編號"
 outside=$(awk '/^# ---- BEGIN ops-lib/{f=1} !f{print} /^# ---- END ops-lib ----$/{f=0}' "$SK")
 expect "ops-lib 區段外沒有自製的編號提示" "" "$(grep -nE 'printf .*編號|^[[:space:]]*(IFS=[^ ]* )?read ' <<<"$outside")"
 
+echo "[LIB v8] 逐步模式：step 在停點前印標題與說明，讀 stdin、寫 stderr"
+tty0='_is_tty() { return 0; }'
+S3="$tty0; enable_step_mode; step 甲 說明一 說明二; pass 甲; step 乙 乙說明; pass 乙; step 丙; pass 丙; finish"
+out=$(lib "$S3" 2>&1 >/dev/null <<<$'\n\n\n'); rc=$?
+expect "三步都按 Enter 跑完回 0" 0 "$rc"
+contains "標題帶流水號 1" "$out" "== 步驟 1：甲"
+contains "標題帶流水號 2" "$out" "== 步驟 2：乙"
+contains "標題帶流水號 3" "$out" "== 步驟 3：丙"
+contains "說明行照印" "$out" "說明二"
+contains "三步都 pass" "$out" "pass 3"
+out=$(lib "$S3" 2>&1 >/dev/null <<<$'a\n'); rc=$?
+expect "a 之後不再停（只餵一個 a）回 0" 0 "$rc"
+contains "a 之後仍印第 2 步標題" "$out" "== 步驟 2：乙"
+contains "a 之後仍印第 2 步說明" "$out" "乙說明"
+contains "a 之後仍印第 3 步標題" "$out" "== 步驟 3：丙"
+contains "a 之後三步都執行" "$out" "pass 3"
+out=$(lib "$S3" 2>&1 >/dev/null <<<$'\nq\n'); rc=$?
+expect "q 回 1" 1 "$rc"
+contains "q 先印總表（第 1 步已 pass）" "$out" "總計：pass 1"
+contains "q 點名停在步驟 2 之前" "$out" "停在步驟 2"
+case "$out" in *"== 步驟 3"*) verdict ng "q 之後不該再進第 3 步" ;; *) verdict ok "q 之後不再往下" ;; esac
+case "$out" in *"[PASS] 乙"*) verdict ng "q 停下的那步不該執行" ;; *) verdict ok "q 停下的那步沒執行" ;; esac
+out=$(lib "$S3" 2>&1 >/dev/null </dev/null); rc=$?
+expect "EOF 等同 q 回 1" 1 "$rc"
+contains "EOF 點名停在步驟 1 之前" "$out" "停在步驟 1"
+out=$(lib "$S3" 2>&1 >/dev/null <<<$'s\nskip\ny\nzzz\n\n\n\n'); rc=$?
+expect "s／skip／y／雜訊皆重問、最後仍能跑完" 0 "$rc"
+contains "重問後第 1 步照常執行" "$out" "[PASS] 甲"
+out=$(lib "$S3" 2>&1 >/dev/null <<<$'s\nq\n')
+case "$out" in *"[PASS] 甲"*) verdict ng "s 被當成執行" ;; *) verdict ok "s 重問、不執行" ;; esac
+out=$(lib "$S3" 2>&1 >/dev/null </dev/null)
+case "$out" in *"步驟 2：乙"*) verdict ng "開跑前出現總覽" ;; *) verdict ok "停在第 1 步時沒有後續步驟的總覽" ;; esac
+out=$(lib "$S3" 2>/dev/null <<<$'\n\n\n'); expect "逐步模式不碰 stdout" "" "$out"
+printf a | lib "$S3" >/dev/null 2>&1; expect "最後一行沒有換行的 a 仍算 a（回 0）" 0 $?
+
+echo "[LIB v8] 不帶逐步模式：說明行不印，輸出同 v7"
+out=$(lib 'step 甲 說明一 說明二' 2>&1 >/dev/null); expect "有說明行也只印 == 標題" "== 甲" "$out"
+out=$(lib 'step 甲' 2>&1 >/dev/null </dev/null); expect "只給標題時同 v7" "== 甲" "$out"
+out=$(HELLO_DIR="$tmp/v7" bash "$SK" hello --pick alpha 2>&1 </dev/null)
+case "$out" in *"步驟 1"*) verdict ng "未帶 --step 卻印流水號" ;; *) verdict ok "未帶 --step 不印流水號" ;; esac
+case "$out" in *"同名目錄"*) verdict ng "未帶 --step 卻印說明行" ;; *) verdict ok "未帶 --step 不印說明行" ;; esac
+
+echo "[LIB v8] 兩道閘門分開：Enter 不能代替確認"
+out=$(lib "$tty0; enable_step_mode; step 甲; confirm 要做嗎 && echo CONFIRMED" 2>&1 <<<$'\ny\n')
+contains "先 Enter 再 y 才確認" "$out" "CONFIRMED"
+out=$(lib "$tty0; enable_step_mode; step 甲; confirm 要做嗎 && echo CONFIRMED" 2>&1 <<<$'y\n\n\n')
+case "$out" in *CONFIRMED*) verdict ng "Enter 停點的 y 被當成確認" ;; *) verdict ok "Enter 停點輸入 y 不算確認（重問）" ;; esac
+out=$(lib "$tty0; YES=1; enable_step_mode; step 甲; ((YES)) || confirm x; echo AFTER" 2>&1 <<<$'y\n\n')
+contains "有 -y 時 Enter 停點仍會停（y 被重問）" "$out" "AFTER"
+out=$(lib "$tty0; YES=1; enable_step_mode; step 甲; echo AFTER" 2>&1 </dev/null)
+case "$out" in *AFTER*) verdict ng "有 -y 仍要停在 Enter 停點" ;; *) verdict ok "有 -y 仍停在 Enter 停點（EOF 即離開）" ;; esac
+
+echo "[CLI v8] hello --step"
+d8="$tmp/step-none"
+out=$(HELLO_DIR="$d8" bash "$SK" hello --step --pick alpha 2>&1 </dev/null); rc=$?
+expect "沒有終端機結束碼 2" 2 "$rc"
+contains "訊息點名 --step" "$out" "--step"
+[ ! -e "$d8" ] && verdict ok "沒終端機時什麼都不做" || verdict ng "沒終端機卻建立了目錄"
+d9="$tmp/step-ok"
+out=$(HELLO_DIR="$d9" lib "$tty0; cmd_hello --step --pick alpha,beta" 2>&1 >/dev/null <<<$'\n'); rc=$?
+expect "hello --step 能跑完" 0 "$rc"
+contains "hello 的步驟帶說明行" "$out" "同名目錄"
+[ -d "$d9/alpha" ] && [ -d "$d9/beta" ] && verdict ok "hello --step 真的建立" || verdict ng "hello --step 沒建立目錄"
+d10="$tmp/step-dry"
+out=$(HELLO_DIR="$d10" lib "$tty0; cmd_hello --step --pick alpha --dry-run" 2>&1 <<<$'\n'); rc=$?
+expect "--step 搭配 --dry-run 回 0" 0 "$rc"
+contains "--dry-run 仍印將執行的指令" "$out" "+ mkdir"
+[ ! -e "$d10" ] && verdict ok "--step 搭配 --dry-run 不建立" || verdict ng "--dry-run 不該建立目錄"
+
+echo "[LIB v8] 唯一參數 --step 進選單並轉交"
+d11="$tmp/menu-step"
+out=$(HELLO_DIR="$d11" lib "$tty0; main --step" 2>&1 <<<$'1\n1\n\n'); rc=$?
+expect "main --step 選單走完回 0" 0 "$rc"
+contains "等價指令帶 --step" "$out" "→ skeleton.sh hello --step"
+contains "選定的子命令以逐步模式執行" "$out" "== 步驟 1："
+lib "$tty0; main --step extra" >/dev/null 2>&1 <<<$'1\n'; expect "--step 加其他參數回 2" 2 $?
+bash "$SK" --step >/dev/null 2>&1 </dev/null; expect "沒有終端機的 --step 回 2" 2 $?
+
+echo "[LIB v8] 繼續指令：停下時印、做完不印、走 stderr"
+f8="$tmp/plainfile"; : >"$f8"
+# 停在逐步模式的 q／EOF
+out=$(HELLO_DIR="$tmp/r-q" lib "$tty0; run_command hello --step --pick alpha,gamma" 2>&1 >/dev/null <<<$'q\n'); rc=$?
+contains "q 印繼續指令" "$out" "→ skeleton.sh hello --step --pick alpha,gamma"
+expect "q 仍回 1" 1 "$rc"
+out=$(HELLO_DIR="$tmp/r-eof" lib "$tty0; run_command hello --step --pick alpha" 2>&1 >/dev/null </dev/null)
+contains "EOF 印繼續指令" "$out" "→ skeleton.sh hello --step --pick alpha"
+# finish 有 fail（任何模式）
+out=$(HELLO_DIR="$f8" bash "$SK" hello --pick alpha 2>&1 >/dev/null </dev/null); rc=$?
+contains "fail 時印繼續指令" "$out" "→ skeleton.sh hello --pick alpha"
+expect "fail 仍回 1" 1 "$rc"
+# 正常做完不印；stdout 不變
+out=$(HELLO_DIR="$tmp/r-ok" bash "$SK" hello --pick alpha 2>&1 >/dev/null </dev/null)
+case "$out" in *"→ "*) verdict ng "正常做完不該印繼續指令" ;; *) verdict ok "正常做完不印繼續指令" ;; esac
+out=$(HELLO_DIR="$f8" bash "$SK" hello --pick alpha 2>/dev/null </dev/null)
+expect "fail 時 stdout 只有 + 指令" "+ mkdir -p -- $f8/alpha" "$out"
+out=$(HELLO_DIR="$tmp/r-q2" lib "$tty0; run_command hello --step --pick alpha" 2>/dev/null <<<$'q\n')
+expect "q 時 stdout 為空" "" "$out"
+# 沒有記下子命令（例如 manage.sh 的分派）就什麼都不印，且 -u 下不崩
+out=$(lib 'N_FAIL=1; print_resume' 2>&1); rc=$?
+expect "沒記下子命令時 print_resume 靜默" "" "$out"
+expect "沒記下子命令時不崩" 0 "$rc"
+
+echo "[LIB v8] 繼續指令：原參數與 -y"
+probe="$tmp/probe.sh"
+printf '#/   probe   測試用\n' >"$probe"
+PRE="$tty0; SELF=$probe; cmd_probe() { fail x; finish; }"
+out=$(lib "$PRE; run_command probe 'a b' --flag" 2>&1 >/dev/null </dev/null)
+contains "含空白的參數保住引號" "$out" "→ skeleton.sh probe a\ b --flag"
+out=$(lib "$PRE; YES=1; confirm x <<<y >/dev/null 2>&1; run_command probe --flag" 2>&1 >/dev/null </dev/null)
+case "$out" in *" -y"*) verdict ng "原參數沒有 -y 卻帶了 -y" ;; *) verdict ok "原參數沒有 -y 就不帶 -y（即使 YES=1）" ;; esac
+out=$(lib "$PRE; YES=1; run_command probe -y --flag" 2>&1 >/dev/null </dev/null)
+contains "原參數有 -y 才帶 -y" "$out" "→ skeleton.sh probe -y --flag"
+
+echo "[LIB v8] 繼續指令：互動挑選以 resume_arg 補登 --pick，照指令重跑"
+out=$(HELLO_DIR="$f8" lib "$tty0; run_command hello" 2>&1 >/dev/null <<<$'1 3\n\n'); rc=$?
+contains "互動挑選後補登 --pick" "$out" "→ skeleton.sh hello --pick alpha,gamma"
+cmdline=$(sed -n 's/^→ skeleton\.sh hello //p' <<<"$out")
+d12="$tmp/rerun"; mkdir -p "$d12/alpha" "$d12/gamma"
+# shellcheck disable=SC2086 # 繼續指令的參數本身不含空白
+HELLO_DIR="$d12" bash "$SK" hello $cmdline >/dev/null 2>&1 </dev/null; expect "照繼續指令重跑（不進多選器、目錄已存在）回 0" 0 $?
+out=$(HELLO_DIR="$tmp/r-step2" lib "$tty0; run_command hello --step" 2>&1 >/dev/null <<<$'1 3\n\nq\n')
+contains "逐步模式 q 也補登 --pick" "$out" "→ skeleton.sh hello --step --pick alpha,gamma"
+cmdline=$(sed -n 's/^→ skeleton\.sh hello //p' <<<"$out")
+# shellcheck disable=SC2086
+HELLO_DIR="$d12" lib "$tty0; run_command hello $cmdline" >/dev/null 2>&1 <<<$'\n'; expect "逐步模式的繼續指令照樣重跑回 0" 0 $?
+
+echo "[結構 v8] ops-lib 區段與 manage.sh 逐字相同"
+blk() { sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$1"; }
+expect "manage.sh 區段等於骨架" "$(blk "$SK")" "$(blk "$PWD/scripts/manage.sh")"
+
 echo "[文件] 版號與維運說明"
 ! grep -q 'nameref\|local -n\|declare -n' "$SK" && verdict ok "骨架未用 nameref（bash 4.3 說明為條件式）" || verdict ng "骨架用了 nameref，需確認 bash 4.3 說明"
 SM="$(dirname "$SK")/SKILL.md"
-contains "SKILL.md 標明 v7" "$(cat "$SM")" "ops-lib v7"
+contains "SKILL.md 標明 v8" "$(cat "$SM")" "ops-lib v8"
 doc=$(cat "$SM" "$(dirname "$SK")"/*.md 2>/dev/null)
+contains "SKILL.md：每個步驟都必須可重跑" "$doc" "Every step must be rerunnable"
+contains "SKILL.md：耗時步驟先查狀態再 skip" "$doc" "calls \`skip\` when the work is already done"
+contains "SKILL.md：說明 1–3 行" "$doc" "1–3 lines"
+contains "SKILL.md：說明回答改什麼" "$doc" "what it changes"
+contains "SKILL.md：說明回答重跑會怎樣" "$doc" "what a rerun does"
+contains "SKILL.md：說明回答停在這裡的狀態" "$doc" "what state the system is in"
+contains "SKILL.md：resume_arg 用法" "$doc" "resume_arg --pick alpha,gamma"
+contains "SKILL.md：不自動加 -y" "$doc" "never with \`-y\` added"
 contains "維護規則：兩個版號即有一支沒同步" "$doc" "two different version numbers"
 contains "陷阱：read 讀到輸入結尾" "$doc" "read -r x ||"
 contains "陷阱：grep -q 與 pipefail" "$doc" "SIGPIPE"
