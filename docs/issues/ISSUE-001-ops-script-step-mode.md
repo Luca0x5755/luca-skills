@@ -30,7 +30,10 @@ PR-OPS-13 — 正常做完（沒有 fail，也沒有按 q）時，不印繼續�
 PR-OPS-14 — `SKILL.md`（bash）與 `POWERSHELL.md` 寫明以下規則：每個步驟都必須可重跑；耗時或不可重做的步驟要先查系統狀態，已完成就呼叫 `skip`；步驟說明選填，寫 1–3 行，內容回答「改什麼、重跑會怎樣、停在這裡系統是什麼狀態」。
 PR-OPS-15 — 骨架的 `hello` 示範至少有一個步驟帶說明行，並能以 `--step` 跑完。
 PR-OPS-16 — 骨架、`scripts/manage.sh`、`scripts/manage.ps1` 的 ops-lib 區段都標 v8，且與骨架逐字相同；`grep -rn "BEGIN ops-lib"` 列出的版號一致。
-PR-OPS-17 — PR-OPS-01～13 在 `tests/` 下的骨架測試有對應斷言，bash 由 `tests/test-tooling.sh` 接上，PowerShell 由 Windows CI 補跑；`bash scripts/check.sh` 通過。
+PR-OPS-17 — PR-OPS-01～13、18～20 在 `tests/` 下的骨架測試有對應斷言，bash 由 `tests/test-tooling.sh` 接上，PowerShell 由 Windows CI 補跑；`bash scripts/check.sh` 通過。
+PR-OPS-18 — 從選單進入逐步模式（唯一參數是 `--step`／`-Step`）並選定子命令時，開跑前印的等價指令帶 `--step`（PowerShell `-Step`）。
+PR-OPS-19 — 繼續指令與選單等價指令同一種寫法：bash `→ <腳本名> <子命令> <參數...>`，PowerShell `-> <腳本名> <子命令> <參數...>`，腳本名與等價指令相同。
+PR-OPS-20 — `hello` 互動挑選目錄後，以 `resume_arg`／`Add-OpsResumeArg` 補登 `--pick <名稱,...>`（PowerShell `-Pick <名稱,...>`），所以它的繼續指令重跑時不再進多選器。
 
 ## Out of scope
 
@@ -50,10 +53,9 @@ PR-OPS-17 — PR-OPS-01～13 在 `tests/` 下的骨架測試有對應斷言，ba
 - **續跑依系統狀態收斂。** 否決：`--from` 依位置續跑，以及在行程外記錄完成進度。依據 decision-log 2026-11-23。
 - **繼續指令＝原參數＋補登的互動值，不自動加 `-y`。** 否決：只印子命令名，或為了省事自動加 `-y`。互動中按過的確認，重跑時要再確認一次。依據 decision-log 2026-11-23。
 - **繼續指令走 stderr。** 否決：印到 stdout。stdout 若有程式在讀，多一行會弄壞它。
+- **等價指令帶 `--step`，繼續指令沿用等價指令的寫法，`hello` 補登 `--pick`。** 否決：等價指令不帶 `--step`（照打就不等價了）；另組一套可直接貼上的完整指令（兩個平台各要一套，也沒有現成的測試）；`hello` 不示範 `resume_arg`（唯一的範例就少了一半用法）。拆票前由使用者拍板。
 - **不寫 ADR。** 這些設計尚未實作，也可以回頭，過不了 ADR 的門檻。
 
 ## Open questions
 
-- **選單轉交 `--step` 時，印出的等價指令要不要含 `--step`？** 對話沒決定。拍板方式：實作時比照繼續指令，「原參數」算不算包含 `--step`，由使用者決定。
-- **繼續指令的開頭怎麼寫（腳本路徑、bash 與 PowerShell 的呼叫形式）？** 要不要沿用選單等價指令的寫法，對話沒決定。拍板方式：實作第一張票時，由使用者看過兩種輸出再選。
-- **`hello` 示範要不要示範 `resume_arg`／`Add-OpsResumeArg`？** `hello` 若沒有互動取值，就示範不到。拍板方式：看 `hello` 現有的互動，再決定加不加。
+（無。原有三題已在拆票前由使用者拍板，見 PR-OPS-18～20。）
