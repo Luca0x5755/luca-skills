@@ -2,8 +2,6 @@
 
 Status: Accepted
 
-日期：2026-11-14
-
 ## 脈絡
 
 `frontend-spec` 原本規定 mockup 是 repo 裡一頁一檔的 `.pen`，改在功能分支上、與程式碼同一個 PR 合併，所以 `main` 永遠不描述它還沒有的 UI。

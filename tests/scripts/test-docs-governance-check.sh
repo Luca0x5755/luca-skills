@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-docs-governance.sh 的回歸規格（PR-DOCS-07、08）。每個案例在暫存目錄搭假專案，
+# check-docs-governance.sh 的回歸規格（PR-DOCS-01、07、08、14）。每個案例在暫存目錄搭假專案，
 # 在其根目錄跑檢查，看 exit code，紅燈時再看輸出是否點名檔案、行號與規則編號。
 # 行為變更必須先改這份規格 — 沒有檢查的規則不是規則，是願望。
 # 執行：bash tests/scripts/test-docs-governance-check.sh（tests/test-tooling.sh 會跑）
@@ -62,6 +62,43 @@ suite() {  # suite <locale>
   case_ "$W" 1 "兩條規則同時違反 → 兩條都報" \
     "{ printf '2026-10-01 '; rep 字 400; printf '\n2026-11-01 乙\n'; } > $L" \
     "PR-DOCS-07" "PR-DOCS-08"
+
+  # --- PR-DOCS-01／14：現行文件的票號與日期 ---
+  # 紅案例只放一個清單檔，其餘清單檔皆缺 → 同時驗證缺檔略過
+  local f
+  for f in docs/03_architecture_design.md docs/05_frontend_spec.md docs/capabilities/a.md docs/capabilities/b.md \
+           docs/test-blueprint.md docs/test-status.md GLOSSARY.md docs/adr/0001-x.md docs/adr/0002-y.md; do
+    case_ "$W" 1 "PR-DOCS-14 清單檔 $f 的違規 → 擋，點名檔案與行號" \
+      "mkdir -p \$(dirname $f) && printf 'ok\n見 ISSUE-12 了\n' > $f" \
+      "$f:2:" "PR-DOCS-01"
+  done
+  case_ "$W" 0 "PR-DOCS-14 docs/uat-cases.md 不掃 → 過" \
+    "printf '見 ISSUE-12，2026-11-23，票 5，規格 3\n' > docs/uat-cases.md"
+  case_ "$W" 0 "PR-DOCS-14 清單檔全缺 → 過" ":"
+  case_ "$W" 1 "PR-DOCS-14 沒有設定檔：假的 docs-governance.json 想排除 GLOSSARY.md 仍擋" \
+    "printf '{\"exclude\":[\"GLOSSARY.md\"]}' > docs-governance.json && printf 'ISSUE-1\n' > GLOSSARY.md" \
+    "GLOSSARY.md:1:"
+  case_ "$W" 1 "PR-DOCS-01 票 12（行中段）→ 擋" "printf '前面 票 12 後面\n' > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-01"
+  case_ "$W" 1 "PR-DOCS-01 規格 3 → 擋" "printf '規格 3\n' > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-01"
+  case_ "$W" 1 "PR-DOCS-01 ISSUE-4 → 擋" "printf 'ISSUE-4\n' > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-01"
+  case_ "$W" 1 "PR-DOCS-01 ISSUE-003 緊接標點 → 擋" "printf '見(ISSUE-003)。\n' > GLOSSARY.md" "GLOSSARY.md:1:"
+  case_ "$W" 1 "PR-DOCS-01 YYYY-MM-DD → 擋" "printf '日期 2026-11-23\n' > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-01"
+  case_ "$W" 0 "PR-DOCS-01 反面案例（票後無數字、規格說明、v2.3、年月、月日）→ 過" \
+    "printf '票\nISSUE-\n規格說明\nv2.3\n2026-11\n12-31\n投票 數\n' > GLOSSARY.md"
+  case_ "$W" 0 "PR-DOCS-01 程式碼區塊內 → 過" \
+    "printf '@@@\nISSUE-1\n2026-11-23\n@@@\n' | tr @ \\\\140 > GLOSSARY.md"
+  case_ "$W" 1 "PR-DOCS-01 圍欄關閉後恢復掃描 → 擋，行號正確" \
+    "printf '@@@\nISSUE-1\n@@@\n票 7\n' | tr @ \\\\140 > GLOSSARY.md" "GLOSSARY.md:4:"
+  case_ "$W" 0 "PR-DOCS-01 未成對圍欄：之後的行仍在區塊內 → 過" \
+    "printf '@@@\n票 7\n' | tr @ \\\\140 > GLOSSARY.md"
+  case_ "$W" 0 "PR-DOCS-01 行首 | 的表格列 → 過" "printf '| ISSUE-1 | 2026-11-23 |\n' > GLOSSARY.md"
+  case_ "$W" 1 "PR-DOCS-01 行內 | 但非行首 → 擋" "printf '甲 | ISSUE-1\n' > GLOSSARY.md" "GLOSSARY.md:1:"
+  case_ "$W" 1 "PR-DOCS-14 同目錄多個違規檔都被點名" \
+    "mkdir -p docs/adr && printf 'ISSUE-1\n' > docs/adr/0001-a.md && printf 'ISSUE-2\n' > docs/adr/0002-b.md" \
+    "docs/adr/0001-a.md:1:" "docs/adr/0002-b.md:1:"
+  case_ "$W" 1 "決策日誌違規與清單檔違規同時存在 → 兩邊都報" \
+    "printf '2026-10-31 甲\n2026-11-01 乙\n' > $L && printf 'ISSUE-1\n' > GLOSSARY.md" \
+    "PR-DOCS-07" "PR-DOCS-01"
 }
 
 for loc in C.UTF-8 C; do
@@ -74,6 +111,15 @@ echo "[本 repo]"
 for loc in C.UTF-8 C; do
   out=$(LC_ALL="$loc" bash "$CHECK" 2>&1); verdict 0 "本 repo 根目錄（$loc）→ 過" $? "$out"
 done
+
+# PR-DOCS-01：ADR 不放日期行（日期歸決策日誌與 git）
+if grep -n '^日期：' docs/adr/*.md >/dev/null 2>&1; then
+  printf '  ✗ docs/adr/*.md 仍有「日期：」行
+'; fail=1
+else
+  printf '  ✓ docs/adr/*.md 沒有「日期：」行
+'
+fi
 
 [ $fail -eq 0 ] && echo "全部通過。"
 exit $fail
