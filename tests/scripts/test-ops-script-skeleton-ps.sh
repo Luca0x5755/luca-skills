@@ -69,7 +69,8 @@ e=$(grep -n '^# ---- END ops-lib ----' "$SK" | cut -d: -f1)
 [ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v8 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Write-OpsStep \
   Write-OpsPass Write-OpsFail Write-OpsWarn Write-OpsSkip Write-OpsSummary Complete-OpsRun \
-  Select-OpsMulti Resolve-OpsPick Select-OpsOne Resolve-OpsPickOne Invoke-OpsRun; do
+  Select-OpsMulti Resolve-OpsPick Select-OpsOne Resolve-OpsPickOne Invoke-OpsRun \
+  Set-OpsRunCommand Add-OpsResumeArg Write-OpsResume; do
   l=$(grep -n "^function $fn " "$SK" | cut -d: -f1)
   [ -n "$l" ] && [ -n "$b" ] && [ -n "$e" ] && [ "$l" -gt "$b" ] && [ "$l" -lt "$e" ] \
     && verdict ok "$fn 定義在標記之間" || verdict ng "$fn 沒定義在 ops-lib 標記之間"
@@ -102,6 +103,13 @@ contains "同時支援 PowerShell 7" "$doc" "PowerShell 7"
 contains "SKILL.md 指向 POWERSHELL.md" "$(cat "$DIR/SKILL.md")" "(POWERSHELL.md)"
 contains "單選走 Select-OpsOne" "$doc" "Select-OpsOne"
 contains "單選的無人值守走 Resolve-OpsPickOne" "$doc" "Resolve-OpsPickOne"
+# 繼續指令（ISSUE-005）：POWERSHELL.md 單獨斷言，英文詞
+psdoc=$(cat "$DIR/POWERSHELL.md")
+contains "POWERSHELL.md：每個步驟都必須可重跑" "$psdoc" "re-runnable"
+contains "POWERSHELL.md：步驟說明 1-3 行" "$psdoc" "1-3 lines"
+contains "POWERSHELL.md：寫明 Add-OpsResumeArg" "$psdoc" "Add-OpsResumeArg"
+skipline=$(grep -F 'already done' "$DIR/POWERSHELL.md" | head -1)
+contains "POWERSHELL.md：已完成就 Write-OpsSkip" "$skipline" "Write-OpsSkip"
 [ "$(wc -l <"$DIR/SKILL.md")" -le 150 ] && verdict ok "SKILL.md 不超過 150 行" || verdict ng "SKILL.md 超過 150 行"
 
 for PS in "${shells[@]}"; do
@@ -307,6 +315,80 @@ for PS in "${shells[@]}"; do
   step_run 'q\n' 'Invoke-Main'
   expect "只有 -Step、有終端機：進選單，q 取消回 1" 1 "$SR_RC"
   contains "只有 -Step 進了選單" "$SR_OUT" "要做什麼？"
+
+  echo "[LIB v8] 繼續指令：q／EOF、任何模式的 fail 會印，正常做完不印"
+  # host_rc <stdin> <片段>：與 step_run 相同的畫面捕捉，但不開 StepMode。SR_OUT 為畫面，SR_RC 為結束碼
+  host_rc() {
+    hf="$tmp/host-$ver.txt"; rm -f "$hf"
+    printf "$1" | NO_COLOR=1 HF="$TMPW/host-$ver.txt" lib "function Write-Host { param(\$Object, [switch]\$NoNewline) \$t = if (\$NoNewline) { \"\$Object\" } else { \"\$Object\`n\" }; [IO.File]::AppendAllText(\$env:HF, \$t, [Text.UTF8Encoding]::new(\$false)) }; function Test-OpsTty { \$true }; $2" >/dev/null
+    SR_RC=$?
+    SR_OUT=$(cat "$hf" 2>/dev/null)
+  }
+  rc_set='Set-OpsRunCommand -Script skeleton.ps1 -Name hello -Bound ([ordered]@{Pick="alpha"; Step=[switch]$true}); '
+  step_run 'q\n' "$rc_set"'Write-OpsStep A "na"'
+  expect "q：結束碼 1" 1 "$SR_RC"
+  contains "q 印繼續指令" "$SR_OUT" "-> skeleton.ps1 hello -Pick alpha -Step"
+  expect "q 的繼續指令恰好一行" 1 "$(grep -c -- '-> skeleton.ps1' <<<"$SR_OUT")"
+  step_run '' "$rc_set"'Write-OpsStep A "na"'
+  contains "輸入結束也印繼續指令" "$SR_OUT" "-> skeleton.ps1 hello -Pick alpha -Step"
+  step_run 'q\n' 'Write-OpsStep A "na"'
+  expect "沒記過指令的 q 仍結束碼 1" 1 "$SR_RC"
+  case "$SR_OUT" in *"->"*) verdict ng "沒記過指令不該印繼續指令" ;; *) verdict ok "沒記過指令不印繼續指令" ;; esac
+  host_rc '' "$rc_set"'Write-OpsFail x; Complete-OpsRun'
+  expect "不帶 -Step 有 fail：結束碼 1" 1 "$SR_RC"
+  contains "不帶 -Step 有 fail 也印繼續指令" "$SR_OUT" "-> skeleton.ps1 hello -Pick alpha -Step"
+  host_rc '' 'Write-OpsFail x; Complete-OpsRun'
+  expect "沒記過指令有 fail：結束碼 1" 1 "$SR_RC"
+  case "$SR_OUT" in *"->"*) verdict ng "沒記過指令有 fail 不該印 ->" ;; *) verdict ok "沒記過指令有 fail 不印 ->" ;; esac
+  host_rc '' "$rc_set"'Write-OpsPass a; Complete-OpsRun'
+  expect "只有 pass：結束碼 0" 0 "$SR_RC"
+  case "$SR_OUT" in *"->"*) verdict ng "正常做完不該印繼續指令" ;; *) verdict ok "正常做完不印繼續指令" ;; esac
+  host_rc '' "$rc_set"'Write-OpsWarn w; Write-OpsSkip s; Complete-OpsRun'
+  expect "只有 warn／skip：結束碼 0" 0 "$SR_RC"
+  case "$SR_OUT" in *"->"*) verdict ng "warn／skip 不該印繼續指令" ;; *) verdict ok "warn／skip 不印繼續指令" ;; esac
+
+  echo "[LIB v8] 繼續指令的寫法"
+  host_rc '' 'Set-OpsRunCommand -Script s.ps1 -Name hello -Bound ([ordered]@{Pick=@("alpha","gamma"); Step=[switch]$true; WhatIf=[switch]$true}); Write-OpsResume'; out=$SR_OUT
+  expect "陣列以逗號接、switch 只印名稱" "-> s.ps1 hello -Pick alpha,gamma -Step -WhatIf" "$out"
+  host_rc '' 'Set-OpsRunCommand -Script s.ps1 -Name hello -Bound ([ordered]@{Step=[switch]$false}); Write-OpsResume'; out=$SR_OUT
+  expect "false 的 switch 不印" "-> s.ps1 hello" "$out"
+  host_rc '' 'Set-OpsRunCommand -Script s.ps1 -Name hello -Bound ([ordered]@{Pick="a b"}); Write-OpsResume'; out=$SR_OUT
+  expect "含空白的值加引號" "-> s.ps1 hello -Pick 'a b'" "$out"
+  host_rc '' 'Set-OpsRunCommand -Script s.ps1 -Name hello -Bound ([ordered]@{Pick="alpha"}); Write-OpsResume'; out=$SR_OUT
+  case "$out" in *-Yes*) verdict ng "原參數沒有 -Yes 不該自動加" ;; *) verdict ok "原參數沒有 -Yes 就不加" ;; esac
+  host_rc '' 'Set-OpsRunCommand -Script s.ps1 -Name hello -Bound ([ordered]@{Yes=[switch]$true; Pick="alpha"}); Write-OpsResume'; out=$SR_OUT
+  expect "原參數有 -Yes 就照原樣" "-> s.ps1 hello -Yes -Pick alpha" "$out"
+  host_rc '' 'Set-OpsRunCommand -Script s.ps1 -Name hello -Bound ([ordered]@{Step=[switch]$true}); Add-OpsResumeArg -Flag -Pick -Value alpha,gamma; Write-OpsResume'; out=$SR_OUT
+  expect "補登的參數接在原參數之後" "-> s.ps1 hello -Step -Pick alpha,gamma" "$out"
+  out=$(lib 'Set-OpsRunCommand -Script s.ps1 -Name hello -Bound ([ordered]@{}); $o = @(Write-OpsResume); "n=$($o.Count)"' </dev/null)
+  contains "繼續指令不進成功輸出串流" "$out" "n=0"
+
+  echo "[LIB v8] hello 互動挑選後補登 -Pick，照繼續指令重跑不再進多選器"
+  dbad="$TMPW\afile\x"
+  host_rc '' "\$env:HELLO_DIR = '$dbad'; function Select-OpsMulti { param(\$Title, \$Items) 1; 3 }; Set-OpsRunCommand -Script skeleton.ps1 -Name hello -Bound ([ordered]@{}); Invoke-Hello"
+  expect "互動挑選建立失敗回 1" 1 "$SR_RC"
+  contains "互動挑選補登 -Pick" "$SR_OUT" "-> skeleton.ps1 hello -Pick alpha,gamma"
+  drr="$TMPW\resume-$ver"
+  host_rc '' "\$env:HELLO_DIR = '$drr'; \$script:HasPick = \$true; \$script:BoundPick = 'alpha,gamma'; function Select-OpsMulti { throw 'multi' }; Set-OpsRunCommand -Script skeleton.ps1 -Name hello -Bound ([ordered]@{Pick='alpha,gamma'}); Invoke-Hello"
+  expect "照繼續指令重跑不進多選器、結束碼 0" 0 "$SR_RC"
+  contains "重跑建立兩個目錄" "$SR_OUT" "pass 2"
+  host_rc '' "\$env:HELLO_DIR = '$dbad'; \$script:HasPick = \$true; \$script:BoundPick = 'alpha,gamma'; Set-OpsRunCommand -Script skeleton.ps1 -Name hello -Bound ([ordered]@{Pick='alpha,gamma'}); Invoke-Hello"
+  expect "本來就帶 -Pick：繼續指令只有一個 -Pick" 1 "$(grep -o -- '-Pick' <<<"$(grep -- '-> ' <<<"$SR_OUT")" | wc -l | tr -d ' ')"
+
+  echo "[CLI v8] 繼續指令走 host 串流、原參數來自腳本層繫結"
+  : >"$tmp/afile"
+  clihost() {  # clihost <重導> <腳本參數...>：-Command 才能重導 PowerShell 的 host 串流
+    local redir=$1; shift
+    OUT=$(HELLO_DIR="$TMPW\afile\x" SK="$SKW" "$PS" -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "& \$env:SK $* $redir" </dev/null 2>&1); RC=$?
+    OUT=${OUT//$'\r'/}
+  }
+  clihost '6>$null' hello -Pick alpha,gamma
+  expect "失敗的 hello 回 1" 1 "$RC"
+  case "$OUT" in *"->"*) verdict ng "繼續指令漏進成功輸出串流" ;; *) verdict ok "成功輸出串流沒有繼續指令" ;; esac
+  clihost '6>&1' hello -Pick alpha,gamma
+  expect "繼續指令恰為原參數（不含 Command）" "-> skeleton.ps1 hello -Pick alpha,gamma" "$(grep -- '-> ' <<<"$OUT")"
+  clihost '6>&1' hello -Pick alpha,gamma -Verbose
+  contains "腳本層的 switch 流進繼續指令" "$OUT" "-> skeleton.ps1 hello -Pick alpha,gamma -Verbose"
 
   echo "[LIB] Select-OpsMulti（結果走管線、畫面走 host）"
   ms() {  # ms <輸入> [項目數]：MS_OUT 為選取結果（逗號串接）

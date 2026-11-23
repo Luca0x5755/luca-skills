@@ -147,6 +147,44 @@ $script:Cmdlet = $null
 # 逐步模式：主流程在 -Step 時把 StepMode 設為真；流水號與 a（之後不再停）的狀態都記在這裡。
 $script:StepMode = $false; $script:StepNo = 0; $script:StepAuto = $false
 
+# 繼續指令：Set-OpsRunCommand 記下「腳本名 子命令 原參數」，子命令在互動中問來的值用 Add-OpsResumeArg 補登。
+# 什麼都沒記時 Write-OpsResume 不印。$script:BoundArgs 是主流程填入的腳本層繫結參數（已排除 Command、Help）。
+$script:ResumeCmd = ''; $script:ResumeExtra = @(); $script:BoundArgs = [ordered]@{}
+
+# Format-OpsArg：值只含安全字元就原樣，否則用單引號包起來，貼回命令列才不會走樣。
+function Format-OpsArg {
+    param([string]$Value)
+    if ($Value -match '^[A-Za-z0-9_.,:/\=+@%-]+$') { return $Value }
+    return "'" + $Value.Replace("'", "''") + "'"
+}
+
+# Set-OpsRunCommand -Script -Name -Bound：Bound 是原參數（參數名到值）；switch 只印名稱（為 false 則略過），陣列以逗號接起。
+# 原參數沒有 -Yes 就絕不加：互動中按過的確認，重跑時要再確認一次。
+function Set-OpsRunCommand {
+    param([string]$Script, [string]$Name, [System.Collections.IDictionary]$Bound = @{})
+    $parts = @($Script, $Name)
+    foreach ($key in $Bound.Keys) {
+        $val = $Bound[$key]
+        if ($val -is [switch]) { if ($val.IsPresent) { $parts += "-$key" }; continue }
+        $parts += "-$key"
+        $parts += (@($val) | ForEach-Object { Format-OpsArg "$_" }) -join ','
+    }
+    $script:ResumeCmd = $parts -join ' '
+}
+
+# Add-OpsResumeArg -Flag -Value：補登互動問來的值，轉成等價參數（例：-Flag -Pick -Value alpha,gamma）。
+function Add-OpsResumeArg {
+    param([Parameter(Mandatory)][string]$Flag, [string[]]$Value = @())
+    $script:ResumeExtra += $Flag
+    if ($Value.Count) { $script:ResumeExtra += (@($Value) | ForEach-Object { Format-OpsArg "$_" }) -join ',' }
+}
+
+# Write-OpsResume：印繼續指令，與 [PASS] 及總表同走 Write-OpsLine（host），不進成功輸出串流。沒記過指令就不印。
+function Write-OpsResume {
+    if (-not $script:ResumeCmd) { return }
+    Write-OpsLine ("-> " + ((@($script:ResumeCmd) + $script:ResumeExtra) -join ' '))
+}
+
 # Write-OpsStep Title [說明行...]：說明行選填，只在逐步模式印；逐步模式下標題帶流水號，並在印完後停一次。
 # 停點由本函式自寫：Enter 執行這一步、a 執行並不再停（仍照印標題與說明）、q 或輸入結束離開；其他輸入重問，沒有跳過。
 # q 先印總表、點名停在哪一步之前，結束碼 1。
@@ -163,6 +201,7 @@ function Write-OpsStep {
         if ($null -eq $ans -or $ans.Trim() -eq 'q') {
             Write-OpsSummary
             Write-OpsLine "停在步驟 $($script:StepNo)：$Title 之前，這一步沒有執行"
+            Write-OpsResume
             exit 1
         }
         $ans = $ans.Trim()
@@ -188,10 +227,10 @@ function Write-OpsSummary {
     foreach ($line in $script:Issues) { Write-OpsLine "  $line" }
 }
 
-# Complete-OpsRun：印總表後結束；有任何 fail 結束碼為 1，否則 0。
+# Complete-OpsRun：印總表後結束；有任何 fail 結束碼為 1（並印繼續指令），否則 0。
 function Complete-OpsRun {
     Write-OpsSummary
-    if ($script:NFail -gt 0) { exit 1 }
+    if ($script:NFail -gt 0) { Write-OpsResume; exit 1 }
     exit 0
 }
 
