@@ -279,7 +279,7 @@ grep -q 'check-docs-governance\.sh' "$d/docs-governance-check.yml" 2>/dev/null &
   || err "$d/docs-governance-check.yml 沒有在 pull_request 呼叫 check-docs-governance.sh — 檢查會失明"
 grep -qF 'H — Docs governance check' "$d/SKILL.md" || err "$d/SKILL.md 沒有 Section H"
 grep -q '^## Section H' "$d/CHECKS.md" 2>/dev/null || err "$d/CHECKS.md 沒有「## Section H」標題 — 細節沒地方放"
-for s in 'docs/decision-log.md' 'byte-for-byte' 'check-truth-map.sh' 'branch protection'; do
+for s in 'docs/decision-log.md' 'byte-for-byte' 'check-truth-map.sh' 'branch protection' '**Migrate**' 'docs/decision-log/YYYY-MM.md' 'in original order' 'READING_GUIDE' 'docs/test-status.md' 'touch nothing' 'no migration script' 'no baseline file'; do
   grep -qF -- "$s" "$d/CHECKS.md" 2>/dev/null || err "$d/CHECKS.md 的 Section H 缺少「$s」"
 done
 f=skills/core/domain-modeling/SKILL.md
@@ -295,6 +295,9 @@ done
 for p in .github/scripts/check-docs-governance.sh:$d/check-docs-governance.sh .github/workflows/docs-governance-check.yml:$d/docs-governance-check.yml; do
   cmp -s "${p%%:*}" "${p#*:}" || err "${p%%:*} 不存在或與模板 ${p#*:} 不同 — 本 repo 要逐字裝上 Section H"
 done
+# 讀法引言文字只住 READING_GUIDE，CHECKS.md 不得另抄一份
+rg_text=$(grep '^READING_GUIDE=' "$d/check-docs-governance.sh" | head -1 | cut -d"'" -f2)
+{ [ -n "$rg_text" ] && grep -qF -- "$rg_text" "$d/CHECKS.md" "$d/SKILL.md"; } && err "$d 的 SKILL.md／CHECKS.md 抄了讀法引言文字 — 只能引用 READING_GUIDE"
 bash .github/scripts/check-docs-governance.sh >/dev/null 2>&1 || err "bash .github/scripts/check-docs-governance.sh 未過 — 跑它看細節"
 
 echo "[32] 現行文件規則只有一個家：範本在 setup-skills 旁、/setup-skills 指示複製進 domain.md、五個技能只指向不重述、audit-truth 列教訓類發現"

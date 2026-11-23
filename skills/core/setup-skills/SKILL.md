@@ -75,7 +75,7 @@ Sections F, G and H are the CI checks; their details are in [CHECKS.md](CHECKS.m
 
 - **F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored).
 - **G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked.
-- **H — Docs governance check.** Only when the project has `docs/`; otherwise skip it unasked.
+- **H — Docs governance check.** Only when the project has `docs/`; otherwise skip it unasked; on a re-run it also rotates the decision log and adds missing reading guides (Migrate in CHECKS.md).
 
 ## 3. Confirm
 
