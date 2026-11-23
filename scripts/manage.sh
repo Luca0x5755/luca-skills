@@ -87,6 +87,28 @@ require_tty() {
 N_PASS=0; N_FAIL=0; N_WARN=0; N_SKIP=0
 ISSUES=()
 
+# ---- 繼續指令 ----
+# RESUME_CMD 子命令名、RESUME_ARGS 原參數（皆由 run_command 在區段外記下），之後接 resume_arg 補登的值。
+# 沒記下子命令（例如不走這種 run_command 的腳本）就不印，所以 -u 下也安全。
+RESUME_CMD=""; RESUME_ARGS=()
+
+# resume_arg 參數...：子命令在互動中問來一個值，就補登它的等價參數（例：resume_arg --pick alpha,gamma）。
+# 補了，重跑才不會再問一次；沒問過的值不必補，原參數已經在了。
+resume_arg() { RESUME_ARGS+=("$@"); }
+
+# print_resume：沒做完就停下時印一行繼續指令，走 stderr、寫法同選單的等價指令。
+# 逐步模式的 q 與 finish 有 fail 共用它；從不自動加 -y，互動按過的確認重跑時要再確認一次。
+# 單純字元原樣印，其餘用 %q 保住含空白的參數。
+print_resume() {
+  local w line
+  [[ -n "$RESUME_CMD" ]] || return 0
+  line="→ ${SCRIPT_NAME:-${0##*/}} $RESUME_CMD"
+  for w in ${RESUME_ARGS[@]+"${RESUME_ARGS[@]}"}; do
+    if [[ "$w" =~ ^[A-Za-z0-9_.,:/=@%+-]+$ ]]; then line+=" $w"; else line+=" $(printf '%q' "$w")"; fi
+  done
+  printf '%s\n' "$line" >&2
+}
+
 # ---- 逐步模式 ----
 # 全域狀態（本區段保留的名稱）：STEP_ON 開關、STEP_ALL 已按 a、STEP_N 目前步驟的流水號。
 STEP_ON=0; STEP_ALL=0; STEP_N=0
@@ -113,6 +135,7 @@ _step_gate() {
         printf '\n' >&2
         print_summary
         printf '停在步驟 %d「%s」之前\n' "$STEP_N" "$1" >&2
+        print_resume
         exit 1
         ;;
     esac
@@ -157,7 +180,7 @@ print_summary() {
 # finish：印總表後結束；有任何 fail 結束碼為 1，否則 0。
 finish() {
   print_summary
-  if ((N_FAIL > 0)); then exit 1; fi
+  if ((N_FAIL > 0)); then print_resume; exit 1; fi
   exit 0
 }
 

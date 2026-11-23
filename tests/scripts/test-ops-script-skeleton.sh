@@ -454,6 +454,54 @@ contains "選定的子命令以逐步模式執行" "$out" "== 步驟 1："
 lib "$tty0; main --step extra" >/dev/null 2>&1 <<<$'1\n'; expect "--step 加其他參數回 2" 2 $?
 bash "$SK" --step >/dev/null 2>&1 </dev/null; expect "沒有終端機的 --step 回 2" 2 $?
 
+echo "[LIB v8] 繼續指令：停下時印、做完不印、走 stderr"
+f8="$tmp/plainfile"; : >"$f8"
+# 停在逐步模式的 q／EOF
+out=$(HELLO_DIR="$tmp/r-q" lib "$tty0; run_command hello --step --pick alpha,gamma" 2>&1 >/dev/null <<<$'q\n'); rc=$?
+contains "q 印繼續指令" "$out" "→ skeleton.sh hello --step --pick alpha,gamma"
+expect "q 仍回 1" 1 "$rc"
+out=$(HELLO_DIR="$tmp/r-eof" lib "$tty0; run_command hello --step --pick alpha" 2>&1 >/dev/null </dev/null)
+contains "EOF 印繼續指令" "$out" "→ skeleton.sh hello --step --pick alpha"
+# finish 有 fail（任何模式）
+out=$(HELLO_DIR="$f8" bash "$SK" hello --pick alpha 2>&1 >/dev/null </dev/null); rc=$?
+contains "fail 時印繼續指令" "$out" "→ skeleton.sh hello --pick alpha"
+expect "fail 仍回 1" 1 "$rc"
+# 正常做完不印；stdout 不變
+out=$(HELLO_DIR="$tmp/r-ok" bash "$SK" hello --pick alpha 2>&1 >/dev/null </dev/null)
+case "$out" in *"→ "*) verdict ng "正常做完不該印繼續指令" ;; *) verdict ok "正常做完不印繼續指令" ;; esac
+out=$(HELLO_DIR="$f8" bash "$SK" hello --pick alpha 2>/dev/null </dev/null)
+expect "fail 時 stdout 只有 + 指令" "+ mkdir -p -- $f8/alpha" "$out"
+out=$(HELLO_DIR="$tmp/r-q2" lib "$tty0; run_command hello --step --pick alpha" 2>/dev/null <<<$'q\n')
+expect "q 時 stdout 為空" "" "$out"
+# 沒有記下子命令（例如 manage.sh 的分派）就什麼都不印，且 -u 下不崩
+out=$(lib 'N_FAIL=1; print_resume' 2>&1); rc=$?
+expect "沒記下子命令時 print_resume 靜默" "" "$out"
+expect "沒記下子命令時不崩" 0 "$rc"
+
+echo "[LIB v8] 繼續指令：原參數與 -y"
+probe="$tmp/probe.sh"
+printf '#/   probe   測試用\n' >"$probe"
+PRE="$tty0; SELF=$probe; cmd_probe() { fail x; finish; }"
+out=$(lib "$PRE; run_command probe 'a b' --flag" 2>&1 >/dev/null </dev/null)
+contains "含空白的參數保住引號" "$out" "→ skeleton.sh probe a\ b --flag"
+out=$(lib "$PRE; YES=1; confirm x <<<y >/dev/null 2>&1; run_command probe --flag" 2>&1 >/dev/null </dev/null)
+case "$out" in *" -y"*) verdict ng "原參數沒有 -y 卻帶了 -y" ;; *) verdict ok "原參數沒有 -y 就不帶 -y（即使 YES=1）" ;; esac
+out=$(lib "$PRE; YES=1; run_command probe -y --flag" 2>&1 >/dev/null </dev/null)
+contains "原參數有 -y 才帶 -y" "$out" "→ skeleton.sh probe -y --flag"
+
+echo "[LIB v8] 繼續指令：互動挑選以 resume_arg 補登 --pick，照指令重跑"
+out=$(HELLO_DIR="$f8" lib "$tty0; run_command hello" 2>&1 >/dev/null <<<$'1 3\n\n'); rc=$?
+contains "互動挑選後補登 --pick" "$out" "→ skeleton.sh hello --pick alpha,gamma"
+cmdline=$(sed -n 's/^→ skeleton\.sh hello //p' <<<"$out")
+d12="$tmp/rerun"; mkdir -p "$d12/alpha" "$d12/gamma"
+# shellcheck disable=SC2086 # 繼續指令的參數本身不含空白
+HELLO_DIR="$d12" bash "$SK" hello $cmdline >/dev/null 2>&1 </dev/null; expect "照繼續指令重跑（不進多選器、目錄已存在）回 0" 0 $?
+out=$(HELLO_DIR="$tmp/r-step2" lib "$tty0; run_command hello --step" 2>&1 >/dev/null <<<$'1 3\n\nq\n')
+contains "逐步模式 q 也補登 --pick" "$out" "→ skeleton.sh hello --step --pick alpha,gamma"
+cmdline=$(sed -n 's/^→ skeleton\.sh hello //p' <<<"$out")
+# shellcheck disable=SC2086
+HELLO_DIR="$d12" lib "$tty0; run_command hello $cmdline" >/dev/null 2>&1 <<<$'\n'; expect "逐步模式的繼續指令照樣重跑回 0" 0 $?
+
 echo "[結構 v8] ops-lib 區段與 manage.sh 逐字相同"
 blk() { sed -n '/^# ---- BEGIN ops-lib/,/^# ---- END ops-lib/p' "$1"; }
 expect "manage.sh 區段等於骨架" "$(blk "$SK")" "$(blk "$PWD/scripts/manage.sh")"
@@ -463,6 +511,14 @@ echo "[文件] 版號與維運說明"
 SM="$(dirname "$SK")/SKILL.md"
 contains "SKILL.md 標明 v8" "$(cat "$SM")" "ops-lib v8"
 doc=$(cat "$SM" "$(dirname "$SK")"/*.md 2>/dev/null)
+contains "SKILL.md：每個步驟都必須可重跑" "$doc" "Every step must be rerunnable"
+contains "SKILL.md：耗時步驟先查狀態再 skip" "$doc" "calls \`skip\` when the work is already done"
+contains "SKILL.md：說明 1–3 行" "$doc" "1–3 lines"
+contains "SKILL.md：說明回答改什麼" "$doc" "what it changes"
+contains "SKILL.md：說明回答重跑會怎樣" "$doc" "what a rerun does"
+contains "SKILL.md：說明回答停在這裡的狀態" "$doc" "what state the system is in"
+contains "SKILL.md：resume_arg 用法" "$doc" "resume_arg --pick alpha,gamma"
+contains "SKILL.md：不自動加 -y" "$doc" "never with \`-y\` added"
 contains "維護規則：兩個版號即有一支沒同步" "$doc" "two different version numbers"
 contains "陷阱：read 讀到輸入結尾" "$doc" "read -r x ||"
 contains "陷阱：grep -q 與 pipefail" "$doc" "SIGPIPE"
