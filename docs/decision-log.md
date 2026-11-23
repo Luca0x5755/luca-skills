@@ -82,3 +82,8 @@
 2026-11-23 決策日誌每行 ≤ 300 字，只檢查主檔 `docs/decision-log.md`，推翻原定「2026-12-01 起的行才檢查」的日期門檻 — 月份封存檔搬出後不再改，只查主檔就自動豁免舊行，不必逐行解析日期。
 2026-11-23 docs 治理的新檢查靠重跑 /setup-skills 導入：機械部分（拆日誌、補第一行讀法）自動做，其餘變紅由代理在同一 PR 修綠、使用者審查；不寫遷移腳本、不引入 baseline 檔 — baseline 要多維護一個檔與一條只減不增的規則，對單一維護者是過度設計。
 2026-11-23 test-blueprint／test-status 只套現行文件的通用規則（按節讀、每節上限、第一行讀法），內部結構清理延後另開 /grill-with-docs — 先止住讀取成本，結構問題要先看過實際內容才問得對。
+2026-11-23 **現行文件**與**歷史文件**的分類與內容規則比照 capability 檔形狀：/setup-skills 旁放一份範本、每次逐字複製進目標的 `docs/agents/domain.md`，各技能從那裡讀、不各自重述 — 規則散在多個技能會各改各的。
+2026-11-23 文件治理檢查的掃描範圍是固定清單（`03`、`05`、`docs/capabilities/*.md`、`docs/test-blueprint.md`、`docs/test-status.md`、`GLOSSARY.md`、`docs/adr/*.md`，不存在就略過），不提供設定檔、`uat-cases` 不列入 — 比照真相地圖檢查寫死路徑，檔名都由本 repo 的技能產生。
+2026-11-23 第一行讀法只要求 `03`、`05`、`test-blueprint`、`test-status`；capability 檔不納入 — 讀法要代理先查 capability 檔，套在 capability 檔本身是循環，它仍受 40 KB 節上限約束。
+2026-11-23 文件治理檢查由 /setup-skills 新的 Section H 安裝，獨立腳本與 workflow，有 `docs/` 就提議 — Section G 只在有 `docs/capabilities/` 時提議，但每個專案都有決策日誌。
+2026-11-23 本 repo 在同一個 PR 把 9、10 月的決策日誌搬進 `docs/decision-log/2026-09.md`、`2026-10.md`，並裝上 Section H — 合約一改，本 repo 的日誌就違規；技能的作者先吃自己的規則。
