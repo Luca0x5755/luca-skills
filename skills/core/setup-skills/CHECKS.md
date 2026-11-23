@@ -21,7 +21,7 @@ A GitHub Actions check that fails a PR when a `##`/`###` heading in `docs/03_arc
 
 ## Section H — Docs governance check
 
-A GitHub Actions check that fails a PR when `docs/decision-log.md` holds lines of more than one year-month, or any line longer than 300 characters (archives under `docs/decision-log/` are not checked). It judges file content only, never today's date. Propose it, one nod for the pair. It is a separate script — never merged into `check-truth-map.sh`, because Section G is offered only with `docs/capabilities/`.
+A GitHub Actions check that fails a PR when `docs/decision-log.md` holds lines of more than one year-month, or any line longer than 300 characters (archives under `docs/decision-log/` are not checked), or when a scanned current doc has a section over 40 KB (40,960 bytes, smallest section between two headings) or a consolidated volume (`docs/03_architecture_design.md`, `docs/05_frontend_spec.md`, `docs/test-blueprint.md`, `docs/test-status.md`) lacks the standard reading-guide first line, defined once as `READING_GUIDE` in `check-docs-governance.sh`. It judges file content only, never today's date. Propose it, one nod for the pair. It is a separate script — never merged into `check-truth-map.sh`, because Section G is offered only with `docs/capabilities/`.
 
 - **Source**: `docs-governance-check.yml` and `check-docs-governance.sh`, beside this file.
 - **Copy byte-for-byte** to `.github/workflows/docs-governance-check.yml` and `.github/scripts/check-docs-governance.sh`. The tests stay in luca-skills; the copy is verbatim, so a green source is a green copy.

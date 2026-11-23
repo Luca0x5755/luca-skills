@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-docs-governance.sh 的回歸規格（PR-DOCS-01、07、08、14）。每個案例在暫存目錄搭假專案，
+# check-docs-governance.sh 的回歸規格（PR-DOCS-01、02、03、07、08、14）。每個案例在暫存目錄搭假專案，
 # 在其根目錄跑檢查，看 exit code，紅燈時再看輸出是否點名檔案、行號與規則編號。
 # 行為變更必須先改這份規格 — 沒有檢查的規則不是規則，是願望。
 # 執行：bash tests/scripts/test-docs-governance-check.sh（tests/test-tooling.sh 會跑）
@@ -99,6 +99,57 @@ suite() {  # suite <locale>
   case_ "$W" 1 "決策日誌違規與清單檔違規同時存在 → 兩邊都報" \
     "printf '2026-10-31 甲\n2026-11-01 乙\n' > $L && printf 'ISSUE-1\n' > GLOSSARY.md" \
     "PR-DOCS-07" "PR-DOCS-01"
+
+  # --- PR-DOCS-02：節上限（位元組，40960 = 40 KB）---
+  # sec <位元組數>：輸出一節「# T」加填充，總長恰為該位元組數（含結尾換行）
+  local B=40960 SEC='sec() { printf "# T\n"; head -c $(($1 - 5)) /dev/zero | tr "\0" a; printf "\n"; }'
+  case_ "$W" 0 "PR-DOCS-02 一節剛好 40960 位元組 → 過" "$SEC; sec $B > GLOSSARY.md"
+  case_ "$W" 1 "PR-DOCS-02 一節 40961 位元組 → 擋，點名檔案、起始行、標題、大小" \
+    "$SEC; sec $((B + 1)) > GLOSSARY.md" "GLOSSARY.md:1:" "# T" "PR-DOCS-02" "40961"
+  case_ "$W" 0 "PR-DOCS-02 結尾沒有換行、剛好 40960 位元組 → 過（最後一行不多算）" \
+    "$SEC; sec $B | head -c $((B - 1)) > GLOSSARY.md"
+  case_ "$W" 1 "PR-DOCS-02 結尾沒有換行、40961 位元組 → 擋" \
+    "$SEC; sec $((B + 2)) | head -c $((B + 1)) > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-02"
+  case_ "$W" 0 "PR-DOCS-02 兩節各 30 KB（檔超過 40 KB）→ 過，以節計不以檔計" \
+    "$SEC; { sec 30000; sec 30000; } > GLOSSARY.md"
+  case_ "$W" 1 "PR-DOCS-02 第二節超限 → 擋，行號指向第二個標題" \
+    "$SEC; { sec 100; sec $((B + 1)); } > GLOSSARY.md" "GLOSSARY.md:3:" "PR-DOCS-02"
+  case_ "$W" 0 "PR-DOCS-02 父節的子標題把它切開：兩段各 30 KB → 過" \
+    "$SEC; { sec 30000; sed s/^#/##/ <(sec 30000); } > GLOSSARY.md"
+  case_ "$W" 1 "PR-DOCS-02 以位元組計：全形字 13654 個（約 40.9 KB，少於 40960 字元）→ 擋" \
+    "{ printf '# T\n'; rep 字 13654; printf '\n'; } > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-02"
+  case_ "$W" 1 "PR-DOCS-02 CRLF 照位元組算：去掉 CR 恰為 40960、加上 CR 後擋" \
+    "{ printf '# T\r\n'; head -c 40955 /dev/zero | tr '\0' a; printf '\r\n'; } > GLOSSARY.md" "PR-DOCS-02"
+  case_ "$W" 1 "PR-DOCS-02 表格與程式碼區塊照算；圍欄內的 # 不是標題" \
+    "{ printf '# T\n'; printf '@@@\n# not heading\n' | tr @ \\\140; head -c 41000 /dev/zero | tr '\0' a; printf '\n@@@\n' | tr @ \\\140; } > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-02"
+  case_ "$W" 1 "PR-DOCS-02 表格列照算" \
+    "{ printf '# T\n'; for i in \$(seq 1 1500); do printf '| aaaaaaaaaaaaaaaaaaaaaaaaaaaa | bbbbbbbbbbbbb |\n'; done; } > GLOSSARY.md" "PR-DOCS-02"
+  case_ "$W" 1 "PR-DOCS-02 第一個標題之前的前言也是一節 → 超限擋" \
+    "{ head -c 40961 /dev/zero | tr '\0' a; printf '\n# T\nx\n'; } > GLOSSARY.md" "GLOSSARY.md:1:" "PR-DOCS-02"
+  case_ "$W" 1 "PR-DOCS-02 capability 檔與 ADR 同樣受限" \
+    "$SEC; mkdir -p docs/adr docs/capabilities; sec $((B + 1)) > docs/adr/0001-a.md; sec $((B + 1)) > docs/capabilities/a.md" \
+    "docs/adr/0001-a.md:1:" "docs/capabilities/a.md:1:"
+
+  # --- PR-DOCS-03：合訂本與 test 文件第一行是讀法引言 ---
+  local G='GUIDE=$(sed -n "s/^READING_GUIDE=.\(.*\).\$/\1/p" "'"$CHECK"'")'
+  for f in docs/03_architecture_design.md docs/05_frontend_spec.md docs/test-blueprint.md docs/test-status.md; do
+    case_ "$W" 0 "PR-DOCS-03 $f 第一行是標準引言 → 過" \
+      "$G; [ -n \"\$GUIDE\" ] && printf '%s\n# T\nx\n' \"\$GUIDE\" > $f"
+    case_ "$W" 1 "PR-DOCS-03 $f 缺引言 → 擋，點名 $f:1: 與規則編號" \
+      "printf '# T\nx\n' > $f" "$f:1:" "PR-DOCS-03"
+    case_ "$W" 1 "PR-DOCS-03 $f 引言在第二行 → 擋" \
+      "$G; printf '# T\n%s\n' \"\$GUIDE\" > $f" "$f:1:" "PR-DOCS-03"
+  done
+  case_ "$W" 1 "PR-DOCS-03 空檔 → 擋" ": > docs/test-status.md" "docs/test-status.md:1:" "PR-DOCS-03"
+  case_ "$W" 0 "PR-DOCS-03 引言行 CRLF 結尾 → 過" \
+    "$G; printf '%s\r\n# T\r\nx\r\n' \"\$GUIDE\" > docs/test-status.md"
+  case_ "$W" 0 "PR-DOCS-03 引言行帶 BOM → 過" \
+    "$G; printf '\357\273\277%s\n# T\n' \"\$GUIDE\" > docs/test-status.md"
+  case_ "$W" 0 "PR-DOCS-03 四個檔都不存在 → 過" ":"
+  case_ "$W" 0 "PR-DOCS-03 capability 檔不需要引言 → 過" \
+    "mkdir -p docs/capabilities && printf '# T\nx\n' > docs/capabilities/a.md"
+  case_ "$W" 0 "PR-DOCS-03 GLOSSARY 與 ADR 不需要引言 → 過" \
+    "mkdir -p docs/adr && printf '# T\n' > docs/adr/0001-a.md && printf '# T\n' > GLOSSARY.md"
 }
 
 for loc in C.UTF-8 C; do
@@ -111,6 +162,13 @@ echo "[本 repo]"
 for loc in C.UTF-8 C; do
   out=$(LC_ALL="$loc" bash "$CHECK" 2>&1); verdict 0 "本 repo 根目錄（$loc）→ 過" $? "$out"
 done
+
+
+# PR-DOCS-03：標準引言只在腳本裡定義一次，且讀得出來非空（上面的過案例靠它，空字串會讓它們空過）
+g=$(sed -n 's/^READING_GUIDE=.\(.*\).$/\1/p' "$CHECK")
+if [ -n "$g" ]; then verdict 0 "READING_GUIDE 讀得出來且非空" 0; else verdict 0 "READING_GUIDE 讀得出來且非空" 1 "讀不到 READING_GUIDE="; fi
+c=$(grep -c '^READING_GUIDE=' "$CHECK")
+verdict 1 "READING_GUIDE 只定義一次" "$c" "定義了 $c 次"
 
 # PR-DOCS-01：ADR 不放日期行（日期歸決策日誌與 git）
 if grep -n '^日期：' docs/adr/*.md >/dev/null 2>&1; then
