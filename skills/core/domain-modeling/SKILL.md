@@ -30,7 +30,7 @@ Any of the three missing → no ADR file. An ADR per preference is noise that bu
 
 Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, never `0007-session-handling`. Body covers what was decided, what was rejected, and why. One status line at the top: `Status: Proposed` until the change implementing it flips it to `Accepted` — unbuilt work must not read as settled. No template ceremony beyond that.
 
-**`docs/decision-log.md`** — one line per decision that fails the gate but deserves a trace: date, decision, one clause of why. Single file, append-only, no template. Deliberately not in `GLOSSARY.md`: the glossary is in-force truth; the log is history.
+**`docs/decision-log.md`** — one line per decision that fails the gate but deserves a trace: date, decision, one clause of why. The path never changes and the file holds the current month only, no template. Move the previous month's lines to `docs/decision-log/YYYY-MM.md` before writing the first line of a new month; an archive is never modified after the move. Deliberately not in `GLOSSARY.md`: the glossary is in-force truth; the log is history.
 
 ## Sharpening a term
 

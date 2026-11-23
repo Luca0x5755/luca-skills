@@ -1,6 +1,6 @@
 # 0005：決策日誌固定路徑只放當月，舊月份輪替進月份封存檔
 
-Status: Proposed
+Status: Accepted
 
 日期：2026-11-23
 

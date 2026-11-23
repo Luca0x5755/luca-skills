@@ -207,13 +207,13 @@ else
 fi
 
 echo "[20] 行為測試只住 tests/test-tooling.sh：CI 跑它、check.sh 不呼叫任何測試、Windows CI 補跑 PowerShell 骨架測試"
-[ -f tests/test-tooling.sh ] || err "tests/test-tooling.sh 不存在 — [8]、[11]、[25]–[28] 會沒人跑"
+[ -f tests/test-tooling.sh ] || err "tests/test-tooling.sh 不存在 — [8]、[11]、[25]–[28]、[31] 會沒人跑"
 grep -qE '^[[:space:]]*-[[:space:]]*run:.*tests/test-tooling\.sh' .github/workflows/check.yml 2>/dev/null \
   || err ".github/workflows/check.yml 沒有呼叫 tests/test-tooling.sh — 行為測試會靜默停跑"
 # check.sh 只放靜態不變量：Stop hook 每次都跑它，行為測試會讓它拖到數分鐘
 grep -nE '^[[:space:]]*bash (scripts/test-|tests/)' scripts/check.sh | sed 's/^/      /' | grep . \
   && err "scripts/check.sh 呼叫了行為測試（見上）— 搬進 tests/test-tooling.sh"
-for t in test-issues-check test-truth-map-check test-ops-script-skeleton test-ops-script-skeleton-ps; do
+for t in test-issues-check test-truth-map-check test-docs-governance-check test-ops-script-skeleton test-ops-script-skeleton-ps; do
   grep -qE "^run_test $t\$" tests/test-tooling.sh 2>/dev/null \
     || err "tests/test-tooling.sh 沒有呼叫 tests/scripts/$t.sh — 這個測試會沒人跑"
 done
@@ -268,6 +268,34 @@ stray=$(find scripts hooks -maxdepth 1 -type f -name 'test-*' 2>/dev/null | sort
 rule=$(ls skills/*/ops-script/SKILL.md 2>/dev/null | head -1)
 { [ -n "$rule" ] && grep -qF 'tests/<' "$rule"; } \
   || err "ops-script/SKILL.md 沒寫測試放 tests/<來源資料夾名>/ — 目標專案的 scripts/ 會被測試擠滿"
+
+echo "[30] setup-skills 的文件治理檢查模板（Section H）：檔案在、被引用、workflow 呼叫腳本；domain-modeling 寫輪替合約；本 repo 已輪替並裝上"
+d=skills/core/setup-skills
+for f in docs-governance-check.yml check-docs-governance.sh; do
+  [ -f "$d/$f" ] || { err "$d/$f 不存在 — setup-skills Section H 要複製它"; continue; }
+  grep -qF "$f" "$d/SKILL.md" "$d/CHECKS.md" 2>/dev/null || err "$d/SKILL.md 與 CHECKS.md 都沒有提到 $f — 模板沒人會裝"
+done
+grep -q 'check-docs-governance\.sh' "$d/docs-governance-check.yml" 2>/dev/null && grep -q 'pull_request' "$d/docs-governance-check.yml" 2>/dev/null \
+  || err "$d/docs-governance-check.yml 沒有在 pull_request 呼叫 check-docs-governance.sh — 檢查會失明"
+grep -qF 'H — Docs governance check' "$d/SKILL.md" || err "$d/SKILL.md 沒有 Section H"
+grep -q '^## Section H' "$d/CHECKS.md" 2>/dev/null || err "$d/CHECKS.md 沒有「## Section H」標題 — 細節沒地方放"
+for s in 'docs/decision-log.md' 'byte-for-byte' 'check-truth-map.sh' 'branch protection'; do
+  grep -qF -- "$s" "$d/CHECKS.md" 2>/dev/null || err "$d/CHECKS.md 的 Section H 缺少「$s」"
+done
+f=skills/core/domain-modeling/SKILL.md
+grep -qF 'Single file, append-only' "$f" && err "$f 仍寫「Single file, append-only」— 決策日誌改為月輪替"
+for s in 'docs/decision-log.md' 'current month' 'before writing the first line of a new month' 'docs/decision-log/YYYY-MM.md' 'never modified'; do
+  grep -qF -- "$s" "$f" || err "$f 缺少輪替合約的「$s」"
+done
+for a in docs/decision-log/*.md; do
+  m=$(basename "$a" .md)
+  [ -s "$a" ] || { err "$a 為空或不存在 — 封存檔要有該月的行"; continue; }
+  grep -qvE "^($m|$)" "$a" && err "$a 有不以 $m 開頭的行 — 封存檔只放該月的行"
+done
+for p in .github/scripts/check-docs-governance.sh:$d/check-docs-governance.sh .github/workflows/docs-governance-check.yml:$d/docs-governance-check.yml; do
+  cmp -s "${p%%:*}" "${p#*:}" || err "${p%%:*} 不存在或與模板 ${p#*:} 不同 — 本 repo 要逐字裝上 Section H"
+done
+bash .github/scripts/check-docs-governance.sh >/dev/null 2>&1 || err "bash .github/scripts/check-docs-governance.sh 未過 — 跑它看細節"
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi

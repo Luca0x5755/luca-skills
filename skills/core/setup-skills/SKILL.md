@@ -16,6 +16,7 @@ Produces:
 - Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
 - When the project has `docs/capabilities/`: `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh`
+- When the project has `docs/`: `.github/workflows/docs-governance-check.yml` and `.github/scripts/check-docs-governance.sh`
 - In private mode: entries in `.git/info/exclude`
 
 ## 1. Explore
@@ -30,11 +31,12 @@ Read what exists. Assume nothing.
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
 - `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
 - `docs/capabilities/` — present? Then `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh` — present, and do they still match their source (Section G)?
+- `docs/` — present? Then `.github/workflows/docs-governance-check.yml` and `.github/scripts/check-docs-governance.sh` — present, and do they still match their source (Section H)?
 - Monorepo signals: `pnpm-workspace.yaml`, a `workspaces` field, populated `packages/*`
 
 ## 2. Present and ask
 
-Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the four sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker, G without `docs/capabilities/`. Every other section collects a nod, re-runs included.
+Summarise what is present and what is missing. Take the sections in order — one section, one answer, then the next. Lead each with the recommended answer so it can be accepted in a word. **A derived proposal is not an answer** — a GitHub remote proposes GitHub Issues, it does not settle Section A, and an existing `docs/agents/` does not settle it either. Only the five sections carrying their own skip condition go unasked: B without monorepo signals, C on a solo repo, F off a local markdown tracker, G without `docs/capabilities/`, H without `docs/`. Every other section collects a nod, re-runs included.
 
 **Section A — Issue trackers.** Both trackers are recorded, never one instead of the other: a 本機議題 tracker, and a 遠端議題 tracker when the repo has a remote. `to-tickets`, `to-spec`, `wayfinder`, and `triage` choose between them by the routing criteria at the top of `docs/agents/issue-tracker.md` (「分流判準」) and read from and write to the one it points at; they need to know whether to run `gh issue create`, `glab issue create`, write a file under `docs/issues/`, or follow something you describe.
 
@@ -69,10 +71,11 @@ A third, `guard-penpot.sh`, is a PreToolUse hook on the Penpot MCP tools: it blo
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
 - **Register** each under `PreToolUse` in `.claude/settings.json` — matcher `Bash` for the git pair, `mcp__penpot__execute_code|mcp__penpot__export_shape` for `guard-penpot.sh` — as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
-Sections F and G are the CI checks; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
+Sections F, G and H are the CI checks; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
 
 - **F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored).
 - **G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked.
+- **H — Docs governance check.** Only when the project has `docs/`; otherwise skip it unasked.
 
 ## 3. Confirm
 
@@ -119,3 +122,5 @@ Say which skills now read these files, and that `docs/agents/*.md` can be hand-e
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
 
 After installing Section G, tell the user the same of `truth-map-check`: it blocks merging only once they mark it required, and until then its red list is a to-do, not a gate.
+
+After installing Section H, tell the user the same of `docs-governance-check`: it blocks merging only once they mark it required in branch protection.

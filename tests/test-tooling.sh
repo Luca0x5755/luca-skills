@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 行為測試：hook、安裝器、setup-skills 模板與 ops-script 骨架。編號與 check.sh 共用，
-# [8]、[11]、[25]–[28] 住這裡；check.sh 只放靜態不變量（[20] 強制）。
+# [8]、[11]、[25]–[28]、[31] 住這裡；check.sh 只放靜態不變量（[20] 強制）。
 # 這些測試慢（Windows 上要好幾分鐘），不進 Stop hook，只由 CI 跑；本機改了受測檔案
 # （hooks/、scripts/、setup-skills 模板、ops-script 骨架）就手動跑一次。
 set -uo pipefail
@@ -40,6 +40,9 @@ run_test test-issues-check
 
 echo "[26] setup-skills 的真相地圖檢查模板（[13] 的行為測試）"
 run_test test-truth-map-check
+
+echo "[31] setup-skills 的文件治理檢查模板（[30] 的行為測試）"
+run_test test-docs-governance-check
 
 echo "[27] ops-script bash 骨架：CLI 與 LIB 兩個接縫的行為、語法、結構"
 run_test test-ops-script-skeleton

@@ -1,0 +1,13 @@
+# Installed by /setup-skills (project with docs/). The job name `docs-governance-check` is the
+# status check to mark as required in branch protection.
+name: Docs governance check
+
+on:
+  pull_request:
+
+jobs:
+  docs-governance-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash .github/scripts/check-docs-governance.sh
