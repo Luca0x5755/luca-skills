@@ -19,6 +19,8 @@ Turn a spec's UI surface into frontend truth plus Penpot mockups. Runs after `/t
 
 **Promises are cited by ID.** A page section names the promises it serves by ID (`PR-ORDER-03`) and never restates promise text — that text lives only in the capability file. The capability-file shape lives in the target's `docs/agents/domain.md`; read it there before writing one.
 
+Current docs follow the **現行文件與歷史文件** section of the target's `docs/agents/domain.md` — read it there before writing; this skill does not restate it.
+
 **Cross-mapping is mechanical.** Every page section this skill writes or touches in `05` carries its capability tag (`### 訂單列表頁（能力：訂單）`); the owning `docs/capabilities/<name>.md` lists the heading back. A heading missing either side is blocked by the check /setup-skills installs.
 
 No truth layer yet? An inherited legacy project goes through `/bootstrap-truth` first; a young project just starts its `05` and first capability file here.

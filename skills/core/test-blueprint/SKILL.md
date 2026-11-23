@@ -10,6 +10,8 @@ Analyze a project and propose its test blueprint — which layers exist, what ea
 
 The line the whole skill runs on: **judgment crystallizes into scripts.** Same input, same output, runs unattended → a script or config file, generated here. Reading a spec, weighing cost against risk, choosing policy → judgment, and every judgment in this skill ends as a proposal a human approves.
 
+The blueprint is a current doc: it follows the **現行文件與歷史文件** section of the target's `docs/agents/domain.md` — read it there before writing; this skill does not restate it.
+
 ## 0. Read the existing blueprint
 
 A `docs/test-blueprint.md` already present means revision mode: the proposal in step 3 becomes a delta against it, never a fresh document. No file means first run; [`TEMPLATE.md`](TEMPLATE.md) starts it.

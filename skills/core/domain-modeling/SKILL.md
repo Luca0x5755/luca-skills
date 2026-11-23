@@ -32,6 +32,8 @@ Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, 
 
 **`docs/decision-log.md`** — one line per decision that fails the gate but deserves a trace: date, decision, one clause of why. The path never changes and the file holds the current month only, no template. Move the previous month's lines to `docs/decision-log/YYYY-MM.md` before writing the first line of a new month; an archive is never modified after the move. Deliberately not in `GLOSSARY.md`: the glossary is in-force truth; the log is history.
 
+`GLOSSARY.md` and ADRs are current docs; the log is a history doc. The classification and the content rules for current docs live in the **現行文件與歷史文件** section of the target's `docs/agents/domain.md` — read it there; this skill does not restate it.
+
 ## Sharpening a term
 
 **Test for overload.** Grep the term across the codebase and docs. If it names three different things, it is doing three jobs — split it. "Account" that means the billing entity, the login identity, and the org is three terms wearing one word.

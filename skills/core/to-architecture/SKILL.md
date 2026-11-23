@@ -23,6 +23,8 @@ This skill edits the **truth layer** — the documents describing what the syste
 
 **Cross-mapping is mechanical.** Every `##` heading this skill writes or touches in `03` carries its capability tag (`## 3.4 REST API（能力：訂單）`; a project-wide section takes `（能力：共用）`); an untagged `###` inherits its parent's tag, except `共用`. The capability file lists the heading back. A heading missing either side is blocked by the check /setup-skills installs.
 
+Current docs follow the **現行文件與歷史文件** section of the target's `docs/agents/domain.md` — read it there before writing; this skill does not restate it.
+
 **Edit only on the feature branch.** The edits merge in the same PR as the code they describe, so `main`'s documents never claim anything `main`'s code doesn't do — no draft markers, no fold-back step, no sync ritual. No truth layer yet? An inherited legacy project goes through `/bootstrap-truth` first; a young project just starts its `03` and first capability file here.
 
 ## Shape

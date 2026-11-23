@@ -297,6 +297,38 @@ for p in .github/scripts/check-docs-governance.sh:$d/check-docs-governance.sh .g
 done
 bash .github/scripts/check-docs-governance.sh >/dev/null 2>&1 || err "bash .github/scripts/check-docs-governance.sh 未過 — 跑它看細節"
 
+echo "[32] 現行文件規則只有一個家：範本在 setup-skills 旁、/setup-skills 指示複製進 domain.md、五個技能只指向不重述、audit-truth 列教訓類發現"
+d=skills/core/setup-skills
+tpl=$d/docs-classification.md
+sec='現行文件與歷史文件'
+if [ ! -f "$tpl" ]; then
+  err "$tpl 不存在 — 現行文件規則沒有家"
+else
+  for part in "## $sec" '**現行文件**' '**歷史文件**' '票號' '工作日期' '遷移紀錄' '教訓' '曾經 X 後改 Y' '決策日誌' 'commit' 'ADR' '產品版本號'; do
+    grep -qF -- "$part" "$tpl" || err "$tpl 缺少「$part」— 規則不完整"
+  done
+fi
+grep -F 'docs-classification.md' "$d/SKILL.md" | grep -F 'docs/agents/domain.md' | grep -F 'byte-for-byte' | grep -qF 'diff' \
+  || err "$d/SKILL.md 沒有在同一行把 docs-classification.md 逐字（byte-for-byte）複製進 docs/agents/domain.md，並提到 diff — 規則沒人會裝"
+# 夾具同步：本 repo 的 domain.md 末節（從標題行到檔尾）必須與範本逐行相同
+if [ -f "$tpl" ]; then
+  diff <(sed -n "/^## $sec\$/,\$p" docs/agents/domain.md) "$tpl" >/dev/null 2>&1 \
+    || err "docs/agents/domain.md 的「## $sec」末節與 $tpl 不同 — 重新複製範本"
+fi
+for f in skills/core/to-architecture skills/core/frontend-spec skills/core/test-blueprint skills/core/domain-modeling skills/draft/audit-truth; do
+  grep -F 'docs/agents/domain.md' "$f/SKILL.md" 2>/dev/null | grep -qF "$sec" \
+    || err "$f/SKILL.md 沒有在同一行指向 docs/agents/domain.md 的「$sec」一節"
+done
+for f in $(grep -rlF -- '曾經 X 後改 Y' skills 2>/dev/null); do
+  [ "$f" = "$tpl" ] || err "$f 重述了現行文件規則 — 規則只住 $tpl"
+done
+for f in $(grep -rlF -- '工作日期' skills 2>/dev/null); do
+  [ "$f" = "$tpl" ] && continue
+  grep -qF -- '遷移紀錄' "$f" && err "$f 重述了現行文件的內容規則清單 — 規則只住 $tpl"
+done
+grep -F '曾經' skills/draft/audit-truth/SKILL.md | grep -F '教訓' | grep -qF 'finding' \
+  || err "skills/draft/audit-truth/SKILL.md 沒有同一行寫明「教訓／曾經」敘述列為 finding"
+
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

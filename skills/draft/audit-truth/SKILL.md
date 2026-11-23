@@ -12,12 +12,14 @@ This knife audits and files. It never rewrites the documents it audits — fixes
 
 ## Scope — two classes, everything else keeps
 
-A finding is a **semantic contradiction** in exactly one of two classes:
+A contradiction finding is a **semantic contradiction** in exactly one of two classes:
 
 - **document ↔ code** — the truth layer claims X; the code does Y.
 - **document ↔ document** — two documents state divergent versions of one fact.
 
-Everything else — style complaints, staleness suspicion with no contradicting counterpart, missing documentation — defaults to **keep**: note it in the report, never put it in the questionnaire. Missing docs are `/bootstrap-truth`'s territory; taste is nobody's.
+Everything else, bar the one class below — style complaints, staleness suspicion with no contradicting counterpart, missing documentation — defaults to **keep**: note it in the report, never put it in the questionnaire. Missing docs are `/bootstrap-truth`'s territory; taste is nobody's.
+
+**One more finding class, not a contradiction.** A current doc (per the **現行文件與歷史文件** section of the target's `docs/agents/domain.md` — read it there; the rules are not restated here) holding a 教訓 or 曾經 narrative is a finding: list it in the report in the evidence form. It skips the questionnaire; the user says at step 4 which this branch fixes, and those file as tickets whose Done when is the narrative removed or moved to the decision log, a commit or an ADR.
 
 ## Evidence form — how a source is named
 
