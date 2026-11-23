@@ -8,6 +8,7 @@
 #/ hello：沒有終端機時要 --pick。
 #/   --pick 名稱[,名稱...]   依名稱挑選、免互動（例：--pick alpha,gamma）
 #/   --dry-run               只印將執行的指令，什麼都不改
+#/   --step                  逐步執行：每個步驟前停下，Enter 執行、a 之後不再停、q 離開（需要終端機）
 #/
 #/ 選項：
 #/   -h, --help   顯示這份說明
@@ -30,7 +31,7 @@ fi
 # 嚴格模式只是安全網：重要的失敗一律自己攔下、用 die 回報，不靠 set -e 報錯。
 set -euo pipefail
 
-# ---- BEGIN ops-lib v7 ----
+# ---- BEGIN ops-lib v8 ----
 # 終端機探針：全區段唯一碰 -t 的地方，測試覆寫它來模擬終端機。
 _is_tty() { [[ -t "$1" ]]; }
 
@@ -74,8 +75,53 @@ require_tty() {
 N_PASS=0; N_FAIL=0; N_WARN=0; N_SKIP=0
 ISSUES=()
 
-# step 標題：步驟標題，走 stderr。
-step() { printf '%s== %s%s\n' "$BOLD" "$*" "$RESET" >&2; }
+# ---- 逐步模式 ----
+# 全域狀態（本區段保留的名稱）：STEP_ON 開關、STEP_ALL 已按 a、STEP_N 目前步驟的流水號。
+STEP_ON=0; STEP_ALL=0; STEP_N=0
+
+# enable_step_mode：開啟逐步模式。停點讀 stdin，所以沒有終端機就 exit 2、什麼都還沒做。
+# 由子命令在解析完參數後呼叫；修法點名 --step，因為操作者只能拿掉它。
+enable_step_mode() {
+  require_tty "拿掉 --step，或在終端機中執行"
+  STEP_ON=1
+}
+
+# _step_gate 標題：停點。Enter 執行；a 執行並讓之後不再停；q 或 EOF 先印總表、點名停在哪一步之前，exit 1；
+# 其他輸入（含 y）重問。沒有跳過：跳過的步驟若記成 [PASS] 就是說謊。
+_step_gate() {
+  local ans=""
+  while true; do
+    printf '[Enter 執行、a 之後不再停、q 離開] ' >&2
+    # 最後一行沒有換行時 read 回非 0 但 ans 有值：有值就照常處理，只有真正的 EOF 才當 q。
+    read -r ans || [[ -n "$ans" ]] || ans=q
+    case "$ans" in
+      "") return 0 ;;
+      [aA]) STEP_ALL=1; return 0 ;;
+      [qQ])
+        printf '\n' >&2
+        print_summary
+        printf '停在步驟 %d「%s」之前\n' "$STEP_N" "$1" >&2
+        exit 1
+        ;;
+    esac
+  done
+}
+
+# step 標題 [說明行...]：步驟標題，走 stderr。說明行（選填，1–3 行）只在逐步模式印；
+# 逐步模式下標題帶流水號並在執行前停一次（a 之後只印不停）。停點掛在 step、不掛在 run：
+# 掛在 run 會讓被跳過的步驟記成 [PASS]。
+step() {
+  local title=$1 line
+  shift
+  if ((!STEP_ON)); then
+    printf '%s== %s%s\n' "$BOLD" "$title" "$RESET" >&2
+    return 0
+  fi
+  STEP_N=$((STEP_N + 1))
+  printf '%s== 步驟 %d：%s%s\n' "$BOLD" "$STEP_N" "$title" "$RESET" >&2
+  for line in "$@"; do printf '   %s\n' "$line" >&2; done
+  if ((!STEP_ALL)); then _step_gate "$title"; fi
+}
 
 pass() { N_PASS=$((N_PASS + 1)); printf '[PASS] %s\n' "$*" >&2; }
 skip() { N_SKIP=$((N_SKIP + 1)); printf '[SKIP] %s\n' "$*" >&2; }
@@ -289,19 +335,22 @@ run() {
 HELLO_ITEMS=(alpha beta gamma)
 
 cmd_hello() {
-  local dry=0 pick="" has_pick=0 dir picks idx name
+  local dry=0 pick="" has_pick=0 stepping=0 dir picks idx name
   while (($#)); do
     case "$1" in
       --dry-run) dry=1 ;;
+      --step) stepping=1 ;;
       --pick)
         shift
         [[ $# -gt 0 ]] || usage_error "--pick 缺少值" "例：--pick alpha,gamma"
         pick=$1; has_pick=1 ;;
       -h | --help) usage; return 0 ;;
-      *) usage_error "hello 未知的參數：$1" "可用的選項：--pick、--dry-run" ;;
+      *) usage_error "hello 未知的參數：$1" "可用的選項：--pick、--dry-run、--step" ;;
     esac
     shift
   done
+  # 逐步模式要在任何挑選與動作之前檢查終端機：沒有終端機就什麼都不做。
+  if ((stepping)); then enable_step_mode; fi
   dir="${HELLO_DIR:-./hello-out}"
   if ((has_pick)); then
     picks=$(pick_by_name --pick "$pick" "${HELLO_ITEMS[@]}") || exit $?
@@ -309,7 +358,7 @@ cmd_hello() {
     require_tty "改用 --pick 指定名稱（例：--pick alpha,gamma），或在終端機中執行"
     picks=$(multiselect "要建立哪些目錄？" "${HELLO_ITEMS[@]}") || die "已取消" "沒有選任何項目，什麼都沒做"
   fi
-  step "建立目錄"
+  step "建立目錄" "對每個選中的名稱建立同名目錄；目錄已存在時不會報錯，可重跑" "停在這裡：尚未建立任何目錄"
   for idx in $picks; do
     name=${HELLO_ITEMS[idx - 1]}
     # 失敗要記帳而不是中止：if 條件裡 set -e 不生效，結果交給 finish 決定結束碼。
@@ -328,6 +377,12 @@ main() {
       else
         usage_error "未指定子命令" "帶上子命令，或在終端機中執行以進入選單"
       fi
+      ;;
+    --step)
+      # 唯一參數才進選單並轉交；其餘情況 --step 屬於子命令，不由這裡解析。
+      (($# == 1)) || usage_error "--step 要放在子命令之後" "例：$SCRIPT_NAME hello --step"
+      require_tty "拿掉 --step 並帶上子命令，或在終端機中執行"
+      run_menu --step
       ;;
     -*) usage_error "未知選項：$1" "用 --help 查看用法" ;;
     *) run_command "$@" ;;
