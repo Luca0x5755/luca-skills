@@ -2,7 +2,7 @@
 
 The PowerShell half of `/ops-script`. The bash rules in [SKILL.md](SKILL.md) hold here too (one script two ways in, exit codes, `--dry-run` as `-WhatIf`, ops-lib copied verbatim); this file carries only what differs.
 
-Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v7 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
+Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib v8 ----` and `# ---- END ops-lib ----` is copied verbatim, same sync rule and same version number as the bash block. The test seam is `SKELETON_LIB=1` (rename it per script), compared strictly against `"1"`; dot-sourcing without it is refused.
 
 ## Rules
 
@@ -11,6 +11,8 @@ Start from [skeleton.ps1](skeleton.ps1). The block between `# ---- BEGIN ops-lib
 **Runs on both Windows PowerShell 5.1 (`powershell.exe`) and PowerShell 7 (`pwsh`).** Stay inside the 5.1 language: no ternary, no `??`, no `&&`/`||` between pipelines, no `$PSStyle`. Verify on both — the parser (`[System.Management.Automation.Language.Parser]::ParseFile`), `-WhatIf`, and the no-terminal exit code.
 
 **Confirmation is hand-written, default No.** The built-in `-Confirm` prompt and `ShouldContinue` run on Enter; a destructive action must not. `Confirm-Ops` answers `$true` only for `y`/`yes`, and end of input is No. `SupportsShouldProcess` exists only to provide `-WhatIf`: `Invoke-OpsRun` prints the command, then asks `$PSCmdlet.ShouldProcess`. It also exposes `-Confirm`, which is that built-in prompt and not this project's confirmation path. `Invoke-OpsRun` discards the action's output (the screen shows the `+` line); an action whose output matters returns it through its own variable.
+
+**Step mode (`-Step`) is hand-written too.** `Write-OpsStep Title [note lines...]` prints the notes and stops only when `$script:StepMode` is set; the script body binds `-Step` into it at start-up, as it does `$script:HasPick`, because functions cannot see the script's `$PSBoundParameters`. The stop accepts Enter, `a` (run the rest without stopping, notes still printed) and `q` or end of input (summary, then exit `1`); anything else asks again, and there is no skip. Without a terminal `-Step` exits `2` before any step runs. It combines with `-WhatIf` and never replaces `Confirm-Ops`. Do not build the stop on `ShouldProcess`, `-Confirm` or `Set-PSDebug`: under `-NonInteractive` `ShouldProcess` throws at every step while the script still exits `0`, and `Set-PSDebug -Step` stops per line.
 
 **No terminal: look at stdin only, with `[Console]::IsInputRedirected`.** Never detect it by letting `Read-Host` fail — 5.1 and 7 fail differently. Read input with `[Console]::In.ReadLine()`; `$null` means end of input. No subcommand and no terminal: usage, exit `2`.
 

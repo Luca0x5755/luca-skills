@@ -64,9 +64,9 @@ if [ ${#shells[@]} -eq 0 ]; then echo "- 兩種 PowerShell 都沒有，整份略
 echo "[STATIC] 檔案本身（與 shell 無關）"
 [ -f "$SK" ] && verdict ok "skeleton.ps1 存在" || { verdict ng "skeleton.ps1 不存在"; exit 1; }
 expect "前 3 byte 為 EF BB BF" "efbbbf" "$(head -c 3 "$SK" | od -An -tx1 | tr -d ' \n')"
-b=$(grep -n '^# ---- BEGIN ops-lib v7 ----' "$SK" | cut -d: -f1)
+b=$(grep -n '^# ---- BEGIN ops-lib v8 ----' "$SK" | cut -d: -f1)
 e=$(grep -n '^# ---- END ops-lib ----' "$SK" | cut -d: -f1)
-[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v7 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
+[ -n "$b" ] && [ -n "$e" ] && [ "$b" -lt "$e" ] && verdict ok "BEGIN v8 在 END 之前" || verdict ng "ops-lib 標記缺漏或順序錯"
 for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Write-OpsStep \
   Write-OpsPass Write-OpsFail Write-OpsWarn Write-OpsSkip Write-OpsSummary Complete-OpsRun \
   Select-OpsMulti Resolve-OpsPick Select-OpsOne Resolve-OpsPickOne Invoke-OpsRun; do
@@ -75,6 +75,11 @@ for fn in Test-OpsTty Test-OpsColor Stop-OpsScript Confirm-Ops Assert-OpsTty Wri
     && verdict ok "$fn 定義在標記之間" || verdict ng "$fn 沒定義在 ops-lib 標記之間"
 done
 sk=$(cat "$SK")
+# 逐步模式的停點由 ops-lib 自寫：區段內不得出現 Set-PSDebug、Read-Host、-Confirm（Invoke-OpsRun 的 ShouldProcess 屬 -WhatIf）
+libtxt=$(sed -n "${b},${e}p" "$SK")
+for w in 'Set-PSDebug' 'Read-Host' '-Confirm'; do
+  case "$libtxt" in *"$w"*) verdict ng "ops-lib 區段不得出現 $w" ;; *) verdict ok "ops-lib 區段沒有 $w" ;; esac
+done
 contains "ErrorActionPreference 設為 Stop" "$sk" "\$ErrorActionPreference = 'Stop'"
 contains "外部程式檢查 LASTEXITCODE" "$sk" 'LASTEXITCODE'
 contains "CmdletBinding 帶 SupportsShouldProcess" "$sk" '[CmdletBinding(SupportsShouldProcess)]'
@@ -136,6 +141,12 @@ for PS in "${shells[@]}"; do
   cli $nul bogus; [ "$RC" -ne 0 ] && verdict ok "未知子命令非 0（binder 擋下，退出碼 $RC）" || verdict ng "未知子命令不該回 0"
   cli $nul hello; expect "hello 無 -Pick 且無終端機回 2" 2 "$RC"
   contains "hello 無終端機時點名 -Pick" "$OUT" "-Pick alpha,gamma"
+  # -Step 沒有終端機：結束碼 2、點名拿掉 -Step、什麼都不做
+  HELLO_DIR="$TMPW\nostep-$ver" cli $nul hello -Pick alpha -Step
+  expect "-Step 無終端機回 2" 2 "$RC"
+  contains "-Step 無終端機時點名 -Step" "$OUT" "-Step"
+  [ ! -e "$tmp/nostep-$ver" ] && verdict ok "-Step 無終端機什麼都不做" || verdict ng "-Step 無終端機不該建立目錄"
+  cli $nul -Step; expect "只有 -Step 且無終端機回 2" 2 "$RC"
   # -Help 只給操作者：維護者筆記（ops-lib 同步、測試接縫、BOM）留在 # 註解
   cli $nul -Help
   for w in ops-lib _LIB BOM; do
@@ -221,6 +232,81 @@ for PS in "${shells[@]}"; do
   librc 'Write-OpsPass a; Write-OpsWarn b; Write-OpsSkip c; Complete-OpsRun' </dev/null; expect "warn／skip 不影響 Complete 回 0" 0 $?
   librc 'Write-OpsFail b; Complete-OpsRun' </dev/null; expect "有 fail 時 Complete 回 1" 1 $?
   librc 'Complete-OpsRun' </dev/null; expect "零筆結果 Complete 回 0" 0 $?
+
+  echo "[STATIC] 停點不走 ShouldProcess／Confirm（AST 取 Write-OpsStep 本體）"
+  out=$(SKP="$SKW" "$PS" -NoProfile -NonInteractive -Command '$t=$null;$e=$null;$a=[System.Management.Automation.Language.Parser]::ParseFile($env:SKP,[ref]$t,[ref]$e);$f=$a.Find({param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq "Write-OpsStep"},$true); if ($f) { "found"; $x=$f.Extent.Text; foreach ($w in "ShouldProcess","Confirm","Read-Host") { "$w=$($x.Contains($w))" } }' </dev/null | tr -d '\r')
+  contains "找到 Write-OpsStep" "$out" "found"
+  for w in ShouldProcess Confirm Read-Host; do contains "Write-OpsStep 本體不含 $w" "$out" "$w=False"; done
+
+  hf="$tmp/host-$ver.txt"
+  echo "[LIB v8] 逐步模式：Write-OpsStep 的停點"
+  # step_run <stdin> <片段>：StepMode 開、終端機為真、無色；畫面以 UTF-8 寫檔。SR_OUT 為畫面，SR_RC 為結束碼
+  step_run() {
+    hf="$tmp/host-$ver.txt"; rm -f "$hf"
+    printf "$1" | NO_COLOR=1 HF="$TMPW/host-$ver.txt" lib "function Write-Host { param(\$Object, [switch]\$NoNewline) \$t = if (\$NoNewline) { \"\$Object\" } else { \"\$Object\`n\" }; [IO.File]::AppendAllText(\$env:HF, \$t, [Text.UTF8Encoding]::new(\$false)) }; function Test-OpsTty { \$true }; \$script:StepMode = \$true; $2" >/dev/null
+    SR_RC=$?
+    SR_OUT=$(cat "$hf" 2>/dev/null)
+  }
+  step_run '\n' 'Write-OpsStep FIRST "note one" "note two"'
+  expect "Enter 執行這一步、結束碼 0" 0 "$SR_RC"
+  contains "標題帶流水號" "$SR_OUT" "== 步驟 1：FIRST"
+  contains "印第一行說明" "$SR_OUT" "note one"
+  contains "印第二行說明" "$SR_OUT" "note two"
+  expect "開跑前不印總覽：第一行就是第一步的標題" "== 步驟 1：FIRST" "$(head -1 <<<"$SR_OUT")"
+  step_run '\n\n' 'Write-OpsStep FIRST "n1"; Write-OpsStep SECOND "n2"'
+  expect "兩步各停一次、結束碼 0" 0 "$SR_RC"
+  contains "第二步流水號 2" "$SR_OUT" "== 步驟 2：SECOND"
+  step_run 'a\n' 'Write-OpsStep A "na"; Write-OpsStep B "nb"; Write-OpsStep C "nc"'
+  expect "a 之後不再讀輸入（讀了會遇到 EOF 而結束碼 1）" 0 "$SR_RC"
+  contains "a 之後仍印標題" "$SR_OUT" "== 步驟 3：C"
+  contains "a 之後仍印說明" "$SR_OUT" "nc"
+  step_run 'q\n' 'Write-OpsStep A "na"; Write-OpsPass RAN-A'
+  expect "q 結束碼 1" 1 "$SR_RC"
+  contains "q 先印總表" "$SR_OUT" "總計：pass 0  fail 0  warn 0  skip 0"
+  contains "q 點名停在哪一步之前" "$SR_OUT" "停在步驟 1：A 之前"
+  case "$SR_OUT" in *RAN-A*) verdict ng "q 之後不該再執行這一步" ;; *) verdict ok "q 之後這一步沒有執行" ;; esac
+  step_run '' 'Write-OpsStep A "na"; Write-OpsPass RAN-A'
+  expect "輸入結束等同 q：結束碼 1" 1 "$SR_RC"
+  contains "輸入結束也點名停在哪一步之前" "$SR_OUT" "停在步驟 1：A 之前"
+  step_run 'y\ns\nx\n\n' 'Write-OpsStep A "na"'
+  expect "無效輸入（含 y、s）重問後 Enter 結束碼 0" 0 "$SR_RC"
+  expect "共問四次（沒有跳過選項）" 4 "$(grep -o 'q 離開' <<<"$SR_OUT" | wc -l | tr -d ' ')"
+  out=$(printf 'SENTINEL\n' | NO_COLOR=1 lib 'Write-OpsStep T "note"; Write-OpsPass x; "left=" + [Console]::In.ReadLine()'); rc=$?
+  expect "不帶 -Step：結束碼 0" 0 "$rc"
+  contains "不帶 -Step：照舊印 == 標題" "$out" "== T"
+  contains "不帶 -Step：不讀輸入" "$out" "left=SENTINEL"
+  case "$out" in *note*) verdict ng "不帶 -Step 不該印說明行" ;; *) verdict ok "不帶 -Step 不印說明行" ;; esac
+  case "$out" in *步驟*) verdict ng "不帶 -Step 標題不該有流水號" ;; *) verdict ok "不帶 -Step 標題沒有流水號" ;; esac
+
+  echo "[LIB v8] 停點與確認、-WhatIf 互相獨立"
+  printf 'y\n\ny\n' | NO_COLOR=1 librc 'function Test-OpsTty { $true }; $script:StepMode = $true; Write-OpsStep A; if (Confirm-Ops go) { exit 0 } else { exit 1 }'
+  expect "停點輸入 y 不算確認、Enter 後另一次 y 才確認" 0 $?
+  printf 'y\n\n\n' | NO_COLOR=1 librc 'function Test-OpsTty { $true }; $script:StepMode = $true; Write-OpsStep A; if (Confirm-Ops go) { exit 0 } else { exit 1 }'
+  expect "Enter 不能代替確認的 y" 1 $?
+  dwi="$TMPW\\whatif-step-$ver"
+  step_run 'a\n' "\$env:HELLO_DIR = '$dwi'; function T { [CmdletBinding(SupportsShouldProcess)] param(); \$script:Cmdlet = \$PSCmdlet; \$script:HasPick = \$true; \$script:BoundPick = 'beta'; Invoke-Hello }; T -WhatIf"
+  expect "-Step 加 -WhatIf：結束碼 0" 0 "$SR_RC"
+  contains "-Step 加 -WhatIf：停點照走" "$SR_OUT" "== 步驟 1："
+  contains "-Step 加 -WhatIf：仍印將執行的指令" "$SR_OUT" "+ mkdir"
+  [ ! -e "$tmp/whatif-step-$ver" ] && verdict ok "-Step 加 -WhatIf 不建立目錄" || verdict ng "-Step 加 -WhatIf 不該建立目錄"
+
+  echo "[LIB v8] hello 的步驟帶說明行，用 -Step 跑完"
+  dst="$TMPW\\hello-step-$ver"
+  step_run 'a\n' "\$env:HELLO_DIR = '$dst'; \$script:HasPick = \$true; \$script:BoundPick = 'alpha,gamma'; Invoke-Hello"
+  expect "hello -Step 跑完結束碼 0" 0 "$SR_RC"
+  [ -d "$tmp/hello-step-$ver/alpha" ] && [ -d "$tmp/hello-step-$ver/gamma" ] && verdict ok "hello -Step 建立 alpha、gamma" || verdict ng "hello -Step 沒建立目錄"
+  case "$(sed -n 2p <<<"$SR_OUT")" in "+ "*|"["*|"") verdict ng "hello 的步驟沒有說明行" ;; *) verdict ok "hello 的步驟標題後有說明行" ;; esac
+
+  echo "[LIB v8] 選單的等價指令帶 -Step"
+  step_run '1\n' 'function Invoke-OpsCommand { param($Name) }; Invoke-OpsMenu'
+  contains "-Step 選單的等價指令" "$SR_OUT" "-> skeleton.ps1 hello -Step"
+  step_run '1\n' '$script:StepMode = $false; function Invoke-OpsCommand { param($Name) }; Invoke-OpsMenu'
+  out=$SR_OUT
+  contains "不帶 -Step 的等價指令照舊" "$out" "-> skeleton.ps1 hello"
+  case "$out" in *"-Step"*) verdict ng "不帶 -Step 的等價指令不該有 -Step" ;; *) verdict ok "不帶 -Step 的等價指令沒有 -Step" ;; esac
+  step_run 'q\n' 'Invoke-Main'
+  expect "只有 -Step、有終端機：進選單，q 取消回 1" 1 "$SR_RC"
+  contains "只有 -Step 進了選單" "$SR_OUT" "要做什麼？"
 
   echo "[LIB] Select-OpsMulti（結果走管線、畫面走 host）"
   ms() {  # ms <輸入> [項目數]：MS_OUT 為選取結果（逗號串接）
