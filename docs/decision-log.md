@@ -87,3 +87,4 @@
 2026-11-23 第一行讀法只要求 `03`、`05`、`test-blueprint`、`test-status`；capability 檔不納入 — 讀法要代理先查 capability 檔，套在 capability 檔本身是循環，它仍受 40 KB 節上限約束。
 2026-11-23 文件治理檢查由 /setup-skills 新的 Section H 安裝，獨立腳本與 workflow，有 `docs/` 就提議 — Section G 只在有 `docs/capabilities/` 時提議，但每個專案都有決策日誌。
 2026-11-23 本 repo 在同一個 PR 把 9、10 月的決策日誌搬進 `docs/decision-log/2026-09.md`、`2026-10.md`，並裝上 Section H — 合約一改，本 repo 的日誌就違規；技能的作者先吃自己的規則。
+2026-11-23 ADR 拿掉「日期：」行，不在文件治理檢查裡豁免 ADR 開頭的 metadata — ADR 屬**現行文件**、在掃描清單內，日期由 git 記錄，`Status` 行足以說明狀態；消掉特例優於多一條豁免。
