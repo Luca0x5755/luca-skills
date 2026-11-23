@@ -103,7 +103,7 @@ contains "同時支援 PowerShell 7" "$doc" "PowerShell 7"
 contains "SKILL.md 指向 POWERSHELL.md" "$(cat "$DIR/SKILL.md")" "(POWERSHELL.md)"
 contains "單選走 Select-OpsOne" "$doc" "Select-OpsOne"
 contains "單選的無人值守走 Resolve-OpsPickOne" "$doc" "Resolve-OpsPickOne"
-# 繼續指令（ISSUE-005）：POWERSHELL.md 單獨斷言，英文詞
+# 繼續指令（PR-OPS-14）：POWERSHELL.md 單獨斷言，英文詞
 psdoc=$(cat "$DIR/POWERSHELL.md")
 contains "POWERSHELL.md：每個步驟都必須可重跑" "$psdoc" "re-runnable"
 contains "POWERSHELL.md：步驟說明 1-3 行" "$psdoc" "1-3 lines"
