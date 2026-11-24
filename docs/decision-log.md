@@ -64,3 +64,8 @@
 2026-11-23 文件治理檢查由 /setup-skills 新的 Section H 安裝，獨立腳本與 workflow，有 `docs/` 就提議 — Section G 只在有 `docs/capabilities/` 時提議，但每個專案都有決策日誌。
 2026-11-23 本 repo 在同一個 PR 把 9、10 月的決策日誌搬進 `docs/decision-log/2026-09.md`、`2026-10.md`，並裝上 Section H — 合約一改，本 repo 的日誌就違規；技能的作者先吃自己的規則。
 2026-11-23 ADR 拿掉「日期：」行，不在文件治理檢查裡豁免 ADR 開頭的 metadata — ADR 屬**現行文件**、在掃描清單內，日期由 git 記錄，`Status` 行足以說明狀態；消掉特例優於多一條豁免。
+2026-11-24 合訂本的讀寫規則（按節讀、最小一節 ≤ 40 KB、第一行讀法引言）寫進 /setup-skills 的分類範本，`to-architecture`、`frontend-spec` 只指向 `docs/agents/domain.md` 那一節 — 規則只有一個家，`bootstrap-truth`、`test-blueprint` 一併受惠。
+2026-11-24 技能新建合訂本時第一行放讀法引言，文字從已安裝的 `check-docs-governance.sh` 讀；腳本不在就不寫並報告 Section H 未裝 — 沒裝檢查不會紅，日後安裝由 Migrate 補，不複製第二份文字。
+2026-11-24 技能動到缺讀法引言的合訂本就補上；動到的最小一節超過 40 KB 就在同檔切子標題並同步 `## 規格章節`，沒動到的只報告；兩者都放內容 commit — cut-commit 只准刪字，且只改動到的章節。
+2026-11-24 `to-architecture`、`frontend-spec`、`bootstrap-truth` 在內容 commit 前跑已安裝的文件治理檢查，自己寫的紅就修、既有的紅只報告 — 確定性檢查在本機跑，比等 CI 紅了再回頭便宜。
+2026-11-24 上述規則由 `check.sh` 以措辭 grep 強制，並在落地時把 ADR 0004 改為 Accepted — 沒有檢查的規則只是願望；ADR 0004 描述的規則屆時已全部落地。
