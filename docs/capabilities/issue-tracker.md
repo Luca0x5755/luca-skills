@@ -24,5 +24,5 @@ PR-TRACKER-15 — `to-spec` 的規格帶 `## Success indicators` 時，驗收議
 ## 驗證
 
 - `bash scripts/check.sh`：PR-TRACKER-14，整體不變量（含 `issues-check` 的本機議題檢查）。
-- 其餘 promise 是語意判斷，沒有機械檢查；依據是決策紀錄 2026-11-09 兩條與各技能的 `SKILL.md`。
+- 其餘 promise 是語意判斷，沒有機械檢查；依據是各技能的 `SKILL.md`。
 - PR-TRACKER-04 的 GitHub 非關閉引用 `Refs #N` 為官方文件推論，未實跑驗證；GitLab 的 `Related to #N` 取自官方文件範例。

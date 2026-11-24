@@ -1,0 +1,13 @@
+# Installed by /setup-skills (project with domain docs). The job name `current-docs-check` is the
+# status check to mark as required in branch protection.
+name: Current docs check
+
+on:
+  pull_request:
+
+jobs:
+  current-docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash .github/scripts/check-current-docs.sh

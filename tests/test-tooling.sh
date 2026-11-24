@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 行為測試：hook、安裝器、setup-skills 模板與 ops-script 骨架。編號與 check.sh 共用，
-# [8]、[11]、[25]–[28] 住這裡；check.sh 只放靜態不變量（[20] 強制）。
+# [8]、[11]、[25]–[28]、[31] 住這裡；check.sh 只放靜態不變量（[20] 強制）。
 # 這些測試慢（Windows 上要好幾分鐘），不進 Stop hook，只由 CI 跑；本機改了受測檔案
 # （hooks/、scripts/、setup-skills 模板、ops-script 骨架）就手動跑一次。
 set -uo pipefail
@@ -48,6 +48,9 @@ run_test test-ops-script-skeleton
 echo "[28] ops-script PowerShell 骨架：BOM、STATIC／CLI／LIB 三個接縫（5.1 與 7 各跑）"
 run_test test-ops-script-skeleton-ps
 
+
+echo "[31] setup-skills 的現行文件檢查模板（[30] 的行為測試）"
+run_test test-current-docs-check
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail
