@@ -297,6 +297,7 @@ for p in .github/scripts/check-docs-governance.sh:$d/check-docs-governance.sh .g
 done
 # 讀法引言文字只住 READING_GUIDE，CHECKS.md 不得另抄一份
 rg_text=$(grep '^READING_GUIDE=' "$d/check-docs-governance.sh" | head -1 | cut -d"'" -f2)
+[ -n "$rg_text" ] || err "$d/check-docs-governance.sh 讀不出 READING_GUIDE 的單引號字串 — 不抄讀法的檢查會失明"
 { [ -n "$rg_text" ] && grep -qF -- "$rg_text" "$d/CHECKS.md" "$d/SKILL.md"; } && err "$d 的 SKILL.md／CHECKS.md 抄了讀法引言文字 — 只能引用 READING_GUIDE"
 bash .github/scripts/check-docs-governance.sh >/dev/null 2>&1 || err "bash .github/scripts/check-docs-governance.sh 未過 — 跑它看細節"
 
@@ -331,6 +332,22 @@ for f in $(grep -rlF -- '工作日期' skills 2>/dev/null); do
 done
 grep -F '曾經' skills/draft/audit-truth/SKILL.md | grep -F '教訓' | grep -qF 'finding' \
   || err "skills/draft/audit-truth/SKILL.md 沒有同一行寫明「教訓／曾經」敘述列為 finding"
+
+echo "[33] 大型現行文件的讀寫：範本寫齊、寫這些檔的四個技能指向它、無人抄讀法文字、ADR 0004 已接受、真相層有 PR-DOCS-17／18"
+tpl=skills/core/setup-skills/docs-classification.md
+for s in '大型現行文件的讀寫' '按節讀' '## 規格章節' 'READING_GUIDE' '.github/scripts/check-docs-governance.sh' 'Section H 未裝' '40 KB' '內容 commit' 'cut-commit' '這次寫的行報紅就修'; do
+  grep -qF -- "$s" "$tpl" 2>/dev/null || err "$tpl 缺少「$s」— 大型現行文件的讀寫規則不完整"
+done
+skills4="skills/core/to-architecture/SKILL.md skills/core/frontend-spec/SKILL.md skills/core/test-blueprint/SKILL.md skills/draft/bootstrap-truth/SKILL.md"
+for f in $skills4; do
+  grep -qF '大型現行文件的讀寫' "$f" 2>/dev/null || err "$f 沒有指向 domain.md 的「大型現行文件的讀寫」— 寫出的檔會缺讀法或超過節上限"
+done
+# 讀法引言文字只住 READING_GUIDE（rg_text 由 [30] 讀出）
+{ [ -n "$rg_text" ] && grep -lF -- "$rg_text" $tpl $skills4; } && err "上列檔案抄了讀法引言文字 — 只能從 READING_GUIDE 讀"
+grep -q '^Status: Accepted' docs/adr/0004-consolidated-volumes-stay-single-files-read-by-section.md   || err "ADR 0004 不是 Accepted — 它描述的規則已落地"
+for id in PR-DOCS-17 PR-DOCS-18; do
+  grep -q "^$id — " docs/capabilities/docs-governance.md || err "docs/capabilities/docs-governance.md 沒有 $id — 大型現行文件的讀寫規則不在真相層"
+done
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi

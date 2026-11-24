@@ -22,9 +22,12 @@ PR-DOCS-13 — 現行文件與歷史文件的分類、PR-DOCS-04 的內容規則
 PR-DOCS-14 — 文件治理檢查的掃描清單固定為 `docs/03_architecture_design.md`、`docs/05_frontend_spec.md`、`docs/capabilities/*.md`、`docs/test-blueprint.md`、`docs/test-status.md`、`GLOSSARY.md`、`docs/adr/*.md`；不存在的檔案略過、不報紅；沒有設定檔；`docs/uat-cases.md` 不在清單內。
 PR-DOCS-15 — /setup-skills 有 Section H「文件治理檢查」：目標專案有 `docs/` 就提議；逐字複製獨立的檢查腳本與 workflow，不併進 `check-truth-map.sh`；安裝後告知使用者，要在 branch protection 把它設為 required，才會擋合併。
 PR-DOCS-16 — 本 repo 的決策日誌主檔只留當月，9 月、10 月的行在 `docs/decision-log/2026-09.md`、`docs/decision-log/2026-10.md`；本 repo 照 Section H 裝上文件治理檢查，CI 會跑。
+PR-DOCS-17 — 大型現行文件的讀寫規則住在 PR-DOCS-13 的同一份範本：按節讀；新建或動到第一行不是讀法引言的檔案時，從已安裝的檢查腳本讀出 PR-DOCS-03 的引言寫入，腳本不在就不寫並回報 Section H 未裝。`to-architecture`、`frontend-spec`、`test-blueprint`、`bootstrap-truth` 只指向該段，不重述。
+PR-DOCS-18 — 同一份範本規定：這次動到而超過 PR-DOCS-02 上限的最小一節，在同一檔切成子標題，帶能力標記並列進 `## 規格章節`，沒動到的只回報；補引言與切節放內容 commit；已安裝文件治理檢查時 commit 前先跑，這次寫的紅就修，其他紅只回報。
 
 ## 驗證
 
 - `bash tests/scripts/test-docs-governance-check.sh`（CI 由 `tests/test-tooling.sh` [31] 跑）：PR-DOCS-01、02、03、07、08、14 的紅綠案例，在 C.UTF-8 與 C 兩種 locale 下跑，含本 repo 根目錄的綠燈案例。
 - `bash scripts/check.sh`：[30] Section H 模板、引用、安裝副本一致與 domain-modeling 合約（PR-DOCS-06、09、11、15、16）；[32] 現行文件規則只有一個家（PR-DOCS-05、13）；[19] 私有名單詞（PR-DOCS-12，只涵蓋列入名單的詞）。
-- PR-DOCS-09 與 PR-DOCS-13 的對話行為（實際搬移、補行、顯示 diff）只由措辭檢查覆蓋，未對真實目標專案實跑。
+- `bash scripts/check.sh` [33]：範本的大型現行文件段落寫齊、四個技能指向它、無人抄讀法引言（PR-DOCS-17、18）。
+- PR-DOCS-09、13、17、18 的對話行為（實際搬移、補行、顯示 diff、切節）只由措辭檢查覆蓋，未對真實目標專案實跑。

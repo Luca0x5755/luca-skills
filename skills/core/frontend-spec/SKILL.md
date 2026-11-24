@@ -21,6 +21,8 @@ Turn a spec's UI surface into frontend truth plus Penpot mockups. Runs after `/t
 
 Current docs follow the **現行文件與歷史文件** section of the target's `docs/agents/domain.md` — read it there before writing; this skill does not restate it.
 
+**Read and write `05` by section**, per that section's **大型現行文件的讀寫** rules — the reading route, the reading-guide first line, the 40 KB split and the governance check before the content commit all live there.
+
 **Cross-mapping is mechanical.** Every page section this skill writes or touches in `05` carries its capability tag (`### 訂單列表頁（能力：訂單）`); the owning `docs/capabilities/<name>.md` lists the heading back. A heading missing either side is blocked by the check /setup-skills installs.
 
 No truth layer yet? An inherited legacy project goes through `/bootstrap-truth` first; a young project just starts its `05` and first capability file here.

@@ -1,6 +1,6 @@
 # 0004：合訂本維持單檔，代理按節讀，最小一節不超過 40 KB
 
-Status: Proposed
+Status: Accepted
 
 ## 脈絡
 

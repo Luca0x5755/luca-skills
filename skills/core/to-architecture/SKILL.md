@@ -25,6 +25,8 @@ This skill edits the **truth layer** — the documents describing what the syste
 
 Current docs follow the **現行文件與歷史文件** section of the target's `docs/agents/domain.md` — read it there before writing; this skill does not restate it.
 
+**Read and write `03` by section**, per that section's **大型現行文件的讀寫** rules — the reading route, the reading-guide first line, the 40 KB split and the governance check before the content commit all live there.
+
 **Edit only on the feature branch.** The edits merge in the same PR as the code they describe, so `main`'s documents never claim anything `main`'s code doesn't do — no draft markers, no fold-back step, no sync ritual. No truth layer yet? An inherited legacy project goes through `/bootstrap-truth` first; a young project just starts its `03` and first capability file here.
 
 ## Shape
