@@ -19,3 +19,4 @@ Blocked by: ISSUE-003-setup-skills-installs-classification.md
 - 必須先載入 `/writing-for-agents`。
 - `domain-modeling` 是模型觸發的技能，可能在沒有跑過 setup-skills 的專案裡被叫用，所以要寫成「有這個小節就先讀它」。
 - 承諾文字裡的 regex 一律放在行內 code 裡，不然會被自己的檢查打紅。
+- 指標慣例（`check.sh` [30] 強制）：只能行內點名，例如「分類見目標專案 `docs/agents/domain.md` 的 現行文件與歷史文件 小節」。小節名稱不放在行首、不帶 `#`、不抄範本句子（含「曾經 X 後改 Y」那句）、不連 `docs-classification.md`。違反任一條，[30] 報紅。

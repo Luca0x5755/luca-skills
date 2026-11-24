@@ -276,6 +276,36 @@ for f in current-docs-check.yml check-current-docs.sh; do
 done
 grep -q 'check-current-docs\.sh' "$d/current-docs-check.yml" 2>/dev/null \
   || err "$d/current-docs-check.yml 沒有呼叫 check-current-docs.sh — 檢查會失明"
+# 分類範本：唯一的家在 setup-skills，其他技能只能行內點名（PR-DOCS-01、02、04、10）
+tpl=$d/docs-classification.md
+marker='現行文件不寫票號、議題編號、工作日期、遷移紀錄與教訓，也不寫「曾經 X 後改 Y」這類改動前後的敘述。'
+if [ ! -f "$tpl" ]; then
+  err "$tpl 不存在 — 現行文件的分類沒有家"
+else
+  for part in '## 現行文件與歷史文件' '現行文件' '歷史文件' '決策日誌' '`日期：`' '承諾 ID' '產品版本號' "$marker"; do
+    grep -qF -- "$part" "$tpl" || err "$tpl 缺少「$part」— 分類範本不完整"
+  done
+fi
+grep -F 'docs-classification.md' "$d/SKILL.md" | grep -F 'docs/agents/domain.md' >/dev/null   || err "$d/SKILL.md 沒有在同一行把 docs-classification.md 寫進 docs/agents/domain.md — 分類沒人會裝"
+for f in current-docs-check.yml check-current-docs.sh docs-classification.md; do
+  grep -qF "$f" "$d/SKILL.md" "$d/CHECKS.md" 2>/dev/null || err "$d/SKILL.md 與 CHECKS.md 都沒有提到 $f — 模板沒人會裝"
+done
+grep -q '^## Section B' "$d/CHECKS.md" 2>/dev/null || err "$d/CHECKS.md 沒有「## Section B」標題 — 現行文件檢查的細節沒有家"
+secb=$(sed -n '/^## Section B/,/^## Section [^B]/p' "$d/CHECKS.md" 2>/dev/null)
+for w in '日期：' 'baseline'; do
+  grep -qF -- "$w" <<< "$secb" || err "$d/CHECKS.md 的 Section B 沒有提到「$w」— 重跑行為沒寫明"
+done
+# 其他技能只能行內點名：標題行、標記句、深連結都算重述
+for f in $( { grep -rlE '^#+ +現行文件與歷史文件' skills/core skills/draft
+              grep -rlF -- "$marker" skills/core skills/draft
+              grep -rlF 'docs-classification.md' skills/core skills/draft; } 2>/dev/null | sort -u ); do
+  case $f in "$d"/*) ;; *) err "$f 重述了現行文件分類 — 分類只住 $tpl，這裡只能行內點名" ;; esac
+done
+# 本 repo 的 domain.md 帶有範本全文（去掉 CR 再比，不經 printf/echo 轉換）
+if [ -f "$tpl" ]; then
+  a=$(tr -d '' < "$tpl"); b=$(tr -d '' < docs/agents/domain.md 2>/dev/null)
+  [[ $b == *"$a"* ]] || err "docs/agents/domain.md 沒有帶 $tpl 的全文 — 本 repo 也要原封不動裝上"
+fi
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

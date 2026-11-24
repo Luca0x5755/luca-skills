@@ -11,10 +11,11 @@ Write the per-repo configuration the other skills assume. Prompt-driven, not a s
 Produces:
 
 - `docs/agents/issue-tracker.md` — the routing criteria on top, then where 本機議題 and 遠端議題 live
-- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, the collaboration mode, and the capability-file shape
+- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, the collaboration mode, the capability-file shape, and the current-versus-history document classification
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
+- With domain docs (Section B): `.github/workflows/current-docs-check.yml` and `.github/scripts/check-current-docs.sh`
 - When the project has `docs/capabilities/`: `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh`
 - In private mode: entries in `.git/info/exclude`
 
@@ -25,9 +26,10 @@ Read what exists. Assume nothing.
 - `git remote -v` — GitHub? GitLab? No remote?
 - `CLAUDE.md` / `AGENTS.md` at root — does either exist? Does either already have an `## Agent skills` section?
 - `GLOSSARY.md`, `docs/adr/` — is a domain layer already here?
-- `docs/agents/` — has this skill already run? Does `domain.md` carry the `## Capability 檔形狀` section, and does it still match `capability-shape.md` beside this `SKILL.md`?
+- `docs/agents/` — has this skill already run? Does `domain.md` carry the `## Capability 檔形狀` section, and does it still match `capability-shape.md` beside this `SKILL.md`? Does it carry the `## 現行文件與歷史文件` section, and does that still match `docs-classification.md`?
 - `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
+- `.github/workflows/current-docs-check.yml` and `.github/scripts/check-current-docs.sh` — present, and do they still match their source (Section B)?
 - `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
 - `docs/capabilities/` — present? Then `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh` — present, and do they still match their source (Section G)?
 - Monorepo signals: `pnpm-workspace.yaml`, a `workspaces` field, populated `packages/*`
@@ -47,7 +49,7 @@ The routing criteria are written once, in the top of the generated `issue-tracke
 
 A 本機議題 lives and dies on one branch: `/implement` deletes it when done, and Section F's CI check enforces that. Work that outlives the branch belongs in a 遠端議題, so the 遠端 section is where it goes; with no remote, say out loud that such work has no home yet.
 
-**Section B — Domain docs.** Default to **single-context**: one `GLOSSARY.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `GLOSSARY-MAP.md` pointing at per-package `GLOSSARY.md` files — only when exploration found monorepo signals.
+**Section B — Domain docs.** Default to **single-context**: one `GLOSSARY.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `GLOSSARY-MAP.md` pointing at per-package `GLOSSARY.md` files — only when exploration found monorepo signals. Once domain docs are written, the current-docs check (copies, drift, the red list) follows [CHECKS.md](CHECKS.md) Section B — read it first.
 
 **Existing glossary migration.** When `CONTEXT.md` or `CONTEXT-MAP.md` exists, include its rename to `GLOSSARY.md` or `GLOSSARY-MAP.md` in the draft for step 3. Preserve contents, update map entries, domain configuration, navigation pointers and private exclusion paths. Tracked files use `git mv`; private files use a filesystem rename. If both old and new names exist, compare them and ask how to reconcile instead of overwriting either.
 
@@ -69,7 +71,7 @@ A third, `guard-penpot.sh`, is a PreToolUse hook on the Penpot MCP tools: it blo
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
 - **Register** each under `PreToolUse` in `.claude/settings.json` — matcher `Bash` for the git pair, `mcp__penpot__execute_code|mcp__penpot__export_shape` for `guard-penpot.sh` — as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
-Sections F and G are the CI checks; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
+Sections F and G are CI checks, like Section B's; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
 
 - **F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored).
 - **G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked.
@@ -104,7 +106,7 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 `docs/agents/domain.md` must record the collaboration mode and, in private mode, which paths are excluded — downstream skills read it to know whether their output is committed or personal.
 
-Copy `capability-shape.md` byte-for-byte into `docs/agents/domain.md` as its last section, every run, whether or not `docs/capabilities/` exists yet. It is the one home of the capability-file shape: the skills that write capability files read it there. The template is target content, so it is written in Traditional Chinese like the generated docs, not in this skill's English. On a re-run, a section that differs from the source → show the diff, propose refreshing.
+Copy `capability-shape.md` and then `docs-classification.md` byte-for-byte into `docs/agents/domain.md`, one section each and last in that order, every run, whether or not `docs/capabilities/` exists yet. They are the one home of the capability-file shape and of the current-versus-history classification: the skills that write those documents read them there. The templates are target content, so they are written in Traditional Chinese like the generated docs, not in this skill's English. On a re-run, a section that differs from its source → show the diff, propose refreshing.
 
 `docs/agents/issue-tracker.md` must record, concretely, in the two-section format: first a `## 分流判準` section (the routing criteria, per Section A), then `## 本機` and `## 遠端`. Each of the two sections records the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess.
 
@@ -114,7 +116,7 @@ Copy `capability-shape.md` byte-for-byte into `docs/agents/domain.md` as its las
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies and the capability-file shape.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, current-docs-check, issues-check and truth-map-check copies and the capability-file shape and document classification.
 
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
 
