@@ -3,7 +3,7 @@
 # 沒有檢查的規則不是規則，是願望。
 # 這裡只放靜態不變量：Stop hook 每次都跑它，行為測試會讓它拖到數分鐘（[20] 強制）。
 # 行為測試住在 tests/test-tooling.sh — 編號共用：[8]、[11] 是 hook 與安裝器測試，
-# [25]–[28]、[31] 是 [12]、[13]、[23]、[24]、[30] 的測試；這裡留空號，[23]、[24] 沒有靜態部分。
+# [25]–[28] 是 [12]、[13]、[23]、[24] 的測試；這裡留空號，[23]、[24] 沒有靜態部分。
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -207,13 +207,13 @@ else
 fi
 
 echo "[20] 行為測試只住 tests/test-tooling.sh：CI 跑它、check.sh 不呼叫任何測試、Windows CI 補跑 PowerShell 骨架測試"
-[ -f tests/test-tooling.sh ] || err "tests/test-tooling.sh 不存在 — [8]、[11]、[25]–[28]、[31] 會沒人跑"
+[ -f tests/test-tooling.sh ] || err "tests/test-tooling.sh 不存在 — [8]、[11]、[25]–[28] 會沒人跑"
 grep -qE '^[[:space:]]*-[[:space:]]*run:.*tests/test-tooling\.sh' .github/workflows/check.yml 2>/dev/null \
   || err ".github/workflows/check.yml 沒有呼叫 tests/test-tooling.sh — 行為測試會靜默停跑"
 # check.sh 只放靜態不變量：Stop hook 每次都跑它，行為測試會讓它拖到數分鐘
 grep -nE '^[[:space:]]*bash (scripts/test-|tests/)' scripts/check.sh | sed 's/^/      /' | grep . \
   && err "scripts/check.sh 呼叫了行為測試（見上）— 搬進 tests/test-tooling.sh"
-for t in test-issues-check test-truth-map-check test-current-docs-check test-ops-script-skeleton test-ops-script-skeleton-ps; do
+for t in test-issues-check test-truth-map-check test-ops-script-skeleton test-ops-script-skeleton-ps; do
   grep -qE "^run_test $t\$" tests/test-tooling.sh 2>/dev/null \
     || err "tests/test-tooling.sh 沒有呼叫 tests/scripts/$t.sh — 這個測試會沒人跑"
 done
@@ -269,14 +269,9 @@ rule=$(ls skills/*/ops-script/SKILL.md 2>/dev/null | head -1)
 { [ -n "$rule" ] && grep -qF 'tests/<' "$rule"; } \
   || err "ops-script/SKILL.md 沒寫測試放 tests/<來源資料夾名>/ — 目標專案的 scripts/ 會被測試擠滿"
 
-echo "[30] setup-skills 的現行文件檢查模板：腳本與 workflow 都在，workflow 呼叫腳本"
+echo "[30] setup-skills 的現行文件分類範本：範本完整、SKILL.md 把它寫進 domain.md、其他技能不重述"
 d=skills/core/setup-skills
-for f in current-docs-check.yml check-current-docs.sh; do
-  [ -f "$d/$f" ] || err "$d/$f 不存在 — setup-skills 要複製它"
-done
-grep -q 'check-current-docs\.sh' "$d/current-docs-check.yml" 2>/dev/null \
-  || err "$d/current-docs-check.yml 沒有呼叫 check-current-docs.sh — 檢查會失明"
-# 分類範本：唯一的家在 setup-skills，其他技能只能行內點名（PR-DOCS-01、02、04、10）
+# 分類範本：唯一的家在 setup-skills，其他技能只能行內點名（PR-DOCS-01、02、04、14）
 tpl=$d/docs-classification.md
 marker='現行文件不寫票號、議題編號、工作日期、遷移紀錄與教訓，也不寫「曾經 X 後改 Y」這類改動前後的敘述。'
 if [ ! -f "$tpl" ]; then
@@ -287,14 +282,6 @@ else
   done
 fi
 grep -F 'docs-classification.md' "$d/SKILL.md" | grep -F 'docs/agents/domain.md' >/dev/null   || err "$d/SKILL.md 沒有在同一行把 docs-classification.md 寫進 docs/agents/domain.md — 分類沒人會裝"
-for f in current-docs-check.yml check-current-docs.sh docs-classification.md; do
-  grep -qF "$f" "$d/SKILL.md" "$d/CHECKS.md" 2>/dev/null || err "$d/SKILL.md 與 CHECKS.md 都沒有提到 $f — 模板沒人會裝"
-done
-grep -q '^## Section B' "$d/CHECKS.md" 2>/dev/null || err "$d/CHECKS.md 沒有「## Section B」標題 — 現行文件檢查的細節沒有家"
-secb=$(sed -n '/^## Section B/,/^## Section [^B]/p' "$d/CHECKS.md" 2>/dev/null)
-for w in '日期：' 'baseline'; do
-  grep -qF -- "$w" <<< "$secb" || err "$d/CHECKS.md 的 Section B 沒有提到「$w」— 重跑行為沒寫明"
-done
 # 其他技能只能行內點名：標題行、標記句、深連結都算重述
 for f in $( { grep -rlE '^#+ +現行文件與歷史文件' skills/core skills/draft
               grep -rlF -- "$marker" skills/core skills/draft
@@ -303,7 +290,7 @@ for f in $( { grep -rlE '^#+ +現行文件與歷史文件' skills/core skills/dr
 done
 # 本 repo 的 domain.md 帶有範本全文（去掉 CR 再比，不經 printf/echo 轉換）
 if [ -f "$tpl" ]; then
-  a=$(tr -d '' < "$tpl"); b=$(tr -d '' < docs/agents/domain.md 2>/dev/null)
+  a=$(tr -d '\r' < "$tpl"); b=$(tr -d '\r' < docs/agents/domain.md 2>/dev/null)
   [[ $b == *"$a"* ]] || err "docs/agents/domain.md 沒有帶 $tpl 的全文 — 本 repo 也要原封不動裝上"
 fi
 echo

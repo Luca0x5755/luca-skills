@@ -15,7 +15,6 @@ Produces:
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
-- With domain docs (Section B): `.github/workflows/current-docs-check.yml` and `.github/scripts/check-current-docs.sh`
 - When the project has `docs/capabilities/`: `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh`
 - In private mode: entries in `.git/info/exclude`
 
@@ -29,7 +28,6 @@ Read what exists. Assume nothing.
 - `docs/agents/` — has this skill already run? Does `domain.md` carry the `## Capability 檔形狀` section, and does it still match `capability-shape.md` beside this `SKILL.md`? Does it carry the `## 現行文件與歷史文件` section, and does that still match `docs-classification.md`?
 - `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
-- `.github/workflows/current-docs-check.yml` and `.github/scripts/check-current-docs.sh` — present, and do they still match their source (Section B)?
 - `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
 - `docs/capabilities/` — present? Then `.github/workflows/truth-map-check.yml` and `.github/scripts/check-truth-map.sh` — present, and do they still match their source (Section G)?
 - Monorepo signals: `pnpm-workspace.yaml`, a `workspaces` field, populated `packages/*`
@@ -49,7 +47,7 @@ The routing criteria are written once, in the top of the generated `issue-tracke
 
 A 本機議題 lives and dies on one branch: `/implement` deletes it when done, and Section F's CI check enforces that. Work that outlives the branch belongs in a 遠端議題, so the 遠端 section is where it goes; with no remote, say out loud that such work has no home yet.
 
-**Section B — Domain docs.** Default to **single-context**: one `GLOSSARY.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `GLOSSARY-MAP.md` pointing at per-package `GLOSSARY.md` files — only when exploration found monorepo signals. Once domain docs are written, the current-docs check (copies, drift, the red list) follows [CHECKS.md](CHECKS.md) Section B — read it first.
+**Section B — Domain docs.** Default to **single-context**: one `GLOSSARY.md` and one `docs/adr/` at the repo root. Write it without asking. Offer **multi-context** — a root `GLOSSARY-MAP.md` pointing at per-package `GLOSSARY.md` files — only when exploration found monorepo signals.
 
 **Existing glossary migration.** When `CONTEXT.md` or `CONTEXT-MAP.md` exists, include its rename to `GLOSSARY.md` or `GLOSSARY-MAP.md` in the draft for step 3. Preserve contents, update map entries, domain configuration, navigation pointers and private exclusion paths. Tracked files use `git mv`; private files use a filesystem rename. If both old and new names exist, compare them and ask how to reconcile instead of overwriting either.
 
@@ -71,7 +69,7 @@ A third, `guard-penpot.sh`, is a PreToolUse hook on the Penpot MCP tools: it blo
 - **Drift**: copies present but differing from source → show the diff, propose refreshing.
 - **Register** each under `PreToolUse` in `.claude/settings.json` — matcher `Bash` for the git pair, `mcp__penpot__execute_code|mcp__penpot__export_shape` for `guard-penpot.sh` — as `bash "$CLAUDE_PROJECT_DIR/.claude/hooks/<name>.sh"`. Merge into whatever hooks structure exists — existing entries stay untouched.
 
-Sections F and G are CI checks, like Section B's; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
+Sections F and G are the CI checks; their details are in [CHECKS.md](CHECKS.md) — read it before asking either one.
 
 - **F — Issues check.** Only when Section A settled on local markdown at `docs/issues/`; every other tracker skips it unasked, and a `.scratch/` tracker needs none (it is gitignored).
 - **G — Truth map check.** Only when the project has `docs/capabilities/`; otherwise skip it unasked.
@@ -116,7 +114,7 @@ Copy `capability-shape.md` and then `docs-classification.md` byte-for-byte into 
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, current-docs-check, issues-check and truth-map-check copies and the capability-file shape and document classification.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies and the capability-file shape and document classification.
 
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
 
