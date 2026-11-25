@@ -21,6 +21,8 @@ This skill edits the **truth layer** — the documents describing what the syste
 
 **Promises are cited by ID.** A section of `03` names the promises it serves by ID (`PR-ORDER-03`) and never restates promise text — that text lives only in the capability file.
 
+Before writing any current doc, read the 現行文件與歷史文件 section of the target's `docs/agents/domain.md` for what it may and may not say.
+
 **Cross-mapping is mechanical.** Every `##` heading this skill writes or touches in `03` carries its capability tag (`## 3.4 REST API（能力：訂單）`; a project-wide section takes `（能力：共用）`); an untagged `###` inherits its parent's tag, except `共用`. The capability file lists the heading back. A heading missing either side is blocked by the check /setup-skills installs.
 
 **Edit only on the feature branch.** The edits merge in the same PR as the code they describe, so `main`'s documents never claim anything `main`'s code doesn't do — no draft markers, no fold-back step, no sync ritual. No truth layer yet? An inherited legacy project goes through `/bootstrap-truth` first; a young project just starts its `03` and first capability file here.

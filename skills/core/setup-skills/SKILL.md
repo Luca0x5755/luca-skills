@@ -11,7 +11,7 @@ Write the per-repo configuration the other skills assume. Prompt-driven, not a s
 Produces:
 
 - `docs/agents/issue-tracker.md` — the routing criteria on top, then where 本機議題 and 遠端議題 live
-- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, the collaboration mode, and the capability-file shape
+- `docs/agents/domain.md` — where `GLOSSARY.md` and ADRs live, the collaboration mode, the capability-file shape, and the current-versus-history document classification
 - An `## Agent skills` section in `CLAUDE.md` pointing at both
 - Copies of `guard-git.sh` and `guard-secrets.sh` (plus `guard-penpot.sh` when the project uses Penpot) in `.claude/hooks/`, registered in `.claude/settings.json`
 - On a local markdown tracker: `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh`
@@ -25,7 +25,7 @@ Read what exists. Assume nothing.
 - `git remote -v` — GitHub? GitLab? No remote?
 - `CLAUDE.md` / `AGENTS.md` at root — does either exist? Does either already have an `## Agent skills` section?
 - `GLOSSARY.md`, `docs/adr/` — is a domain layer already here?
-- `docs/agents/` — has this skill already run? Does `domain.md` carry the `## Capability 檔形狀` section, and does it still match `capability-shape.md` beside this `SKILL.md`?
+- `docs/agents/` — has this skill already run? Does `domain.md` carry the `## Capability 檔形狀` section, and does it still match `capability-shape.md` beside this `SKILL.md`? Does it carry the `## 現行文件與歷史文件` section, and does that still match `docs-classification.md`?
 - `docs/issues/` or `.scratch/` — sign of a local-markdown issue convention; either counts, and an existing convention is recorded as found, never migrated
 - `.claude/settings.json` and `.claude/hooks/` — hooks already registered? Which events and matchers? Are the guard copies present, and do they still match their source (Section E)?
 - `.github/workflows/issues-check.yml` and `.github/scripts/check-issues.sh` — present, and do they still match their source (Section F)?
@@ -104,7 +104,7 @@ If an `## Agent skills` block is already there, update it in place. Do not touch
 
 `docs/agents/domain.md` must record the collaboration mode and, in private mode, which paths are excluded — downstream skills read it to know whether their output is committed or personal.
 
-Copy `capability-shape.md` byte-for-byte into `docs/agents/domain.md` as its last section, every run, whether or not `docs/capabilities/` exists yet. It is the one home of the capability-file shape: the skills that write capability files read it there. The template is target content, so it is written in Traditional Chinese like the generated docs, not in this skill's English. On a re-run, a section that differs from the source → show the diff, propose refreshing.
+Copy `capability-shape.md` and then `docs-classification.md` byte-for-byte into `docs/agents/domain.md`, one section each and last in that order, every run, whether or not `docs/capabilities/` exists yet. They are the one home of the capability-file shape and of the current-versus-history classification: the skills that write those documents read them there. The templates are target content, so they are written in Traditional Chinese like the generated docs, not in this skill's English. On a re-run, a section that differs from its source → show the diff, propose refreshing.
 
 `docs/agents/issue-tracker.md` must record, concretely, in the two-section format: first a `## 分流判準` section (the routing criteria, per Section A), then `## 本機` and `## 遠端`. Each of the two sections records the exact command to create an issue, the exact command to list open issues, how a blocking relationship is expressed, and where issue bodies live. Vague prose here makes every downstream skill guess.
 
@@ -114,7 +114,7 @@ Copy `capability-shape.md` byte-for-byte into `docs/agents/domain.md` as its las
 
 ## 5. Done
 
-Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies and the capability-file shape.
+Say which skills now read these files, and that `docs/agents/*.md` can be hand-edited later — re-running this skill is for adjusting the tracker records or refreshing the guard-hook, issues-check and truth-map-check copies and the capability-file shape and document classification.
 
 After installing Section F, tell the user that `issues-check` blocks merging only once they mark it required in the repo's branch protection settings. That switch is theirs to flip.
 

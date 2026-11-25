@@ -269,6 +269,30 @@ rule=$(ls skills/*/ops-script/SKILL.md 2>/dev/null | head -1)
 { [ -n "$rule" ] && grep -qF 'tests/<' "$rule"; } \
   || err "ops-script/SKILL.md 沒寫測試放 tests/<來源資料夾名>/ — 目標專案的 scripts/ 會被測試擠滿"
 
+echo "[30] setup-skills 的現行文件分類範本：範本完整、SKILL.md 把它寫進 domain.md、其他技能不重述"
+d=skills/core/setup-skills
+# 分類範本：唯一的家在 setup-skills，其他技能只能行內點名（PR-DOCS-01、02、04、14）
+tpl=$d/docs-classification.md
+marker='現行文件不寫票號、議題編號、工作日期、遷移紀錄與教訓，也不寫「曾經 X 後改 Y」這類改動前後的敘述。'
+if [ ! -f "$tpl" ]; then
+  err "$tpl 不存在 — 現行文件的分類沒有家"
+else
+  for part in '## 現行文件與歷史文件' '現行文件' '歷史文件' '決策日誌' '`日期：`' '承諾 ID' '產品版本號' "$marker"; do
+    grep -qF -- "$part" "$tpl" || err "$tpl 缺少「$part」— 分類範本不完整"
+  done
+fi
+grep -F 'docs-classification.md' "$d/SKILL.md" | grep -F 'docs/agents/domain.md' >/dev/null   || err "$d/SKILL.md 沒有在同一行把 docs-classification.md 寫進 docs/agents/domain.md — 分類沒人會裝"
+# 其他技能只能行內點名：標題行、標記句、深連結都算重述
+for f in $( { grep -rlE '^#+ +現行文件與歷史文件' skills/core skills/draft
+              grep -rlF -- "$marker" skills/core skills/draft
+              grep -rlF 'docs-classification.md' skills/core skills/draft; } 2>/dev/null | sort -u ); do
+  case $f in "$d"/*) ;; *) err "$f 重述了現行文件分類 — 分類只住 $tpl，這裡只能行內點名" ;; esac
+done
+# 本 repo 的 domain.md 帶有範本全文（去掉 CR 再比，不經 printf/echo 轉換）
+if [ -f "$tpl" ]; then
+  a=$(tr -d '\r' < "$tpl"); b=$(tr -d '\r' < docs/agents/domain.md 2>/dev/null)
+  [[ $b == *"$a"* ]] || err "docs/agents/domain.md 沒有帶 $tpl 的全文 — 本 repo 也要原封不動裝上"
+fi
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail

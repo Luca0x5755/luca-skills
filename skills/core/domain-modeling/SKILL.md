@@ -28,6 +28,8 @@ The `_Avoid_` line is the load-bearing part. A glossary that only says what a wo
 
 Any of the three missing → no ADR file. An ADR per preference is noise that buries the three that matter.
 
+Whenever the target's `docs/agents/domain.md` has a 現行文件與歷史文件 section, read it before writing `GLOSSARY.md` or an ADR; it classifies what a current doc may say.
+
 Title states the decision, not the topic: `0007-sessions-expire-after-30-days`, never `0007-session-handling`. Body covers what was decided, what was rejected, and why. One status line at the top: `Status: Proposed` until the change implementing it flips it to `Accepted` — unbuilt work must not read as settled. No template ceremony beyond that.
 
 **`docs/decision-log.md`** — one line per decision that fails the gate but deserves a trace: date, decision, one clause of why. Single file, append-only, no template. Deliberately not in `GLOSSARY.md`: the glossary is in-force truth; the log is history.

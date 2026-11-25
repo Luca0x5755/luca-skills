@@ -24,6 +24,7 @@ docs/
 
 - **Specs stay consolidated.** Spec content never splits into per-capability spec files — scattered specs are the disease, not the cure.
 - **Capability files are thin and current-state.** The PRD records what was asked for; capability files record what the system now does. The capability-file shape lives in the target's `docs/agents/domain.md`; read it there before writing one.
+- **Current docs follow the target's classification.** Read the 現行文件與歷史文件 section of the target's `docs/agents/domain.md` before writing any current doc.
 - **Cross-mapping is mechanical.** Spec section headings carry their capability tags (`## 3.4 REST API（能力：訂單、付款）`); each capability file lists its headings back. A heading missing either side is blocked by the check /setup-skills installs (Phase B step 4).
 - **Short by method, not by quota.** No line budgets. Shortness comes from the cuts: duplicated passages, process narrative, and any fact the code or config can answer.
 - The shape is the contract, not the filenames: a host whose governance already has an equivalent set (business doc / capability layer / consolidated specs / decision records / mockups) keeps its own names and numbering.

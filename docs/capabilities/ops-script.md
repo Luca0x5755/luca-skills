@@ -1,6 +1,6 @@
 # 運維腳本骨架
 
-`skills/draft/ops-script/` 的 bash（`skeleton.sh`）與 PowerShell（`skeleton.ps1`）骨架，其 ops-lib v8 提供**逐步模式**與**繼續指令**：不熟專案的操作者可以逐個**步驟**讀說明、按 Enter 才往下跑；腳本沒做完就停下時，直接點名下一步要打的指令。寫運維腳本的人複製骨架取得這些行為，`scripts/manage.sh`／`manage.ps1` 只逐字同步 ops-lib 區段。續跑依系統狀態收斂、不做 `--from`，理由見決策紀錄 2026-11-23。
+`skills/draft/ops-script/` 的 bash（`skeleton.sh`）與 PowerShell（`skeleton.ps1`）骨架，其 ops-lib v8 提供**逐步模式**與**繼續指令**：不熟專案的操作者可以逐個**步驟**讀說明、按 Enter 才往下跑；腳本沒做完就停下時，直接點名下一步要打的指令。寫運維腳本的人複製骨架取得這些行為，`scripts/manage.sh`／`manage.ps1` 只逐字同步 ops-lib 區段。續跑依系統狀態收斂、不做 `--from`。
 本檔保留已發佈規格的 promise ID；修改行為時沿用原 ID。
 
 ## Promises
