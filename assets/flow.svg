@@ -302,9 +302,9 @@
     <rect x="72" y="2094" width="240" height="44" rx="8" class="box user draft"/>
     <text x="192" y="2123" text-anchor="middle" class="skill-sm">/refactor</text>
     <text x="340" y="2123" class="note">不改可觀察行為的結構重整</text>
-    <rect x="672" y="2094" width="240" height="44" rx="8" class="box user"/>
+    <rect x="672" y="2094" width="240" height="44" rx="8" class="box model"/>
     <text x="792" y="2123" text-anchor="middle" class="skill-sm">/git-merge</text>
-    <text x="940" y="2123" class="note">把分支併進來；衝突停下來，解法你決定</text>
+    <text x="940" y="2123" class="note">把分支併進來；能並存自己解，取捨退出交你</text>
 
     <rect x="72" y="2150" width="240" height="44" rx="8" class="box user draft"/>
     <text x="192" y="2179" text-anchor="middle" class="skill-sm">/study-repo</text>

@@ -126,7 +126,7 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[code-review](./skills/core/code-review/SKILL.md)** ⚡ — 依 repo 規範、規格與既有程式審查 diff。
 - **[git-commit](./skills/core/git-commit/SKILL.md)** — 只提交已暫存的內容，寫英文 commit 並推上遠端。
 - **[branch-cleanup](./skills/core/branch-cleanup/SKILL.md)** — 開 PR 前收斂分支上反覆修訂的文件。
-- **[git-merge](./skills/core/git-merge/SKILL.md)** — 合併指定分支；衝突時停下分析，解法由你決定。
+- **[git-merge](./skills/core/git-merge/SKILL.md)** ⚡ — 合併指定分支並自己解衝突；取捨衝突退出合併、交分析給你。
 - **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR，合併後清理分支。
 - **[git-release](./skills/core/git-release/SKILL.md)** — 升版號、寫發布摘要、打 tag、發 release。
 

@@ -293,6 +293,18 @@ if [ -f "$tpl" ]; then
   a=$(tr -d '\r' < "$tpl"); b=$(tr -d '\r' < docs/agents/domain.md 2>/dev/null)
   [[ $b == *"$a"* ]] || err "docs/agents/domain.md 沒有帶 $tpl 的全文 — 本 repo 也要原封不動裝上"
 fi
+
+echo "[33] git-merge 的模型觸發例外：只提交合併 commit、不推送、可退出、在預設分支拒跑"
+f=skills/core/git-merge/SKILL.md
+if [ ! -f "$f" ]; then
+  err "$f 不存在 — CLAUDE.md 的合併 commit 例外指向它"
+else
+  # 例外只准本機合併 commit：任何 push 字樣都算放寬
+  grep -qE 'git push|Bash\(git push' "$f" && err "$f 出現 git push — 例外只准本機合併 commit，推送歸 /git-pr"
+  grep -qF 'git merge --abort' "$f" || err "$f 缺少 git merge --abort — 解不了的衝突要能退回合併前"
+  grep -qF 'git commit -F' "$f"     || err "$f 缺少 git commit -F — 合併 commit 要逐條記下解法"
+  grep -qE 'main.*master|master.*main' "$f" || err "$f 沒寫在 main／master 拒跑 — 乾淨合併的 commit 由 git merge 自寫，guard-git 看不到"
+fi
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
 exit $fail
