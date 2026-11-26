@@ -21,16 +21,8 @@ done
 grep -lE '\btee\b' hooks/*.sh >/dev/null 2>&1 && err "hook 用 tee 寫 log 會把訊息漏進 stdout — 改用 >>：$(grep -lE '\btee\b' hooks/*.sh | tr '\n' ' ')"
 
 echo "[11] 安裝器的安裝、移除、檢查：拒絕已移除的目標，且不覆寫、不刪外來同名技能"
-# 各平台只測自己的安裝器：manage.sh 刻意拒絕 Git Bash，manage.ps1 只服務 Windows。
-case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*)
-    if command -v pwsh >/dev/null 2>&1; then
-      pwsh -NoProfile -File tests/scripts/test-manage.ps1 >/dev/null 2>&1 || err "tests/scripts/test-manage.ps1 未過 — 跑 pwsh -NoProfile -File tests/scripts/test-manage.ps1 看細節"
-    else
-      echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
-    fi ;;
-  *) bash tests/scripts/test-manage.sh >/dev/null 2>&1 || err "tests/scripts/test-manage.sh 未過 — 跑 bash tests/scripts/test-manage.sh 看細節" ;;
-esac
+# 這裡只測 manage.sh；manage.ps1 的測試在 Windows 跑（pwsh -File tests/scripts/test-manage.ps1，CI 的 Windows job）。
+bash tests/scripts/test-manage.sh >/dev/null 2>&1 || err "tests/scripts/test-manage.sh 未過 — 跑 bash tests/scripts/test-manage.sh 看細節"
 
 run_test() {  # run_test <腳本名>：輸出丟掉，失敗時指路
   bash "tests/scripts/$1.sh" >/dev/null 2>&1 || err "tests/scripts/$1.sh 未過 — 跑 bash tests/scripts/$1.sh 看細節"
