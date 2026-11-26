@@ -43,6 +43,8 @@
 
 `scripts/manage.ps1 install`（Linux／macOS 用 `scripts/manage.sh`）連結 `core/` 與 `draft/`；`uninstall` 只移除本 repo 建的連結。draft 叫得動才試得了，試得了才畢得了業。
 
+測試不跨系統：`.sh` 測試在 Linux 跑（Windows 上用 WSL），`.ps1` 測試在 Windows 跑；本機跑不了就交給 CI — Git Bash 模擬 fork，整套約慢 17 倍。
+
 ## 不變量
 
 以下每一條都由 `scripts/check.sh` 強制，CI 每次 PR 跑。**加規則就要加檢查** — 沒有檢查的規則不是規則，是願望。

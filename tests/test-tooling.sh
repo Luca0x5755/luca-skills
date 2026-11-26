@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # 行為測試：hook、安裝器、setup-skills 模板與 ops-script 骨架。編號與 check.sh 共用，
 # [8]、[11]、[25]–[28] 住這裡；check.sh 只放靜態不變量（[20] 強制）。
-# 這些測試慢（Windows 上要好幾分鐘），不進 Stop hook，只由 CI 跑；本機改了受測檔案
-# （hooks/、scripts/、setup-skills 模板、ops-script 骨架）就手動跑一次。
+# 這些測試慢，不進 Stop hook，由 CI 跑；本機改了受測檔案（hooks/、scripts/、
+# setup-skills 模板、ops-script 骨架）就手動跑一次 — 在 Linux（Windows 上用 WSL）跑，不用 Git Bash；
+# 本機跑不了就交給 CI。
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -20,16 +21,8 @@ done
 grep -lE '\btee\b' hooks/*.sh >/dev/null 2>&1 && err "hook 用 tee 寫 log 會把訊息漏進 stdout — 改用 >>：$(grep -lE '\btee\b' hooks/*.sh | tr '\n' ' ')"
 
 echo "[11] 安裝器的安裝、移除、檢查：拒絕已移除的目標，且不覆寫、不刪外來同名技能"
-# 各平台只測自己的安裝器：manage.sh 刻意拒絕 Git Bash，manage.ps1 只服務 Windows。
-case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*)
-    if command -v pwsh >/dev/null 2>&1; then
-      pwsh -NoProfile -File tests/scripts/test-manage.ps1 >/dev/null 2>&1 || err "tests/scripts/test-manage.ps1 未過 — 跑 pwsh -NoProfile -File tests/scripts/test-manage.ps1 看細節"
-    else
-      echo "  - 找不到 pwsh，略過 Windows 安裝器測試（CI 另於 Windows 執行）"
-    fi ;;
-  *) bash tests/scripts/test-manage.sh >/dev/null 2>&1 || err "tests/scripts/test-manage.sh 未過 — 跑 bash tests/scripts/test-manage.sh 看細節" ;;
-esac
+# 這裡只測 manage.sh；manage.ps1 的測試在 Windows 跑（pwsh -File tests/scripts/test-manage.ps1，CI 的 Windows job）。
+bash tests/scripts/test-manage.sh >/dev/null 2>&1 || err "tests/scripts/test-manage.sh 未過 — 跑 bash tests/scripts/test-manage.sh 看細節"
 
 run_test() {  # run_test <腳本名>：輸出丟掉，失敗時指路
   bash "tests/scripts/$1.sh" >/dev/null 2>&1 || err "tests/scripts/$1.sh 未過 — 跑 bash tests/scripts/$1.sh 看細節"
@@ -46,7 +39,11 @@ run_test test-ops-script-skeleton
 
 # ubuntu 只有 pwsh；Windows PowerShell 5.1 由 Windows job 跑到，缺哪個版本會在細節輸出明說
 echo "[28] ops-script PowerShell 骨架：BOM、STATIC／CLI／LIB 三個接縫（5.1 與 7 各跑）"
-run_test test-ops-script-skeleton-ps
+if command -v pwsh >/dev/null 2>&1; then
+  run_test test-ops-script-skeleton-ps
+else
+  echo "  - 找不到 pwsh，略過 PowerShell 骨架測試（CI 的 ubuntu 與 Windows job 都會跑）"
+fi
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi
