@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # 行為測試：hook、安裝器、setup-skills 模板與 ops-script 骨架。編號與 check.sh 共用，
 # [8]、[11]、[25]–[28] 住這裡；check.sh 只放靜態不變量（[20] 強制）。
-# 這些測試慢（Windows 上要好幾分鐘），不進 Stop hook，只由 CI 跑；本機改了受測檔案
-# （hooks/、scripts/、setup-skills 模板、ops-script 骨架）就手動跑一次。
+# 這些測試慢，不進 Stop hook，由 CI 跑；本機改了受測檔案（hooks/、scripts/、
+# setup-skills 模板、ops-script 骨架）就手動跑一次 — 在 Linux（Windows 上用 WSL）跑，不用 Git Bash；
+# 本機跑不了就交給 CI。
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -46,7 +47,11 @@ run_test test-ops-script-skeleton
 
 # ubuntu 只有 pwsh；Windows PowerShell 5.1 由 Windows job 跑到，缺哪個版本會在細節輸出明說
 echo "[28] ops-script PowerShell 骨架：BOM、STATIC／CLI／LIB 三個接縫（5.1 與 7 各跑）"
-run_test test-ops-script-skeleton-ps
+if command -v pwsh >/dev/null 2>&1; then
+  run_test test-ops-script-skeleton-ps
+else
+  echo "  - 找不到 pwsh，略過 PowerShell 骨架測試（CI 的 ubuntu 與 Windows job 都會跑）"
+fi
 
 echo
 if [ $fail -eq 0 ]; then echo "全部通過。"; else echo "檢查未通過，見上列 ✗。"; fi

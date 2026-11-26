@@ -214,7 +214,7 @@ grep -qE '^[[:space:]]*-[[:space:]]*run:.*tests/test-tooling\.sh' .github/workfl
 grep -nE '^[[:space:]]*bash (scripts/test-|tests/)' scripts/check.sh | sed 's/^/      /' | grep . \
   && err "scripts/check.sh 呼叫了行為測試（見上）— 搬進 tests/test-tooling.sh"
 for t in test-issues-check test-truth-map-check test-ops-script-skeleton test-ops-script-skeleton-ps; do
-  grep -qE "^run_test $t\$" tests/test-tooling.sh 2>/dev/null \
+  grep -qE "^[[:space:]]*run_test $t\$" tests/test-tooling.sh 2>/dev/null \
     || err "tests/test-tooling.sh 沒有呼叫 tests/scripts/$t.sh — 這個測試會沒人跑"
 done
 # ubuntu 沒有 Windows PowerShell 5.1，只有 Windows job 驗得到它
