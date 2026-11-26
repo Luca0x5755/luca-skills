@@ -22,6 +22,7 @@
     "./skills/core/domain-modeling",
     "./skills/core/frontend-spec",
     "./skills/core/git-commit",
+    "./skills/core/git-merge",
     "./skills/core/git-pr",
     "./skills/core/git-release",
     "./skills/core/grill-with-docs",

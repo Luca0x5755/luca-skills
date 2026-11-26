@@ -60,6 +60,7 @@ The branch lifecycle, one skill per stage — each acts only on what you decided
 
 - **`/git-commit`** — commit what *you* staged and push; empty staging stops and asks.
 - **`/branch-cleanup`** — before the PR, card the debris repeated revisions left on a feature branch (superseded ADRs, swollen user stories, interim decisions, stale spec passages); you pick what goes, and it commits each selected group.
+- **`/git-merge`** — merge a target branch (usually `main`) into the current one; a conflict stops for analysis and your ruling, never an auto-resolve.
 - **`/git-pr`** — open the PR (English title, Traditional Chinese body), and clean up branches after the merge is verified.
 - **`/git-release`** — bump version files, distill the changelog in Traditional Chinese, tag, and publish the release page.
 
