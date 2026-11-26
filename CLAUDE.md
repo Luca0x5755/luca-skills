@@ -58,7 +58,7 @@
 
 上列編號即 `check.sh` 的 [1]–[6]。`check.sh` 只放靜態不變量（Stop hook 每次都跑它），行為測試一律住 `tests/test-tooling.sh`、由 CI 跑；`check.sh` [20] 強制：`check.sh` 不呼叫測試、`test-tooling.sh` 接了每一個、Windows CI 補跑 PowerShell 骨架測試（ubuntu 沒有 5.1）。`check.sh` [29]：測試只住頂層 `tests/<來源資料夾名>/`（`tests/scripts/`、`tests/hooks/`），`scripts/`、`hooks/` 頂層不得有 `test-*`，且 `ops-script` 的規則寫明這個位置 — 入口與測試混在一層，找腳本的人要在一堆 `test-*` 裡翻。另有 `check.sh` [12]、[13]：`skills/core/setup-skills/` 複製到目標專案的 CI 檢查模板（議題檢查、真相地圖檢查）檔案都在、`SKILL.md` 或其 `CHECKS.md` 有提到、workflow 呼叫腳本；它們的行為測試（`scripts/test-issues-check.sh`、`scripts/test-truth-map-check.sh`）是 `test-tooling.sh` 的 [25]、[26]，ops-script 骨架測試是 [27]、[28]。`check.sh` [14]：capability 檔形狀只住 `skills/core/setup-skills/capability-shape.md`（五部分齊、`SKILL.md` 指示寫進目標的 `docs/agents/domain.md`、別的技能不得重述），且 setup-skills 的 `SKILL.md` 不超過 150 行、Section F／G 細節在 `CHECKS.md`。`check.sh` [15]：`skills/core/to-architecture/SKILL.md` 不再宣稱「orphan and goes red」、改寫成由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md` 讀形狀、有改到章節的 cut-commit 規則。`check.sh` [16]：`skills/core/frontend-spec/SKILL.md` 的頁面範本恰好四項（Story、Dominant region、Promise IDs、Boards）且 `PAGE-BRIEF.md` 一致、無打勾清單、承諾只引用 ID、改到的頁走 cut-commit、前置條件檢查 `CLAUDE.md` 的 `## Penpot` 並保留 `guard-penpot.sh`、標記規則由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md`。
 `check.sh` [18]：`skills/draft/bootstrap-truth/SKILL.md` 第 4 步從 base directory 上一層讀 `setup-skills/SKILL.md` 照 Section G 安裝檢查、標記規則由 /setup-skills 安裝的檢查擋下、指向 `docs/agents/domain.md`，且整個資料夾不描述雙向孤兒檢查、不深連結 setup-skills 的模板檔。
-`check.sh` [21]：`README.md` 內部的 `#…` 連結與 repo 內 `.md` 連進 `README.md#…` 的連結，都對得到 GitHub 生成的標題錨點 — 改標題就同步改連結。`check.sh` [22]：`assets/flow.svg`、`assets/toolbox.svg` 上畫成方框的技能，虛線 `draft` class 與所在桶一致、`user`／`model` class 與 frontmatter 的 `disable-model-invocation` 一致；圖的 `<desc>` 只寫圖例，不逐一點名技能。
+`check.sh` [21]：`README.md` 內部的 `#…` 連結與 repo 內 `.md` 連進 `README.md#…` 的連結，都對得到 GitHub 生成的標題錨點 — 改標題就同步改連結。`check.sh` [22]：`assets/flow.svg`、`assets/toolbox.svg` 上畫成方框的技能，虛線 `draft` class 與所在桶一致、`user`／`model` class 與 frontmatter 的 `disable-model-invocation` 一致；圖的 `<desc>` 只寫圖例，不逐一點名技能。`check.sh` [33]：`skills/core/git-merge/SKILL.md` 不出現 `git push`、有 `git merge --abort` 與 `git commit -F`、寫明在 `main`／`master` 拒跑 — 〈寫技能〉的合併 commit 例外靠它守住。
 
 ## Hooks（機器護欄）
 
@@ -82,6 +82,8 @@
 
 - 會 → **使用者觸發**。frontmatter 加 `disable-model-invocation: true`，`description` 改寫成給人看的一句話摘要，拿掉觸發語句。編排型的、會寫檔案的、會發議題的，都屬此類。
 - 不會 → **模型觸發**。省略該欄位，`description` 保留豐富的觸發語句（"Use when the user wants…, mentions…"），讓自動呼叫打得中。純參考型、純紀律型的屬此類。
+
+唯一例外：`git-merge` 是模型觸發，卻會提交。它的授權來自本條而非使用者觸發，範圍只到**本機合併 commit** — 不推送（歸 `/git-pr`）、在 `main`／`master` 拒跑、取捨衝突與護欄檔案就 `git merge --abort` 交分析、提交照 `/git-commit` 的 `-F`。`check.sh` [33] 強制這幾條；本機 commit 可退，推上去的退不回，例外就停在這條線。
 
 使用者觸發的技能可以呼叫模型觸發的技能，反之不行，使用者觸發之間也不行。以下兩個例外是本 repo 對 `/writing-for-agents` 之 `SKILL-MECHANICS.md` 通則（「使用者觸發技能不可被其他技能觸及」）的在地覆寫，以本條為準：（1）編排技能可在**子代理**裡代使用者呼叫另一個使用者觸發技能（如 `bootstrap-truth` → `/audit-truth`）— 子代理的邊界就是隔離，不會構成同一上下文裡的技能疊套；（2）`git-commit` 是**提交原語** — 任何技能的 commit 步驟一律**遵循 `/git-commit` 的規則執行**；規則不在上下文時，先讀 `git-commit/SKILL.md` 再動手（harness 不允許用 Skill tool 載入使用者觸發的技能 — 2026-07-30 實測）。技能內文一律寫成「本技能 base directory 的上一層裡的 `git-commit/SKILL.md`」（harness 給的是安裝連結的路徑，兄弟技能都在那一層），不寫 `skills/core/...` — 那是本 repo 的路徑，目標專案裡不存在（2026-10-01 `/run-queue` 實測撞上）。這是提交的唯一大門，不算疊套。staging 邊界歸誰、技能能不能自己 stage，以 `git-commit` 的規則為準，不在此重述。
 
