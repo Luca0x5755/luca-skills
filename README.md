@@ -126,6 +126,7 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[code-review](./skills/core/code-review/SKILL.md)** ⚡ — 依 repo 規範、規格與既有程式審查 diff。
 - **[git-commit](./skills/core/git-commit/SKILL.md)** — 只提交已暫存的內容，寫英文 commit 並推上遠端。
 - **[branch-cleanup](./skills/core/branch-cleanup/SKILL.md)** — 開 PR 前收斂分支上反覆修訂的文件。
+- **[git-merge](./skills/core/git-merge/SKILL.md)** — 合併指定分支；衝突時停下分析，解法由你決定。
 - **[git-pr](./skills/core/git-pr/SKILL.md)** — 開 PR，合併後清理分支。
 - **[git-release](./skills/core/git-release/SKILL.md)** — 升版號、寫發布摘要、打 tag、發 release。
 
@@ -160,7 +161,6 @@ Copilot 直接讀同一份 `SKILL.md`，不需轉檔（[Agent Skills 是共通�
 - **[bootstrap-truth](./skills/draft/bootstrap-truth/SKILL.md)** — 接管專案時一次性把文件瘦身變準、補能力薄檔。
 - **[briefing](./skills/draft/briefing/SKILL.md)** — 把簡報圖變成上台用的講稿、導讀與預期質詢。
 - **[caveman](./skills/draft/caveman/SKILL.md)** — 聊天回覆切換成繁中電報體，省輸出 token。
-- **[git-merge](./skills/draft/git-merge/SKILL.md)** — 合併指定分支；衝突時停下分析，解法由你決定。
 - **[git-mr](./skills/draft/git-mr/SKILL.md)** — GitLab 版 `/git-pr`：開 MR，合併後清理分支。
 - **[management-frameworks](./skills/draft/management-frameworks/SKILL.md)** ⚡ — 管理問題該用哪個框架：OKR、精實、Scrum…
 - **[ops-script](./skills/draft/ops-script/SKILL.md)** ⚡ — 寫或改常駐 repo 的運維腳本：選單加子命令、結束碼、--dry-run，附 bash 與 PowerShell 骨架。
